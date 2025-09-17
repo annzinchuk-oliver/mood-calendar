@@ -123,10 +123,17 @@
             const avgPerDayElement = document.getElementById('avgPerDay');
             const activeDaysElement = document.getElementById('activeDays');
             
-            if (!currentPeriodElement) return; // Элементы еще не созданы
+            console.log('Обновляем статистику для периода:', currentStatsFilter, periodData); // Для отладки
+            
+            if (!currentPeriodElement) {
+                console.log('Элементы статистики еще не найдены'); // Для отладки
+                return; // Элементы еще не созданы
+            }
+            
+            // ИСПРАВЛЕНИЕ: Обновляем название периода в заголовке
+            currentPeriodElement.textContent = getPeriodName(currentStatsFilter);
             
             if (periodData.totalEntries === 0) {
-                currentPeriodElement.textContent = getPeriodName(currentStatsFilter);
                 statsGoodElement.textContent = '0%';
                 statsNeutralElement.textContent = '0%';
                 statsSadElement.textContent = '0%';
@@ -140,8 +147,6 @@
             const neutralPercent = Math.round((periodData.moodCounts.neutral || 0) / periodData.totalEntries * 100);
             const sadPercent = Math.round((periodData.moodCounts.sad || 0) / periodData.totalEntries * 100);
             
-            currentPeriodElement.textContent = getPeriodName(currentStatsFilter);
-            
             statsGoodElement.textContent = `${goodPercent}%`;
             statsGoodElement.style.color = getCSSVariable('--mood-good');
             
@@ -154,6 +159,14 @@
             statsTotalElement.textContent = `Всего записей: ${periodData.totalEntries}`;
             avgPerDayElement.textContent = (periodData.totalEntries / Math.max(periodData.days, 1)).toFixed(1);
             activeDaysElement.textContent = periodData.activeDays;
+            
+            console.log('Статистика обновлена:', {
+                period: getPeriodName(currentStatsFilter),
+                goodPercent,
+                neutralPercent,
+                sadPercent,
+                totalEntries: periodData.totalEntries
+            }); // Для отладки
         }
 
         function getDataForPeriod(period) {
@@ -243,16 +256,24 @@
         function setStatsFilter(filter) {
             currentStatsFilter = filter;
             
+            console.log('Устанавливаем фильтр:', filter); // Для отладки
+            
             // Обновляем активную кнопку
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            const activeBtn = document.querySelector(`[onclick="setStatsFilter('${filter}')"]`);
-            if (activeBtn) activeBtn.classList.add('active');
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                // Проверяем какой фильтр у кнопки
+                const btnOnClick = btn.getAttribute('onclick');
+                if (btnOnClick && btnOnClick.includes(`'${filter}'`)) {
+                    btn.classList.add('active');
+                }
+            });
             
             // Обновляем статистику
             updateStatsPage();
         }
 
         function updateStatsPage() {
+            console.log('Обновляем страницу статистики'); // Для отладки
             updateHourlyChart();
             updateOverviewStats();
         }
@@ -1264,6 +1285,206 @@
             'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
         ];
 
+        // Фильтры статистики - ОПРЕДЕЛЯЕМ СРАЗУ
+        let currentStatsFilter = '3days';
+
+        // ОПРЕДЕЛЯЕМ ВСЕ ФУНКЦИИ СТАТИСТИКИ СРАЗУ
+        function setStatsFilter(filter) {
+            currentStatsFilter = filter;
+            
+            console.log('Устанавливаем фильтр:', filter);
+            
+            // Обновляем активную кнопку
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                const btnOnClick = btn.getAttribute('onclick');
+                if (btnOnClick && btnOnClick.includes(`'${filter}'`)) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Обновляем статистику
+            updateStatsPage();
+        }
+
+        function updateStatsPage() {
+            console.log('Обновляем страницу статистики');
+            updateHourlyChart();
+            updateOverviewStats();
+        }
+
+        function updateHourlyChart() {
+            const today = new Date();
+            const todayKey = getDateKey(today);
+            const todayEntries = moodData[todayKey] || [];
+            
+            const hourlyChart = document.getElementById('hourlyChart');
+            if (!hourlyChart) return;
+            
+            hourlyChart.innerHTML = '';
+            
+            // Создаем блоки для каждого часа (6:00 - 23:00)
+            for (let hour = 6; hour <= 23; hour++) {
+                const hourBlock = document.createElement('div');
+                hourBlock.className = 'hour-block';
+                
+                const hourEntries = todayEntries.filter(entry => entry.hour === hour);
+                
+                if (hourEntries.length > 0) {
+                    const hourMoodCounts = hourEntries.reduce((acc, entry) => {
+                        acc[entry.mood] = (acc[entry.mood] || 0) + 1;
+                        return acc;
+                    }, {});
+                    
+                    const dominantMood = Object.keys(hourMoodCounts).reduce((a, b) => 
+                        hourMoodCounts[a] > hourMoodCounts[b] ? a : b
+                    );
+                    
+                    const moodColor = getCSSVariable(`--mood-${dominantMood}`);
+                    hourBlock.style.backgroundColor = moodColor;
+                    hourBlock.classList.add('has-data');
+                    hourBlock.title = `${hour}:00 - ${hourEntries.length} записей`;
+                } else {
+                    hourBlock.style.backgroundColor = 'transparent';
+                    hourBlock.title = `${hour}:00 - нет записей`;
+                }
+                
+                hourBlock.textContent = hour;
+                hourBlock.onclick = () => showHourDetails(hour, hourEntries);
+                
+                hourlyChart.appendChild(hourBlock);
+            }
+        }
+
+        function showHourDetails(hour, entries) {
+            if (entries.length === 0) {
+                alert(`${hour}:00 - записей нет`);
+                return;
+            }
+            
+            const details = entries.map(entry => {
+                const time = `${entry.hour.toString().padStart(2, '0')}:${entry.minute.toString().padStart(2, '0')}`;
+                const moodName = moodTypes[entry.mood].name;
+                return `${time} - ${moodName}`;
+            }).join('\n');
+            
+            alert(`${hour}:00\n${entries.length} записей:\n\n${details}`);
+        }
+
+        function updateOverviewStats() {
+            const periodData = getDataForPeriod(currentStatsFilter);
+            
+            const currentPeriodElement = document.getElementById('currentPeriod');
+            const statsGoodElement = document.getElementById('statsGoodPercent');
+            const statsNeutralElement = document.getElementById('statsNeutralPercent');
+            const statsSadElement = document.getElementById('statsSadPercent');
+            const statsTotalElement = document.getElementById('statsTotalRecords');
+            const avgPerDayElement = document.getElementById('avgPerDay');
+            const activeDaysElement = document.getElementById('activeDays');
+            
+            console.log('Обновляем статистику для периода:', currentStatsFilter, periodData);
+            
+            if (!currentPeriodElement) {
+                console.log('Элементы статистики еще не найдены');
+                return;
+            }
+            
+            // Обновляем название периода в заголовке
+            currentPeriodElement.textContent = getPeriodName(currentStatsFilter);
+            
+            if (periodData.totalEntries === 0) {
+                statsGoodElement.textContent = '0%';
+                statsNeutralElement.textContent = '0%';
+                statsSadElement.textContent = '0%';
+                statsTotalElement.textContent = 'Всего записей: 0';
+                avgPerDayElement.textContent = '0';
+                activeDaysElement.textContent = '0';
+                return;
+            }
+            
+            const goodPercent = Math.round((periodData.moodCounts.good || 0) / periodData.totalEntries * 100);
+            const neutralPercent = Math.round((periodData.moodCounts.neutral || 0) / periodData.totalEntries * 100);
+            const sadPercent = Math.round((periodData.moodCounts.sad || 0) / periodData.totalEntries * 100);
+            
+            statsGoodElement.textContent = `${goodPercent}%`;
+            statsGoodElement.style.color = getCSSVariable('--mood-good');
+            
+            statsNeutralElement.textContent = `${neutralPercent}%`;
+            statsNeutralElement.style.color = getCSSVariable('--mood-neutral');
+            
+            statsSadElement.textContent = `${sadPercent}%`;
+            statsSadElement.style.color = getCSSVariable('--mood-sad');
+            
+            statsTotalElement.textContent = `Всего записей: ${periodData.totalEntries}`;
+            avgPerDayElement.textContent = (periodData.totalEntries / Math.max(periodData.days, 1)).toFixed(1);
+            activeDaysElement.textContent = periodData.activeDays;
+            
+            console.log('Статистика обновлена:', {
+                period: getPeriodName(currentStatsFilter),
+                goodPercent,
+                neutralPercent,
+                sadPercent,
+                totalEntries: periodData.totalEntries
+            });
+        }
+
+        function getDataForPeriod(period) {
+            const now = new Date();
+            let startDate = new Date();
+            
+            switch (period) {
+                case '3days':
+                    startDate.setDate(now.getDate() - 3);
+                    break;
+                case 'week':
+                    startDate.setDate(now.getDate() - 7);
+                    break;
+                case 'month':
+                    startDate.setMonth(now.getMonth() - 1);
+                    break;
+                case 'all':
+                    startDate = new Date('2020-01-01');
+                    break;
+            }
+            
+            let totalEntries = 0;
+            let moodCounts = { good: 0, neutral: 0, sad: 0 };
+            let activeDays = 0;
+            
+            Object.keys(moodData).forEach(dateKey => {
+                const date = new Date(dateKey);
+                if (date >= startDate && date <= now) {
+                    const dayEntries = moodData[dateKey];
+                    if (dayEntries && dayEntries.length > 0) {
+                        activeDays++;
+                        dayEntries.forEach(entry => {
+                            totalEntries++;
+                            moodCounts[entry.mood] = (moodCounts[entry.mood] || 0) + 1;
+                        });
+                    }
+                }
+            });
+            
+            const days = Math.max(Math.ceil((now - startDate) / (1000 * 60 * 60 * 24)), 1);
+            
+            return {
+                totalEntries,
+                moodCounts,
+                activeDays,
+                days
+            };
+        }
+
+        function getPeriodName(period) {
+            switch (period) {
+                case '3days': return '3 дня';
+                case 'week': return 'неделя';
+                case 'month': return 'месяц';
+                case 'all': return 'все время';
+                default: return period;
+            }
+        }
+
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             loadData();
@@ -1518,7 +1739,8 @@
             calculateDayMood(dateKey);
             saveData();
             updateCalendar();
-            updateStats();
+            
+            // ИСПРАВЛЕНИЕ: Обязательно закрываем окно после записи настроения
             closeMoodPopup();
             
             console.log(`Записано настроение: ${mood} в ${hour}:${minute.toString().padStart(2, '0')}`);
