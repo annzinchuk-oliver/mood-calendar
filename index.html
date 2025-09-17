@@ -540,39 +540,28 @@
           position: relative;
           display: flex;
           flex-direction: column;
+          align-items: center;      /* центрируем содержимое */
           gap: 12px;
           text-align: center;
         }
             
         .header-actions {
           display: flex;
-          justify-content: flex-end; /* прижали вправо */
+          justify-content: center;  /* по центру */
           align-items: center;
           gap: 12px;
-          flex-wrap: wrap;           /* на узких экранах перенесутся */
+          flex-wrap: wrap;          /* на маленьких экранах кнопки перейдут вниз */
+          margin-top: 4px;
         }
 
         .theme-selector { position: relative; }       
-
-        .theme-toggle {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: var(--text-on-accent);
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s ease;
-        }
-
-        .theme-toggle:hover { background: rgba(255,255,255,0.3); }
 
         .palette-selector {
           position: absolute;
           top: calc(100% + 8px); /* сразу под кнопкой */
           right: 0;
-          z-index: 1100;         /* поверх основного контента */
-          background: rgba(255,255,255,0.95);
+          z-index: 1100;         /* поверх контента */
+          background: rgba(255, 255, 255, 0.95);
           border-radius: 12px;
           padding: 10px;
           min-width: 160px;
@@ -581,8 +570,8 @@
           flex-direction: column;
           gap: 6px;
         }
-
         .palette-selector[hidden] { display: none; }
+
             
         .palette-option {
           background: none;
@@ -596,21 +585,29 @@
           transition: background .2s ease;
         }
         .palette-option:hover,
-        .palette-option.active { background: rgba(0,0,0,0.08); }
+        .palette-option.active {
+          background: rgba(0,0,0,0.08);
+        }
 
-        .record-btn {
-          background: rgba(255,255,255,0.2);
-          border: none;
+        .record-btn,
+        .theme-toggle {
+          background: rgba(255, 255, 255, 0.22);
+          border: 1px solid rgba(255, 255, 255, 0.4); /* лёгкая обводка */
           color: var(--text-on-accent);
-          padding: 10px 16px;
-          border-radius: 25px;
+          padding: 10px 18px;
+          border-radius: 9999px;    /* пилюльная форма */
           font-size: 14px;
           cursor: pointer;
-          transition: all .3s ease;
-          margin-top: 0;          /* ВАЖНО: было 10px */
+          transition: all .2s ease;
+          backdrop-filter: blur(6px);       /* стеклянный эффект */
+          -webkit-backdrop-filter: blur(6px); /* Safari */
         }
+        
         .record-btn:hover,
-        .record-btn:active { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
+        .theme-toggle:hover {
+          background: rgba(255, 255, 255, 0.35);
+          transform: translateY(-1px);
+        }
             
         .header h1 {
           font-size: 22px;
@@ -1095,11 +1092,13 @@
 
         <!-- Header -->
         <div class="header">
+            <h1>📅 Календарь Настроения</h1>
+            
           <div class="header-actions">
             <button class="record-btn" onclick="triggerMoodCheck()">🕐 Записать настроение</button>
         
             <div class="theme-selector">
-              <button class="theme-toggle" onclick="toggleTheme()" aria-expanded="false">🎨 Тема</button>
+              <button class="theme-toggle" onclick="toggleTheme()" aria-expanded="false" aria-controls="paletteSelector">🎨 Тема</button>
               <div class="palette-selector" id="paletteSelector" hidden>
                 <button class="palette-option" onclick="setPalette('light')">🌞 Светлая</button>
                 <button class="palette-option" onclick="setPalette('light-nature')">🌿 Природа</button>
@@ -1110,8 +1109,6 @@
               </div>
             </div>
           </div>
-        
-          <h1>📅 Календарь Настроения</h1>
         </div>
 
 
@@ -1981,5 +1978,6 @@
     </script>
 </body>
 </html>
+
 
 
