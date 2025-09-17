@@ -533,42 +533,26 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        .app-container {
-            max-width: 400px;
-            margin: 0 auto;
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            min-height: calc(100vh - 16px);
-            transition: background-color 0.3s ease;
-        }
-
         .header {
-            background: var(--bg-accent);
-            padding: 20px;
-            color: var(--text-on-accent);
-            text-align: center;
-            position: relative;
-            min-height: 120px; /* Увеличили высоту для размещения кнопки темы */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+          background: var(--bg-accent);
+          padding: 20px;
+          color: var(--text-on-accent);
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          text-align: center;
+        }
+            
+        .header-actions {
+          display: flex;
+          justify-content: flex-end; /* прижали вправо */
+          align-items: center;
+          gap: 12px;
+          flex-wrap: wrap;           /* на узких экранах перенесутся */
         }
 
-        .theme-selector {
-            position: static;
-            align-self: flex-end;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .header h1 {
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
+        .theme-selector { position: relative; }       
 
         .theme-toggle {
             background: rgba(255, 255, 255, 0.2);
@@ -581,63 +565,58 @@
             transition: all 0.2s ease;
         }
 
-        .theme-toggle:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
+        .theme-toggle:hover { background: rgba(255,255,255,0.3); }
 
         .palette-selector {
-            display: none;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 8px;
-            padding: 8px;
-            min-width: 120px;
+          position: absolute;
+          top: calc(100% + 8px); /* сразу под кнопкой */
+          right: 0;
+          z-index: 1100;         /* поверх основного контента */
+          background: rgba(255,255,255,0.95);
+          border-radius: 12px;
+          padding: 10px;
+          min-width: 160px;
+          box-shadow: 0 10px 24px rgba(0,0,0,.2);
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
         }
 
-        .palette-selector.active {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
+        .palette-selector[hidden] { display: none; }
+            
         .palette-option {
-            background: none;
-            border: none;
-            padding: 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            color: #1e293b;
-            transition: background 0.2s ease;
+          background: none;
+          border: none;
+          padding: 8px 10px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 13px;
+          color: #1e293b;
+          text-align: left;
+          transition: background .2s ease;
         }
-
         .palette-option:hover,
-        .palette-option.active {
-            background: rgba(0, 0, 0, 0.1);
-        }
-
-        .header h1 {
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
+        .palette-option.active { background: rgba(0,0,0,0.08); }
 
         .record-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: var(--text-on-accent);
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
+          background: rgba(255,255,255,0.2);
+          border: none;
+          color: var(--text-on-accent);
+          padding: 10px 16px;
+          border-radius: 25px;
+          font-size: 14px;
+          cursor: pointer;
+          transition: all .3s ease;
+          margin-top: 0;          /* ВАЖНО: было 10px */
         }
-
-        .record-btn:hover, .record-btn:active {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
+        .record-btn:hover,
+        .record-btn:active { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
+            
+        .header h1 {
+          font-size: 22px;
+          font-weight: bold;
+          margin: 0;
         }
-
         .month-nav {
             display: flex;
             justify-content: space-between;
@@ -1116,22 +1095,25 @@
 
         <!-- Header -->
         <div class="header">
+          <div class="header-actions">
+            <button class="record-btn" onclick="triggerMoodCheck()">🕐 Записать настроение</button>
+        
             <div class="theme-selector">
-                <button class="theme-toggle" onclick="toggleTheme()">🎨 Тема</button>
-                <div class="palette-selector" id="paletteSelector">
-                    <button class="palette-option" onclick="setPalette('light')">🌞 Светлая</button>
-                    <button class="palette-option" onclick="setPalette('light-nature')">🌿 Природа</button>
-                    <button class="palette-option" onclick="setPalette('light-ocean')">🌊 Океан</button>
-                    <button class="palette-option" onclick="setPalette('dark')">🌙 Темная</button>
-                    <button class="palette-option" onclick="setPalette('dark-space')">🚀 Космос</button>
-                    <button class="palette-option" onclick="setPalette('dark-purple')">💜 Фиолет</button>
-                </div>
+              <button class="theme-toggle" onclick="toggleTheme()" aria-expanded="false">🎨 Тема</button>
+              <div class="palette-selector" id="paletteSelector" hidden>
+                <button class="palette-option" onclick="setPalette('light')">🌞 Светлая</button>
+                <button class="palette-option" onclick="setPalette('light-nature')">🌿 Природа</button>
+                <button class="palette-option" onclick="setPalette('light-ocean')">🌊 Океан</button>
+                <button class="palette-option" onclick="setPalette('dark')">🌙 Темная</button>
+                <button class="palette-option" onclick="setPalette('dark-space')">🚀 Космос</button>
+                <button class="palette-option" onclick="setPalette('dark-purple')">💜 Фиолет</button>
+              </div>
             </div>
-            <h1>📅 Календарь Настроения</h1>
-            <button class="record-btn" onclick="triggerMoodCheck()">
-                🕐 Записать настроение
-            </button>
+          </div>
+        
+          <h1>📅 Календарь Настроения</h1>
         </div>
+
 
         <!-- Month Navigation -->
         <div class="calendar-page" id="calendarPage">
@@ -1493,6 +1475,29 @@
             scheduleNotifications();
             switchPage('calendar'); // Показываем календарь по умолчанию
         });
+                // Закрыть меню по клику вне .theme-selector
+        document.addEventListener('click', (e) => {
+          const menu = document.getElementById('paletteSelector');
+          const btn  = document.querySelector('.theme-toggle');
+          if (!menu || menu.hasAttribute('hidden')) return;
+          if (!e.target.closest('.theme-selector')) {
+            menu.setAttribute('hidden','');
+            btn.setAttribute('aria-expanded','false');
+          }
+        });
+        
+        // Закрыть меню по Esc
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            const menu = document.getElementById('paletteSelector');
+            const btn  = document.querySelector('.theme-toggle');
+            if (menu && !menu.hasAttribute('hidden')) {
+              menu.setAttribute('hidden','');
+              btn.setAttribute('aria-expanded','false');
+            }
+          }
+        });
+
 
         // Theme management
         function loadTheme() {
@@ -1503,19 +1508,33 @@
         }
 
         function toggleTheme() {
-            const selector = document.getElementById('paletteSelector');
-            selector.classList.toggle('active');
+          const selector = document.getElementById('paletteSelector');
+          const btn = document.querySelector('.theme-toggle');
+          const willOpen = selector.hasAttribute('hidden');
+        
+          if (willOpen) {
+            selector.removeAttribute('hidden');
+            btn.setAttribute('aria-expanded', 'true');
+          } else {
+            selector.setAttribute('hidden', '');
+            btn.setAttribute('aria-expanded', 'false');
+          }
+        }
+        
+        function setPalette(themeName) {
+          currentTheme = themeName;
+          document.documentElement.setAttribute('data-theme', themeName);
+          localStorage.setItem('moodCalendarTheme', themeName);
+          updateActivePalette();
+        
+          // закрыть меню после выбора
+          document.getElementById('paletteSelector').setAttribute('hidden','');
+          document.querySelector('.theme-toggle').setAttribute('aria-expanded','false');
+        
+          // обновить цвета и календарь
+          updateCalendar();
         }
 
-        function setPalette(themeName) {
-            currentTheme = themeName;
-            document.documentElement.setAttribute('data-theme', themeName);
-            localStorage.setItem('moodCalendarTheme', themeName);
-            updateActivePalette();
-            document.getElementById('paletteSelector').classList.remove('active');
-            // Обновляем календарь для применения новых цветов
-            updateCalendar();
-        }
 
         function updateActivePalette() {
             const options = document.querySelectorAll('.palette-option');
@@ -1962,4 +1981,5 @@
     </script>
 </body>
 </html>
+
 
