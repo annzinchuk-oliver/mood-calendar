@@ -733,33 +733,6 @@
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
-        .legend {
-            padding: 16px 20px;
-            background: var(--bg-legend);
-            border-top: 1px solid var(--border-color);
-        }
-
-        .legend-items {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
         .stats {
             padding: 20px;
             border-top: 1px solid #e2e8f0;
@@ -1149,24 +1122,6 @@
                     <div class="weekday">Сб</div>
                 </div>
                 <div id="calendarDays"></div>
-            </div>
-
-            <!-- Legend -->
-            <div class="legend">
-                <div class="legend-items">
-                    <div class="legend-item">
-                        <div class="legend-color" id="legendGood"></div>
-                        <span>😊 Хорошее</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" id="legendNeutral"></div>
-                        <span>😐 Нейтральное</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" id="legendSad"></div>
-                        <span>😢 Грустное</span>
-                    </div>
-                </div>
             </div>
 
             <!-- Кнопка для показа записей сегодня -->
@@ -1864,22 +1819,6 @@
                 calendarDays.appendChild(weekDiv);
             }
             
-            // Обновляем цвета легенды
-            updateLegendColors();
-        }
-
-        function updateLegendColors() {
-            const goodElement = document.getElementById('legendGood');
-            const neutralElement = document.getElementById('legendNeutral');
-            const sadElement = document.getElementById('legendSad');
-
-            const goodColor = getCSSVariable('--mood-good');
-            const neutralColor = getCSSVariable('--mood-neutral');
-            const sadColor = getCSSVariable('--mood-sad');
-
-            goodElement.style.background = `linear-gradient(135deg, ${goodColor}, ${adjustBrightness(goodColor, -20)})`;
-            neutralElement.style.background = `linear-gradient(135deg, ${neutralColor}, ${adjustBrightness(neutralColor, -20)})`;
-            sadElement.style.background = `linear-gradient(135deg, ${sadColor}, ${adjustBrightness(sadColor, -20)})`;
         }
 
         function adjustBrightness(hex, percent) {
@@ -1995,6 +1934,7 @@
     </script>
 </body>
 </html>
+
 
 
 
