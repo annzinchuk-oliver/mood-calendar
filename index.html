@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Календарь Настроения</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#4F46E5">
+    <meta name="description" content="Отслеживайте свое настроение каждый день">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Календарь Настроения">
+    
+    <!-- Простой манифест для PWA -->
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi0JrQsNC70LXQvdC00LDRgNGMINCd0LDRgdGC0YDQvtC10L3QuNGPIiwic2hvcnRfbmFtZSI6ItCa0LDQu9C10L3QtNCw0YDRjCIsImRlc2NyaXB0aW9uIjoi0J7RgtGB0LvQtdC20LjQstCw0LnRgtC1INGB0LLQvtC1INC90LDRgdGC0YDQvtC10L3QuNC1INC60LDQttC00YvQuSDQtNC10L3RjCIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZmZmZmZmIiwidGhlbWVfY29sb3IiOiIjNEY0NkU1IiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0Nzdmcgdmlld0JveD0nMCAwIDEwMCAxMDAnIGZpbGw9JyUyMzRGNDZFNScgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyUzRSUzQ3JlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIHJ4PScxMCcvJTNFJTNDdGV4dCB4PSc1MCcgeT0nNTAnIGZvbnQtc2l6ZT0nNDAnIGZpbGw9J3doaXRlJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBkeT0nLjNlbSclM0Xwn5OBJTNFL3RleHQlM0UlM0Mvc3ZnJTNFIiwic2l6ZXMiOiIxOTJ4MTkyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f9fafb;
+            min-height: 100vh;
+            padding: 8px;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        .app-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            min-height: calc(100vh - 16px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .record-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .record-btn:hover, .record-btn:active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .month-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: white;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .nav-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover, .nav-btn:active {
+            background: #e2e8f0;
+            transform: scale(1.1);
+        }
+
+        .month-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .calendar {
+            padding: 20px;
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .weekday {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            padding: 12px 4px;
+        }
+
+        .week {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .day:hover {
+            border-color: #cbd5e1;
+            transform: scale(1.05);
+        }
+
+        .day.other-month {
+            color: #cbd5e1;
+            background: #f8fafc;
+        }
+
+        .day.today {
+            border-color: #3b82f6;
+            border-width: 3px;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .day.has-mood {
+            border-color: transparent;
+            color: white;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .legend {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .legend-items {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats {
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        .stats h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            margin-bottom: 12px;
+            padding: 8px 0;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .total-records {
+            font-size: 13px;
+            color: #94a3b8;
+            text-align: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .mood-popup {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .mood-popup-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            transform: scale(0.9);
+            animation: popupAppear 0.3s ease forwards;
+        }
+
+        @keyframes popupAppear {
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .mood-popup h3 {
+            font-size: 22px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 16px;
+            color: #1e293b;
+        }
+
+        .mood-popup p {
+            font-size: 15px;
+            color: #64748b;
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .mood-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .mood-btn {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            border: 2px solid;
+            border-radius: 16px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .mood-btn:hover, .mood-btn:active {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .mood-emoji {
+            font-size: 28px;
+        }
+
+        .skip-btn {
+            width: 100%;
+            margin-top: 20px;
+            color: #64748b;
+            font-size: 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .skip-btn:hover, .skip-btn:active {
+            color: #1e293b;
+            background: #f1f5f9;
+        }
+
+        .install-prompt {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 1px solid #93c5fd;
+            margin: 16px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .install-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .install-btn:hover, .install-btn:active {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Улучшения для мобильных устройств */
+        @media (max-width: 480px) {
+            body {
+                padding: 0;
+            }
+            
+            .app-container {
+                border-radius: 0;
+                min-height: 100vh;
+            }
+            
+            .calendar {
+                padding: 16px;
+            }
+            
+            .mood-popup {
+                padding: 16px;
+            }
+        }
+
+        /* Анимации */
+        .day {
+            animation: dayFadeIn 0.3s ease;
+        }
+
+        @keyframes dayFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Install prompt -->
+        <div id="installPrompt" class="install-prompt hidden">
+            <p><strong>📱 Добавьте приложение на главный экран!</strong></p>
+            <p style="font-size: 14px; margin-top: 8px; color: #64748b;">
+                Нажмите меню браузера → "Добавить на главный экран"
+            </p>
+            <button id="enableNotifications" class="install-btn">Включить уведомления</button>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>📅 Календарь Настроения</h1>
+            <button class="record-btn" onclick="triggerMoodCheck()">
+                🕐 Записать настроение
+            </button>
+        </div>
+
+        <!-- Month Navigation -->
+        <div class="month-nav">
+            <button class="nav-btn" onclick="navigateMonth(-1)">←</button>
+            <div class="month-title" id="monthTitle"></div>
+            <button class="nav-btn" onclick="navigateMonth(1)">→</button>
+        </div>
+
+        <!-- Calendar -->
+        <div class="calendar">
+            <div class="weekdays">
+                <div class="weekday">Вс</div>
+                <div class="weekday">Пн</div>
+                <div class="weekday">Вт</div>
+                <div class="weekday">Ср</div>
+                <div class="weekday">Чт</div>
+                <div class="weekday">Пт</div>
+                <div class="weekday">Сб</div>
+            </div>
+            <div id="calendarDays"></div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #22c55e, #16a34a);"></div>
+                    <span>😊 Хорошее</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #eab308, #d97706);"></div>
+                    <span>😐 Нейтральное</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #3b82f6, #2563eb);"></div>
+                    <span>😢 Грустное</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats" id="stats" style="display: none;">
+            <h3>📊 Статистика</h3>
+            <div class="stat-row">
+                <span class="stat-label">Хорошие дни:</span>
+                <span class="stat-value" style="color: #22c55e;" id="goodPercent">0%</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Нейтральные дни:</span>
+                <span class="stat-value" style="color: #eab308;" id="neutralPercent">0%</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Грустные дни:</span>
+                <span class="stat-value" style="color: #3b82f6;" id="sadPercent">0%</span>
+            </div>
+            <div class="total-records" id="totalRecords">Всего записей: 0</div>
+        </div>
+    </div>
+
+    <!-- Mood Popup -->
+    <div id="moodPopup" class="mood-popup hidden">
+        <div class="mood-popup-content">
+            <h3>Как ваше настроение?</h3>
+            <p id="timeDisplay">Время записать настроение</p>
+            
+            <div class="mood-buttons">
+                <button class="mood-btn" style="border-color: #22c55e; background: linear-gradient(135deg, #f0fdf4, #dcfce7);" onclick="recordMood('good')">
+                    <span class="mood-emoji">😊</span>
+                    <span>Хорошее</span>
+                </button>
+                <button class="mood-btn" style="border-color: #eab308; background: linear-gradient(135deg, #fefce8, #fef3c7);" onclick="recordMood('neutral')">
+                    <span class="mood-emoji">😐</span>
+                    <span>Нейтральное</span>
+                </button>
+                <button class="mood-btn" style="border-color: #3b82f6; background: linear-gradient(135deg, #eff6ff, #dbeafe);" onclick="recordMood('sad')">
+                    <span class="mood-emoji">😢</span>
+                    <span>Грустное</span>
+                </button>
+            </div>
+
+            <button class="skip-btn" onclick="closeMoodPopup()">Пропустить</button>
+        </div>
+    </div>
+
+    <script>
+        // Application state
+        let currentDate = new Date();
+        let selectedDate = new Date();
+        let moodData = {};
+        let dailyMoods = {};
+
+        // Mood types
+        const moodTypes = {
+            good: { color: '#22c55e', name: 'Хорошее' },
+            neutral: { color: '#eab308', name: 'Нейтральное' },
+            sad: { color: '#3b82f6', name: 'Грустное' }
+        };
+
+        const monthNames = [
+            'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+        ];
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            updateCalendar();
+            updateStats();
+            checkNotificationPermission();
+            scheduleNotifications();
+        });
+
+        // Check notification permission
+        function checkNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                document.getElementById('installPrompt').classList.remove('hidden');
+            }
+        }
+
+        // Request notification permission
+        async function requestNotificationPermission() {
+            if ('Notification' in window) {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    document.getElementById('installPrompt').classList.add('hidden');
+                    new Notification('Календарь Настроения', {
+                        body: 'Уведомления включены! Мы будем напоминать записывать настроение.',
+                        tag: 'mood-setup'
+                    });
+                    scheduleNotifications();
+                }
+            }
+        }
+
+        // Schedule notifications
+        function scheduleNotifications() {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                const now = new Date();
+                const nextHour = new Date(now);
+                nextHour.setHours(now.getHours() + 1, 0, 0, 0);
+                const timeUntilNextHour = nextHour.getTime() - now.getTime();
+                
+                setTimeout(() => {
+                    showNotification();
+                    setInterval(showNotification, 60 * 60 * 1000);
+                }, timeUntilNextHour);
+            }
+        }
+
+        // Show notification
+        function showNotification() {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                const hour = new Date().getHours();
+                if (hour >= 8 && hour <= 22) {
+                    const notification = new Notification('Время записать настроение! 😊', {
+                        body: 'Как вы себя чувствуете сейчас?',
+                        tag: 'mood-reminder'
+                    });
+                    
+                    notification.onclick = function() {
+                        window.focus();
+                        triggerMoodCheck();
+                        notification.close();
+                    };
+                }
+            }
+        }
+
+        // Data management
+        function loadData() {
+            try {
+                const savedMoodData = JSON.parse(localStorage.getItem('moodData') || '{}');
+                const savedDailyMoods = JSON.parse(localStorage.getItem('dailyMoods') || '{}');
+                moodData = savedMoodData;
+                dailyMoods = savedDailyMoods;
+            } catch (e) {
+                console.log('Error loading data:', e);
+                moodData = {};
+                dailyMoods = {};
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem('moodData', JSON.stringify(moodData));
+                localStorage.setItem('dailyMoods', JSON.stringify(dailyMoods));
+            } catch (e) {
+                console.log('Error saving data:', e);
+            }
+        }
+
+        function getDateKey(date) {
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Mood recording
+        function triggerMoodCheck() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('timeDisplay').textContent = 
+                `${hours}:${minutes} - Время записать настроение`;
+            document.getElementById('moodPopup').classList.remove('hidden');
+        }
+
+        function recordMood(mood) {
+            const dateKey = getDateKey(currentDate);
+            const hour = currentDate.getHours();
+            
+            if (!moodData[dateKey]) {
+                moodData[dateKey] = {};
+            }
+            
+            moodData[dateKey][hour] = mood;
+            calculateDayMood(dateKey);
+            saveData();
+            updateCalendar();
+            updateStats();
+            closeMoodPopup();
+        }
+
+        function calculateDayMood(dateKey) {
+            const dayData = moodData[dateKey] || {};
+            const moods = Object.values(dayData);
+            
+            if (moods.length === 0) return;
+
+            const moodCounts = moods.reduce((acc, mood) => {
+                acc[mood] = (acc[mood] || 0) + 1;
+                return acc;
+            }, {});
+
+            const dominantMood = Object.keys(moodCounts).reduce((a, b) => 
+                moodCounts[a] > moodCounts[b] ? a : b
+            );
+
+            dailyMoods[dateKey] = dominantMood;
+        }
+
+        function closeMoodPopup() {
+            document.getElementById('moodPopup').classList.add('hidden');
+        }
+
+        // Calendar
+        function navigateMonth(direction) {
+            selectedDate.setMonth(selectedDate.getMonth() + direction);
+            updateCalendar();
+        }
+
+        function updateCalendar() {
+            document.getElementById('monthTitle').textContent = 
+                `${monthNames[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
+
+            const year = selectedDate.getFullYear();
+            const month = selectedDate.getMonth();
+            const firstDay = new Date(year, month, 1);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+            const calendarDays = document.getElementById('calendarDays');
+            calendarDays.innerHTML = '';
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayKey = getDateKey(today);
+            
+            for (let week = 0; week < 6; week++) {
+                const weekDiv = document.createElement('div');
+                weekDiv.className = 'week';
+                
+                for (let day = 0; day < 7; day++) {
+                    const current = new Date(startDate);
+                    current.setDate(startDate.getDate() + (week * 7 + day));
+                    
+                    const dateKey = getDateKey(current);
+                    const dayMood = dailyMoods[dateKey];
+                    const isCurrentMonth = current.getMonth() === month;
+                    const isToday = dateKey === todayKey;
+                    
+                    const dayDiv = document.createElement('div');
+                    dayDiv.className = 'day';
+                    
+                    if (!isCurrentMonth) {
+                        dayDiv.classList.add('other-month');
+                    }
+                    
+                    if (isToday) {
+                        dayDiv.classList.add('today');
+                    }
+                    
+                    if (dayMood) {
+                        dayDiv.classList.add('has-mood');
+                        dayDiv.style.background = `linear-gradient(135deg, ${moodTypes[dayMood].color}, ${adjustBrightness(moodTypes[dayMood].color, -20)})`;
+                    }
+                    
+                    dayDiv.textContent = current.getDate();
+                    weekDiv.appendChild(dayDiv);
+                }
+                
+                calendarDays.appendChild(weekDiv);
+            }
+        }
+
+        function adjustBrightness(hex, percent) {
+            const num = parseInt(hex.replace("#", ""), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = (num >> 16) + amt;
+            const G = (num >> 8 & 0x00FF) + amt;
+            const B = (num & 0x0000FF) + amt;
+            return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+                (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+                (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+        }
+
+        function updateStats() {
+            const allMoods = Object.values(dailyMoods);
+            const total = allMoods.length;
+            
+            if (total === 0) {
+                document.getElementById('stats').style.display = 'none';
+                return;
+            }
+
+            const counts = allMoods.reduce((acc, mood) => {
+                acc[mood] = (acc[mood] || 0) + 1;
+                return acc;
+            }, {});
+
+            const goodPercent = Math.round((counts.good || 0) / total * 100);
+            const neutralPercent = Math.round((counts.neutral || 0) / total * 100);
+            const sadPercent = Math.round((counts.sad || 0) / total * 100);
+
+            document.getElementById('goodPercent').textContent = `${goodPercent}%`;
+            document.getElementById('neutralPercent').textContent = `${neutralPercent}%`;
+            document.getElementById('sadPercent').textContent = `${sadPercent}%`;
+            document.getElementById('totalRecords').textContent = `Всего записей: ${total}`;
+            
+            document.getElementById('stats').style.display = 'block';
+        }
+
+        // Add event listener for notifications button
+        document.getElementById('enableNotifications').addEventListener('click', requestNotificationPermission);
+    </script>
+</body>
+</html>
