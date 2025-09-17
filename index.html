@@ -900,6 +900,44 @@
             display: none !important;
         }
 
+        /* === AI CHAT === */
+        .chat-launcher{
+          position: fixed; right: 20px; bottom: 96px; z-index: 1200;
+          background: rgba(255,255,255,0.22);
+          border: 1px solid rgba(255,255,255,0.4);
+          color: var(--text-on-accent);
+          border-radius: 9999px; padding: 10px 14px; font-size: 18px;
+          backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+          box-shadow: 0 8px 20px rgba(0,0,0,.15);
+        }
+        
+        .chat-panel{
+          position: fixed; right: 8px; bottom: 80px; z-index: 1200;
+          width: min(360px, 92vw); max-height: 70vh;
+          background: var(--bg-secondary); color: var(--text-primary);
+          border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,.25);
+          display: flex; flex-direction: column; overflow: hidden;
+          border: 1px solid var(--border-color);
+        }
+        .chat-header{ display:flex; justify-content:space-between; align-items:center;
+          padding:10px 12px; background: var(--bg-primary); border-bottom:1px solid var(--border-color);
+        }
+        .chat-close{ background:none; border:none; font-size:16px; cursor:pointer; color:var(--text-secondary); }
+        
+        .chat-messages{ padding:12px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; }
+        .msg{ max-width: 90%; padding:10px 12px; border-radius:14px; font-size:14px; line-height:1.35; }
+        .msg.user{ align-self:flex-end; background: var(--mood-sad); color:#fff; }
+        .msg.bot{ align-self:flex-start; background: var(--bg-primary); border:1px solid var(--border-color); }
+        
+        .chat-input-row{ display:flex; gap:8px; padding:10px; border-top:1px solid var(--border-color); }
+        #chatInput{ flex:1; padding:10px 12px; border-radius:10px; border:1px solid var(--border-color);
+          background:var(--bg-primary); color:var(--text-primary); }
+        .send-btn{ padding:10px 14px; border-radius:10px; border:1px solid var(--border-color);
+          background:var(--bg-secondary); cursor:pointer; }
+        
+        .chat-disclaimer{ font-size:11px; color:var(--text-secondary); text-align:center; padding:6px 10px 10px; }
+        /* === /AI CHAT === */
+            
         /* Нижняя навигация */
         .bottom-nav {
             position: fixed;
@@ -1189,6 +1227,24 @@
         </div>
     </div>
 
+    <button id="chatLauncher" class="chat-launcher" aria-controls="aiChat" aria-expanded="false">💬</button>
+    
+    <div id="aiChat" class="chat-panel hidden" role="dialog" aria-label="Поддержка">
+      <div class="chat-header">
+        <strong>Поддержка</strong>
+        <button id="chatClose" class="chat-close" aria-label="Закрыть">✕</button>
+      </div>
+    
+      <div id="chatMessages" class="chat-messages" aria-live="polite"></div>
+    
+      <form id="chatForm" class="chat-input-row">
+        <input id="chatInput" type="text" placeholder="Напишите, как вы себя чувствуете…" autocomplete="off" />
+        <button class="send-btn" type="submit">Отправить</button>
+      </form>
+    
+      <p class="chat-disclaimer">Советы носят справочный характер и не заменяют помощь специалиста.</p>
+    </div>
+    
     <!-- Mood Popup -->
     <div id="moodPopup" class="mood-popup hidden">
         <div class="mood-popup-content">
@@ -1442,7 +1498,8 @@
             updateCalendar();
             checkNotificationPermission();
             scheduleNotifications();
-            switchPage('calendar'); // Показываем календарь по умолчанию
+            switchPage('calendar');
+            maybeProactiveChat();// Показываем календарь по умолчанию
         });
                 // Закрыть меню по клику вне .theme-selector
         document.addEventListener('click', (e) => {
@@ -1666,7 +1723,31 @@
             const day = date.getDate().toString().padStart(2, '0');
             return `${year}-${month}-${day}`;
         }
+        // === AI: анализ ===
+        function getSadStreak(daysWindow = 10) {
+          const today = new Date();
+          let streak = 0;
+          for (let i = 0; i < daysWindow; i++) {
+            const d = new Date(today); d.setDate(today.getDate() - i);
+            const key = getDateKey(d);
+            if (dailyMoods[key] === 'sad') streak++; else break;
+          }
+          return streak;
+        }
+        
+        function getMoodSummary(days = 14) {
+          const today = new Date();
+          const counts = { good:0, neutral:0, sad:0 }; let total = 0;
+          for (let i = 0; i < days; i++) {
+            const d = new Date(today); d.setDate(today.getDate() - i);
+            const key = getDateKey(d); const mood = dailyMoods[key];
+            if (mood) { counts[mood]++; total++; }
+          }
+          return { daysConsidered: days, counts, total };
+        }
 
+
+        
         // Mood recording
         function triggerMoodCheck() {
             const now = new Date();
@@ -1729,6 +1810,7 @@
             
             // ИСПРАВЛЕНИЕ: Обязательно закрываем окно после записи настроения
             closeMoodPopup();
+            maybeProactiveChat();
             
             console.log(`Записано настроение: ${mood} в ${hour}:${minute.toString().padStart(2, '0')}`);
         }
@@ -1757,6 +1839,29 @@
         function closeMoodPopup() {
             document.getElementById('moodPopup').classList.add('hidden');
         }
+        
+        const SAD_STREAK_THRESHOLD = 3;
+        const PROACTIVE_COOLDOWN_DAYS = 3;
+        
+        function maybeProactiveChat() {
+          try {
+            const streak = getSadStreak(10);
+            const lastAt = localStorage.getItem('aiLastProactiveAt');
+            const todayKey = getDateKey(new Date());
+        
+            if (streak >= SAD_STREAK_THRESHOLD) {
+              if (lastAt) {
+                const last = new Date(lastAt);
+                const diffDays = Math.floor((Date.now() - last.getTime())/(1000*3600*24));
+                if (diffDays < PROACTIVE_COOLDOWN_DAYS) return;
+              }
+              localStorage.setItem('aiLastProactiveAt', todayKey);
+              const intro = `Я заметил(а), что последние ${streak} ${streak===1?'день':'дня'} вам грустно. Хотите немного поддержки или пару простых практик?`;
+              openChat(intro);
+            }
+          } catch(e) {}
+        }
+
 
         // Calendar
         function navigateMonth(direction) {
@@ -1929,11 +2034,82 @@
             todayEntriesElement.innerHTML += summaryHTML;
         }
 
+        // === AI: чат UI ===
+        const chatPanel  = document.getElementById('aiChat');
+        const chatLaunch = document.getElementById('chatLauncher');
+        const chatClose  = document.getElementById('chatClose');
+        const chatMsgs   = document.getElementById('chatMessages');
+        const chatForm   = document.getElementById('chatForm');
+        const chatInput  = document.getElementById('chatInput');
+        
+        function openChat(initialBotText) {
+          chatPanel.classList.remove('hidden');
+          chatLaunch.setAttribute('aria-expanded','true');
+          if (initialBotText) appendMsg('bot', initialBotText);
+          chatInput.focus();
+        }
+        function closeChat() {
+          chatPanel.classList.add('hidden');
+          chatLaunch.setAttribute('aria-expanded','false');
+        }
+        function appendMsg(sender, text) {
+          const div = document.createElement('div');
+          div.className = `msg ${sender}`;
+          div.textContent = text;
+          chatMsgs.appendChild(div);
+          chatMsgs.scrollTop = chatMsgs.scrollHeight;
+        }
+        
+        chatLaunch?.addEventListener('click', () => openChat());
+        chatClose?.addEventListener('click', closeChat);
+        chatForm?.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const text = chatInput.value.trim();
+          if (!text) return;
+          appendMsg('user', text);
+          chatInput.value = '';
+          const reply = await askAI(text);
+          appendMsg('bot', reply || 'Что-то пошло не так, попробуйте ещё раз 🙏');
+        });
+
+        async function askAI(userText){
+          const summary = getMoodSummary(14);
+          const payload = {
+            messages: [
+              { role: 'system', content:
+                `Ты доброжелательный поддерживающий собеседник. Говори кратко, эмпатично, без диагнозов.
+                 Давай по одному вопросу за раз. Предлагай простые техники (дыхание 4-7-8, короткая прогулка,
+                 запись мыслей, когнитивная переоценка). Если человек говорит об угрозе себе/другим —
+                 мягко дай контакты экстренной помощи и предложи обратиться к специалисту.` },
+              { role: 'assistant', content:
+                `Краткая сводка последних ${summary.daysConsidered} дней:
+                 хороших=${summary.counts.good}, нейтральных=${summary.counts.neutral}, грустных=${summary.counts.sad}.` },
+              { role: 'user', content: userText }
+            ]
+          };
+        
+          try{
+            const res = await fetch('/api/chat', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            if(!res.ok) throw new Error('Bad response');
+            const data = await res.json();
+            return data.reply;
+          }catch(e){
+            // локальный «мягкий» ответ, чтобы не падать в dev
+            return 'Я рядом. Можете рассказать, что именно вас расстроило сегодня?';
+          }
+        }
+
+
+        
         // Add event listener for notifications button
         document.getElementById('enableNotifications').addEventListener('click', requestNotificationPermission);
     </script>
 </body>
 </html>
+
 
 
 
