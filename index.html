@@ -16,6 +16,484 @@
     <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi0JrQsNC70LXQvdC00LDRgNGMINCd0LDRgdGC0YDQvtC10L3QuNGPIiwic2hvcnRfbmFtZSI6ItCa0LDQu9C10L3QtNCw0YDRjCIsImRlc2NyaXB0aW9uIjoi0J7RgtGB0LvQtdC20LjQstCw0LnRgtC1INGB0LLQvtC1INC90LDRgdGC0YDQvtC10L3QuNC1INC60LDQttC00YvQuSDQtNC10L3RjCIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZmZmZmZmIiwidGhlbWVfY29sb3IiOiIjNEY0NkU1IiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0Nzdmcgdmlld0JveD0nMCAwIDEwMCAxMDAnIGZpbGw9JyUyMzRGNDZFNScgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyUzRSUzQ3JlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIHJ4PScxMCcvJTNFJTNDdGV4dCB4PSc1MCcgeT0nNTAnIGZvbnQtc2l6ZT0nNDAnIGZpbGw9J3doaXRlJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBkeT0nLjNlbSclM0Xwn5OBJTNFL3RleHQlM0UlM0Mvc3ZnJTNFIiwic2l6ZXMiOiIxOTJ4MTkyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
     
     <style>
+        :root {
+            /* Светлая тема - Палитра по умолчанию */
+            --bg-primary: #f9fafb;
+            --bg-secondary: white;
+            --bg-accent: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-legend: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-on-accent: white;
+            --border-color: #e2e8f0;
+            --border-hover: #cbd5e1;
+            --day-hover: #f3f4f6;
+            --mood-good: #22c55e;
+            --mood-neutral: #eab308;
+            --mood-sad: #3b82f6;
+        }
+
+        // Фильтры статистики
+        let currentStatsFilter = '3days';
+
+        function setStatsFilter(filter) {
+            currentStatsFilter = filter;
+            
+            // Обновляем активную кнопку
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[onclick="setStatsFilter('${filter}')"]`).classList.add('active');
+            
+            // Обновляем статистику
+            updateStatsPage();
+        }
+
+        function updateStatsPage() {
+            updateHourlyChart();
+            updateOverviewStats();
+        }
+
+        function updateHourlyChart() {
+            const today = new Date();
+            const todayKey = getDateKey(today);
+            const todayEntries = moodData[todayKey] || [];
+            
+            const hourlyChart = document.getElementById('hourlyChart');
+            if (!hourlyChart) return;
+            
+            hourlyChart.innerHTML = '';
+            
+            // Создаем блоки для каждого часа (6:00 - 23:00)
+            for (let hour = 6; hour <= 23; hour++) {
+                const hourBlock = document.createElement('div');
+                hourBlock.className = 'hour-block';
+                
+                // Ищем записи для этого часа
+                const hourEntries = todayEntries.filter(entry => entry.hour === hour);
+                
+                if (hourEntries.length > 0) {
+                    // Определяем доминирующее настроение для часа
+                    const hourMoodCounts = hourEntries.reduce((acc, entry) => {
+                        acc[entry.mood] = (acc[entry.mood] || 0) + 1;
+                        return acc;
+                    }, {});
+                    
+                    const dominantMood = Object.keys(hourMoodCounts).reduce((a, b) => 
+                        hourMoodCounts[a] > hourMoodCounts[b] ? a : b
+                    );
+                    
+                    const moodColor = getCSSVariable(`--mood-${dominantMood}`);
+                    hourBlock.style.backgroundColor = moodColor;
+                    hourBlock.classList.add('has-data');
+                    hourBlock.title = `${hour}:00 - ${hourEntries.length} записей`;
+                } else {
+                    hourBlock.style.backgroundColor = 'transparent';
+                    hourBlock.title = `${hour}:00 - нет записей`;
+                }
+                
+                hourBlock.textContent = hour;
+                hourBlock.onclick = () => showHourDetails(hour, hourEntries);
+                
+                hourlyChart.appendChild(hourBlock);
+            }
+        }
+
+        function showHourDetails(hour, entries) {
+            if (entries.length === 0) {
+                alert(`${hour}:00 - записей нет`);
+                return;
+            }
+            
+            const details = entries.map(entry => {
+                const time = `${entry.hour.toString().padStart(2, '0')}:${entry.minute.toString().padStart(2, '0')}`;
+                const moodName = moodTypes[entry.mood].name;
+                return `${time} - ${moodName}`;
+            }).join('\n');
+            
+            alert(`${hour}:00\n${entries.length} записей:\n\n${details}`);
+        }
+
+        function updateOverviewStats() {
+            const periodData = getDataForPeriod(currentStatsFilter);
+            
+            const currentPeriodElement = document.getElementById('currentPeriod');
+            const statsGoodElement = document.getElementById('statsGoodPercent');
+            const statsNeutralElement = document.getElementById('statsNeutralPercent');
+            const statsSadElement = document.getElementById('statsSadPercent');
+            const statsTotalElement = document.getElementById('statsTotalRecords');
+            const avgPerDayElement = document.getElementById('avgPerDay');
+            const activeDaysElement = document.getElementById('activeDays');
+            
+            if (!currentPeriodElement) return; // Элементы еще не созданы
+            
+            if (periodData.totalEntries === 0) {
+                currentPeriodElement.textContent = getPeriodName(currentStatsFilter);
+                statsGoodElement.textContent = '0%';
+                statsNeutralElement.textContent = '0%';
+                statsSadElement.textContent = '0%';
+                statsTotalElement.textContent = 'Всего записей: 0';
+                avgPerDayElement.textContent = '0';
+                activeDaysElement.textContent = '0';
+                return;
+            }
+            
+            const goodPercent = Math.round((periodData.moodCounts.good || 0) / periodData.totalEntries * 100);
+            const neutralPercent = Math.round((periodData.moodCounts.neutral || 0) / periodData.totalEntries * 100);
+            const sadPercent = Math.round((periodData.moodCounts.sad || 0) / periodData.totalEntries * 100);
+            
+            currentPeriodElement.textContent = getPeriodName(currentStatsFilter);
+            
+            statsGoodElement.textContent = `${goodPercent}%`;
+            statsGoodElement.style.color = getCSSVariable('--mood-good');
+            
+            statsNeutralElement.textContent = `${neutralPercent}%`;
+            statsNeutralElement.style.color = getCSSVariable('--mood-neutral');
+            
+            statsSadElement.textContent = `${sadPercent}%`;
+            statsSadElement.style.color = getCSSVariable('--mood-sad');
+            
+            statsTotalElement.textContent = `Всего записей: ${periodData.totalEntries}`;
+            avgPerDayElement.textContent = (periodData.totalEntries / Math.max(periodData.days, 1)).toFixed(1);
+            activeDaysElement.textContent = periodData.activeDays;
+        }
+
+        function getDataForPeriod(period) {
+            const now = new Date();
+            let startDate = new Date();
+            
+            switch (period) {
+                case '3days':
+                    startDate.setDate(now.getDate() - 3);
+                    break;
+                case 'week':
+                    startDate.setDate(now.getDate() - 7);
+                    break;
+                case 'month':
+                    startDate.setMonth(now.getMonth() - 1);
+                    break;
+                case 'all':
+                    startDate = new Date('2020-01-01'); // Начало времен
+                    break;
+            }
+            
+            let totalEntries = 0;
+            let moodCounts = { good: 0, neutral: 0, sad: 0 };
+            let activeDays = 0;
+            
+            Object.keys(moodData).forEach(dateKey => {
+                const date = new Date(dateKey);
+                if (date >= startDate && date <= now) {
+                    const dayEntries = moodData[dateKey];
+                    if (dayEntries && dayEntries.length > 0) {
+                        activeDays++;
+                        dayEntries.forEach(entry => {
+                            totalEntries++;
+                            moodCounts[entry.mood] = (moodCounts[entry.mood] || 0) + 1;
+                        });
+                    }
+                }
+            });
+            
+            const days = Math.max(Math.ceil((now - startDate) / (1000 * 60 * 60 * 24)), 1);
+            
+            return {
+                totalEntries,
+                moodCounts,
+                activeDays,
+                days
+            };
+        }
+
+        function getPeriodName(period) {
+            switch (period) {
+                case '3days': return '3 дня';
+                case 'week': return 'неделя';
+                case 'month': return 'месяц';
+                case 'all': return 'все время';
+                default: return period;
+            }
+        }
+
+        // Навигация между страницами
+        function switchPage(page) {
+            currentPage = page;
+            
+            const calendarPage = document.getElementById('calendarPage');
+            const statsPage = document.getElementById('statsPage');
+            const navCalendar = document.getElementById('navCalendar');
+            const navStats = document.getElementById('navStats');
+            
+            if (page === 'calendar') {
+                calendarPage.style.display = 'block';
+                statsPage.classList.remove('active');
+                navCalendar.classList.add('active');
+                navStats.classList.remove('active');
+            } else if (page === 'stats') {
+                calendarPage.style.display = 'none';
+                statsPage.classList.add('active');
+                navCalendar.classList.remove('active');
+                navStats.classList.add('active');
+                // Используем setTimeout чтобы дать время DOM обновиться
+                setTimeout(updateStatsPage, 100);
+            }
+        }
+
+        // Фильтры статистики
+        let currentStatsFilter = '3days';
+
+        function setStatsFilter(filter) {
+            currentStatsFilter = filter;
+            
+            // Обновляем активную кнопку
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.querySelector(`[onclick="setStatsFilter('${filter}')"]`);
+            if (activeBtn) activeBtn.classList.add('active');
+            
+            // Обновляем статистику
+            updateStatsPage();
+        }
+
+        function updateStatsPage() {
+            updateHourlyChart();
+            updateOverviewStats();
+        }
+
+        // Фильтры статистики
+        let currentStatsFilter = '3days';
+
+        function setStatsFilter(filter) {
+            currentStatsFilter = filter;
+            
+            // Обновляем активную кнопку
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[onclick="setStatsFilter('${filter}')"]`).classList.add('active');
+            
+            // Обновляем статистику
+            updateStatsPage();
+        }
+
+        function updateStatsPage() {
+            updateHourlyChart();
+            updateOverviewStats();
+        }
+
+        function updateHourlyChart() {
+            const today = new Date();
+            const todayKey = getDateKey(today);
+            const todayEntries = moodData[todayKey] || [];
+            
+            const hourlyChart = document.getElementById('hourlyChart');
+            hourlyChart.innerHTML = '';
+            
+            // Создаем блоки для каждого часа (6:00 - 23:00)
+            for (let hour = 6; hour <= 23; hour++) {
+                const hourBlock = document.createElement('div');
+                hourBlock.className = 'hour-block';
+                
+                // Ищем записи для этого часа
+                const hourEntries = todayEntries.filter(entry => entry.hour === hour);
+                
+                if (hourEntries.length > 0) {
+                    // Определяем доминирующее настроение для часа
+                    const hourMoodCounts = hourEntries.reduce((acc, entry) => {
+                        acc[entry.mood] = (acc[entry.mood] || 0) + 1;
+                        return acc;
+                    }, {});
+                    
+                    const dominantMood = Object.keys(hourMoodCounts).reduce((a, b) => 
+                        hourMoodCounts[a] > hourMoodCounts[b] ? a : b
+                    );
+                    
+                    const moodColor = getCSSVariable(`--mood-${dominantMood}`);
+                    hourBlock.style.backgroundColor = moodColor;
+                    hourBlock.classList.add('has-data');
+                    hourBlock.title = `${hour}:00 - ${hourEntries.length} записей`;
+                } else {
+                    hourBlock.style.backgroundColor = 'transparent';
+                    hourBlock.title = `${hour}:00 - нет записей`;
+                }
+                
+                hourBlock.textContent = hour;
+                hourBlock.onclick = () => showHourDetails(hour, hourEntries);
+                
+                hourlyChart.appendChild(hourBlock);
+            }
+        }
+
+        function showHourDetails(hour, entries) {
+            if (entries.length === 0) {
+                alert(`${hour}:00 - записей нет`);
+                return;
+            }
+            
+            const details = entries.map(entry => {
+                const time = `${entry.hour.toString().padStart(2, '0')}:${entry.minute.toString().padStart(2, '0')}`;
+                const moodName = moodTypes[entry.mood].name;
+                return `${time} - ${moodName}`;
+            }).join('\n');
+            
+            alert(`${hour}:00\n${entries.length} записей:\n\n${details}`);
+        }
+
+        function updateOverviewStats() {
+            const periodData = getDataForPeriod(currentStatsFilter);
+            
+            if (periodData.totalEntries === 0) {
+                document.getElementById('currentPeriod').textContent = getPeriodName(currentStatsFilter);
+                document.getElementById('statsGoodPercent').textContent = '0%';
+                document.getElementById('statsNeutralPercent').textContent = '0%';
+                document.getElementById('statsSadPercent').textContent = '0%';
+                document.getElementById('statsTotalRecords').textContent = 'Всего записей: 0';
+                document.getElementById('avgPerDay').textContent = '0';
+                document.getElementById('activeDays').textContent = '0';
+                return;
+            }
+            
+            const goodPercent = Math.round((periodData.moodCounts.good || 0) / periodData.totalEntries * 100);
+            const neutralPercent = Math.round((periodData.moodCounts.neutral || 0) / periodData.totalEntries * 100);
+            const sadPercent = Math.round((periodData.moodCounts.sad || 0) / periodData.totalEntries * 100);
+            
+            document.getElementById('currentPeriod').textContent = getPeriodName(currentStatsFilter);
+            
+            const goodElement = document.getElementById('statsGoodPercent');
+            const neutralElement = document.getElementById('statsNeutralPercent');
+            const sadElement = document.getElementById('statsSadPercent');
+
+            goodElement.textContent = `${goodPercent}%`;
+            goodElement.style.color = getCSSVariable('--mood-good');
+            
+            neutralElement.textContent = `${neutralPercent}%`;
+            neutralElement.style.color = getCSSVariable('--mood-neutral');
+            
+            sadElement.textContent = `${sadPercent}%`;
+            sadElement.style.color = getCSSVariable('--mood-sad');
+            
+            document.getElementById('statsTotalRecords').textContent = `Всего записей: ${periodData.totalEntries}`;
+            document.getElementById('avgPerDay').textContent = (periodData.totalEntries / periodData.days).toFixed(1);
+            document.getElementById('activeDays').textContent = periodData.activeDays;
+        }
+
+        function getDataForPeriod(period) {
+            const now = new Date();
+            let startDate = new Date();
+            
+            switch (period) {
+                case '3days':
+                    startDate.setDate(now.getDate() - 3);
+                    break;
+                case 'week':
+                    startDate.setDate(now.getDate() - 7);
+                    break;
+                case 'month':
+                    startDate.setMonth(now.getMonth() - 1);
+                    break;
+                case 'all':
+                    startDate = new Date('2020-01-01'); // Начало времен
+                    break;
+            }
+            
+            let totalEntries = 0;
+            let moodCounts = { good: 0, neutral: 0, sad: 0 };
+            let activeDays = 0;
+            
+            Object.keys(moodData).forEach(dateKey => {
+                const date = new Date(dateKey);
+                if (date >= startDate && date <= now) {
+                    const dayEntries = moodData[dateKey];
+                    if (dayEntries.length > 0) {
+                        activeDays++;
+                        dayEntries.forEach(entry => {
+                            totalEntries++;
+                            moodCounts[entry.mood] = (moodCounts[entry.mood] || 0) + 1;
+                        });
+                    }
+                }
+            });
+            
+            const days = Math.ceil((now - startDate) / (1000 * 60 * 60 * 24));
+            
+            return {
+                totalEntries,
+                moodCounts,
+                activeDays,
+                days
+            };
+        }
+
+        function getPeriodName(period) {
+            switch (period) {
+                case '3days': return '3 дня';
+                case 'week': return 'неделя';
+                case 'month': return 'месяц';
+                case 'all': return 'все время';
+                default: return period;
+            }
+        }
+
+        /* Светлая тема - Палитра "Природа" */
+        [data-theme="light-nature"] {
+            --bg-primary: #f0fdf4;
+            --bg-secondary: #ffffff;
+            --bg-accent: linear-gradient(135deg, #059669 0%, #047857 100%);
+            --bg-legend: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            --mood-good: #16a34a;
+            --mood-neutral: #ca8a04;
+            --mood-sad: #0369a1;
+        }
+
+        /* Светлая тема - Палитра "Океан" */
+        [data-theme="light-ocean"] {
+            --bg-primary: #f0f9ff;
+            --bg-secondary: #ffffff;
+            --bg-accent: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            --bg-legend: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            --mood-good: #059669;
+            --mood-neutral: #d97706;
+            --mood-sad: #2563eb;
+        }
+
+        /* Темная тема - По умолчанию */
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-accent: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --bg-legend: linear-gradient(135deg, #334155 0%, #475569 100%);
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-on-accent: white;
+            --border-color: #475569;
+            --border-hover: #64748b;
+            --day-hover: #334155;
+            --mood-good: #10b981;
+            --mood-neutral: #f59e0b;
+            --mood-sad: #3b82f6;
+        }
+
+        /* Темная тема - Палитра "Космос" */
+        [data-theme="dark-space"] {
+            --bg-primary: #0c0a09;
+            --bg-secondary: #1c1917;
+            --bg-accent: linear-gradient(135deg, #7c2d12 0%, #92400e 100%);
+            --bg-legend: linear-gradient(135deg, #292524 0%, #44403c 100%);
+            --text-primary: #fafaf9;
+            --text-secondary: #d6d3d1;
+            --mood-good: #059669;
+            --mood-neutral: #d97706;
+            --mood-sad: #0ea5e9;
+        }
+
+        /* Темная тема - Палитра "Фиолет" */
+        [data-theme="dark-purple"] {
+            --bg-primary: #0f0a19;
+            --bg-secondary: #1e1b31;
+            --bg-accent: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --bg-legend: linear-gradient(135deg, #2e1065 0%, #581c87 100%);
+            --text-primary: #f5f3ff;
+            --text-secondary: #d8b4fe;
+            --mood-good: #22c55e;
+            --mood-neutral: #fbbf24;
+            --mood-sad: #60a5fa;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -24,29 +502,97 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f9fafb;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
             padding: 8px;
             user-select: none;
             -webkit-user-select: none;
             -webkit-touch-callout: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .app-container {
             max-width: 400px;
             margin: 0 auto;
-            background: white;
+            background: var(--bg-secondary);
             border-radius: 16px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             min-height: calc(100vh - 16px);
+            transition: background-color 0.3s ease;
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-accent);
             padding: 20px;
-            color: white;
+            color: var(--text-on-accent);
             text-align: center;
+            position: relative;
+            min-height: 120px; /* Увеличили высоту для размещения кнопки темы */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .theme-selector {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: var(--text-on-accent);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .palette-selector {
+            display: none;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            padding: 8px;
+            min-width: 120px;
+        }
+
+        .palette-selector.active {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .palette-option {
+            background: none;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #1e293b;
+            transition: background 0.2s ease;
+        }
+
+        .palette-option:hover,
+        .palette-option.active {
+            background: rgba(0, 0, 0, 0.1);
         }
 
         .header h1 {
@@ -58,7 +604,7 @@
         .record-btn {
             background: rgba(255, 255, 255, 0.2);
             border: none;
-            color: white;
+            color: var(--text-on-accent);
             padding: 12px 20px;
             border-radius: 25px;
             font-size: 16px;
@@ -77,13 +623,14 @@
             justify-content: space-between;
             align-items: center;
             padding: 20px;
-            background: white;
-            border-bottom: 2px solid #f1f5f9;
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--border-color);
         }
 
         .nav-btn {
-            background: #f1f5f9;
-            border: none;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
             width: 44px;
             height: 44px;
             border-radius: 12px;
@@ -96,14 +643,15 @@
         }
 
         .nav-btn:hover, .nav-btn:active {
-            background: #e2e8f0;
+            background: var(--day-hover);
+            border-color: var(--border-hover);
             transform: scale(1.1);
         }
 
         .month-title {
             font-size: 20px;
             font-weight: 600;
-            color: #1e293b;
+            color: var(--text-primary);
         }
 
         .calendar {
@@ -121,7 +669,7 @@
             text-align: center;
             font-size: 14px;
             font-weight: 600;
-            color: #64748b;
+            color: var(--text-secondary);
             padding: 12px 4px;
         }
 
@@ -139,26 +687,28 @@
             justify-content: center;
             font-size: 16px;
             border-radius: 12px;
-            border: 2px solid #e2e8f0;
+            border: 2px solid var(--border-color);
             transition: all 0.3s ease;
             cursor: pointer;
             font-weight: 500;
             position: relative;
             overflow: hidden;
+            color: var(--text-primary);
         }
 
         .day:hover {
-            border-color: #cbd5e1;
+            border-color: var(--border-hover);
             transform: scale(1.05);
         }
 
         .day.other-month {
-            color: #cbd5e1;
-            background: #f8fafc;
+            color: var(--text-secondary);
+            background: var(--bg-primary);
+            opacity: 0.6;
         }
 
         .day.today {
-            border-color: #3b82f6;
+            border-color: var(--mood-sad);
             border-width: 3px;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
@@ -172,8 +722,8 @@
 
         .legend {
             padding: 16px 20px;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border-top: 1px solid #e2e8f0;
+            background: var(--bg-legend);
+            border-top: 1px solid var(--border-color);
         }
 
         .legend-items {
@@ -364,24 +914,144 @@
             display: none !important;
         }
 
-        /* Улучшения для мобильных устройств */
-        @media (max-width: 480px) {
-            body {
-                padding: 0;
-            }
-            
-            .app-container {
-                border-radius: 0;
-                min-height: 100vh;
-            }
-            
-            .calendar {
-                padding: 16px;
-            }
-            
-            .mood-popup {
-                padding: 16px;
-            }
+        /* Нижняя навигация */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 400px;
+            background: var(--bg-secondary);
+            border-top: 2px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .nav-item.active {
+            color: var(--mood-good);
+            background: var(--bg-primary);
+        }
+
+        .nav-item:hover {
+            background: var(--bg-primary);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        /* Отступ снизу для навигации */
+        .app-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: var(--bg-secondary);
+            border-radius: 16px 16px 0 0;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            min-height: calc(100vh - 16px);
+            margin-bottom: 80px; /* Место для навигации */
+            transition: background-color 0.3s ease;
+        }
+
+        /* Страница статистики */
+        .stats-page {
+            padding: 20px;
+            display: none;
+        }
+
+        .stats-page.active {
+            display: block;
+        }
+
+        .stats-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn.active {
+            border-color: var(--mood-good);
+            background: var(--mood-good);
+            color: white;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--mood-good);
+        }
+
+        .correlation-section, .overview-section {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .correlation-section h3, .overview-section h3 {
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+
+        .hourly-chart {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 4px;
+            margin-top: 12px;
+        }
+
+        .hour-block {
+            text-align: center;
+            padding: 8px 4px;
+            border-radius: 8px;
+            font-size: 11px;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .hour-block.has-data {
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Скрытие основного контента календаря на странице статистики */
+        .calendar-page {
+            display: block;
+        }
+
+        .calendar-page.hidden {
+            display: none;
         }
 
         /* Анимации */
@@ -412,8 +1082,31 @@
             <button id="enableNotifications" class="install-btn">Включить уведомления</button>
         </div>
 
+    <!-- Нижняя навигация -->
+    <div class="bottom-nav">
+        <button class="nav-item active" id="navCalendar" onclick="switchPage('calendar')">
+            <div class="nav-icon">👤</div>
+            <div>Профиль</div>
+        </button>
+        <button class="nav-item" id="navStats" onclick="switchPage('stats')">
+            <div class="nav-icon">📊</div>
+            <div>Статистика</div>
+        </button>
+    </div>
+
         <!-- Header -->
         <div class="header">
+            <div class="theme-selector">
+                <button class="theme-toggle" onclick="toggleTheme()">🎨 Тема</button>
+                <div class="palette-selector" id="paletteSelector">
+                    <button class="palette-option" onclick="setPalette('light')">🌞 Светлая</button>
+                    <button class="palette-option" onclick="setPalette('light-nature')">🌿 Природа</button>
+                    <button class="palette-option" onclick="setPalette('light-ocean')">🌊 Океан</button>
+                    <button class="palette-option" onclick="setPalette('dark')">🌙 Темная</button>
+                    <button class="palette-option" onclick="setPalette('dark-space')">🚀 Космос</button>
+                    <button class="palette-option" onclick="setPalette('dark-purple')">💜 Фиолет</button>
+                </div>
+            </div>
             <h1>📅 Календарь Настроения</h1>
             <button class="record-btn" onclick="triggerMoodCheck()">
                 🕐 Записать настроение
@@ -421,60 +1114,107 @@
         </div>
 
         <!-- Month Navigation -->
-        <div class="month-nav">
-            <button class="nav-btn" onclick="navigateMonth(-1)">←</button>
-            <div class="month-title" id="monthTitle"></div>
-            <button class="nav-btn" onclick="navigateMonth(1)">→</button>
+        <div class="calendar-page" id="calendarPage">
+            <div class="month-nav">
+                <button class="nav-btn" onclick="navigateMonth(-1)">←</button>
+                <div class="month-title" id="monthTitle"></div>
+                <button class="nav-btn" onclick="navigateMonth(1)">→</button>
+            </div>
+
+            <!-- Calendar -->
+            <div class="calendar">
+                <div class="weekdays">
+                    <div class="weekday">Вс</div>
+                    <div class="weekday">Пн</div>
+                    <div class="weekday">Вт</div>
+                    <div class="weekday">Ср</div>
+                    <div class="weekday">Чт</div>
+                    <div class="weekday">Пт</div>
+                    <div class="weekday">Сб</div>
+                </div>
+                <div id="calendarDays"></div>
+            </div>
+
+            <!-- Legend -->
+            <div class="legend">
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-color" id="legendGood"></div>
+                        <span>😊 Хорошее</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" id="legendNeutral"></div>
+                        <span>😐 Нейтральное</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" id="legendSad"></div>
+                        <span>😢 Грустное</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Кнопка для показа записей сегодня -->
+            <div style="padding: 16px;">
+                <button onclick="toggleDetailedStats()" style="background: none; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 12px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; width: 100%;">
+                    📋 Показать записи сегодня
+                </button>
+                
+                <!-- Детальная статистика (скрыта по умолчанию) -->
+                <div id="detailedStats" class="detailed-stats" style="display: none; margin-top: 16px; padding: 16px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-color);">
+                    <h4 style="font-size: 16px; margin-bottom: 12px; color: var(--text-primary);">Записи за сегодня:</h4>
+                    <div id="todayEntries" style="font-size: 14px; color: var(--text-secondary);"></div>
+                </div>
+            </div>
         </div>
 
-        <!-- Calendar -->
-        <div class="calendar">
-            <div class="weekdays">
-                <div class="weekday">Вс</div>
-                <div class="weekday">Пн</div>
-                <div class="weekday">Вт</div>
-                <div class="weekday">Ср</div>
-                <div class="weekday">Чт</div>
-                <div class="weekday">Пт</div>
-                <div class="weekday">Сб</div>
+        <!-- Страница статистики -->
+        <div class="stats-page" id="statsPage">
+            <!-- Фильтры времени -->
+            <div class="stats-filters">
+                <button class="filter-btn active" onclick="setStatsFilter('3days')">3 дня</button>
+                <button class="filter-btn" onclick="setStatsFilter('week')">Неделя</button>
+                <button class="filter-btn" onclick="setStatsFilter('month')">Месяц</button>
+                <button class="filter-btn" onclick="setStatsFilter('all')">Все время</button>
             </div>
-            <div id="calendarDays"></div>
-        </div>
 
-        <!-- Legend -->
-        <div class="legend">
-            <div class="legend-items">
-                <div class="legend-item">
-                    <div class="legend-color" style="background: linear-gradient(135deg, #22c55e, #16a34a);"></div>
-                    <span>😊 Хорошее</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: linear-gradient(135deg, #eab308, #d97706);"></div>
-                    <span>😐 Нейтральное</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: linear-gradient(135deg, #3b82f6, #2563eb);"></div>
-                    <span>😢 Грустное</span>
-                </div>
+            <!-- Корреляция настроения по текущему дню -->
+            <div class="correlation-section">
+                <h3>📊 Настроение сегодня по часам</h3>
+                <div id="hourlyChart" class="hourly-chart"></div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px; text-align: center;">
+                    Нажмите на час, чтобы увидеть записи
+                </p>
             </div>
-        </div>
 
-        <!-- Statistics -->
-        <div class="stats" id="stats" style="display: none;">
-            <h3>📊 Статистика</h3>
-            <div class="stat-row">
-                <span class="stat-label">Хорошие дни:</span>
-                <span class="stat-value" style="color: #22c55e;" id="goodPercent">0%</span>
+            <!-- Общая статистика -->
+            <div class="overview-section">
+                <h3>📈 Общая статистика (<span id="currentPeriod">3 дня</span>)</h3>
+                <div class="stat-row">
+                    <span class="stat-label">Хорошие записи:</span>
+                    <span class="stat-value" id="statsGoodPercent">0%</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Нейтральные записи:</span>
+                    <span class="stat-value" id="statsNeutralPercent">0%</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Грустные записи:</span>
+                    <span class="stat-value" id="statsSadPercent">0%</span>
+                </div>
+                <div class="total-records" id="statsTotalRecords">Всего записей: 0</div>
+                
+                <!-- Средняя активность -->
+                <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border-color);">
+                    <div class="stat-row">
+                        <span class="stat-label">Записей в день:</span>
+                        <span class="stat-value" id="avgPerDay">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Активных дней:</span>
+                        <span class="stat-value" id="activeDays">0</span>
+                    </div>
+                </div>
             </div>
-            <div class="stat-row">
-                <span class="stat-label">Нейтральные дни:</span>
-                <span class="stat-value" style="color: #eab308;" id="neutralPercent">0%</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-label">Грустные дни:</span>
-                <span class="stat-value" style="color: #3b82f6;" id="sadPercent">0%</span>
-            </div>
-            <div class="total-records" id="totalRecords">Всего записей: 0</div>
         </div>
     </div>
 
@@ -485,15 +1225,15 @@
             <p id="timeDisplay">Время записать настроение</p>
             
             <div class="mood-buttons">
-                <button class="mood-btn" style="border-color: #22c55e; background: linear-gradient(135deg, #f0fdf4, #dcfce7);" onclick="recordMood('good')">
+                <button class="mood-btn" id="goodMoodBtn" onclick="recordMood('good')">
                     <span class="mood-emoji">😊</span>
                     <span>Хорошее</span>
                 </button>
-                <button class="mood-btn" style="border-color: #eab308; background: linear-gradient(135deg, #fefce8, #fef3c7);" onclick="recordMood('neutral')">
+                <button class="mood-btn" id="neutralMoodBtn" onclick="recordMood('neutral')">
                     <span class="mood-emoji">😐</span>
                     <span>Нейтральное</span>
                 </button>
-                <button class="mood-btn" style="border-color: #3b82f6; background: linear-gradient(135deg, #eff6ff, #dbeafe);" onclick="recordMood('sad')">
+                <button class="mood-btn" id="sadMoodBtn" onclick="recordMood('sad')">
                     <span class="mood-emoji">😢</span>
                     <span>Грустное</span>
                 </button>
@@ -509,12 +1249,14 @@
         let selectedDate = new Date();
         let moodData = {};
         let dailyMoods = {};
+        let currentTheme = 'light';
+        let currentPage = 'calendar'; // 'calendar' или 'stats'
 
-        // Mood types
+        // Mood types (используем CSS переменные)
         const moodTypes = {
-            good: { color: '#22c55e', name: 'Хорошее' },
-            neutral: { color: '#eab308', name: 'Нейтральное' },
-            sad: { color: '#3b82f6', name: 'Грустное' }
+            good: { name: 'Хорошее' },
+            neutral: { name: 'Нейтральное' },
+            sad: { name: 'Грустное' }
         };
 
         const monthNames = [
@@ -525,11 +1267,74 @@
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             loadData();
+            loadTheme();
             updateCalendar();
-            updateStats();
             checkNotificationPermission();
             scheduleNotifications();
+            switchPage('calendar'); // Показываем календарь по умолчанию
         });
+
+        // Theme management
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('moodCalendarTheme') || 'light';
+            currentTheme = savedTheme;
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateActivePalette();
+        }
+
+        function toggleTheme() {
+            const selector = document.getElementById('paletteSelector');
+            selector.classList.toggle('active');
+        }
+
+        function setPalette(themeName) {
+            currentTheme = themeName;
+            document.documentElement.setAttribute('data-theme', themeName);
+            localStorage.setItem('moodCalendarTheme', themeName);
+            updateActivePalette();
+            document.getElementById('paletteSelector').classList.remove('active');
+            // Обновляем календарь для применения новых цветов
+            updateCalendar();
+        }
+
+        function updateActivePalette() {
+            const options = document.querySelectorAll('.palette-option');
+            options.forEach(option => {
+                option.classList.remove('active');
+                const themeName = option.getAttribute('onclick').match(/'([^']+)'/)[1];
+                if (themeName === currentTheme) {
+                    option.classList.add('active');
+                }
+            });
+        }
+
+        // Get CSS variable value
+        function getCSSVariable(variableName) {
+            return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
+        }
+
+        // Навигация между страницами
+        function switchPage(page) {
+            currentPage = page;
+            
+            const calendarPage = document.getElementById('calendarPage');
+            const statsPage = document.getElementById('statsPage');
+            const navCalendar = document.getElementById('navCalendar');
+            const navStats = document.getElementById('navStats');
+            
+            if (page === 'calendar') {
+                calendarPage.style.display = 'block';
+                statsPage.classList.remove('active');
+                navCalendar.classList.add('active');
+                navStats.classList.remove('active');
+            } else if (page === 'stats') {
+                calendarPage.style.display = 'none';
+                statsPage.classList.add('active');
+                navCalendar.classList.remove('active');
+                navStats.classList.add('active');
+                updateStatsPage();
+            }
+        }
 
         // Check notification permission
         function checkNotificationPermission() {
@@ -553,27 +1358,32 @@
             }
         }
 
-        // Schedule notifications
+        // Schedule notifications (3 раза в день)
+        // TODO: Улучшить механику уведомлений - сделать менее заметными и более автоматическими
+        // Материалы для изучения:
+        // - Web Push API: https://developer.mozilla.org/en-US/docs/Web/API/Push_API
+        // - Background Sync: https://developer.mozilla.org/en-US/docs/Web/API/Background_Sync_API
+        // - Service Worker Notifications: https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerRegistration/showNotification
         function scheduleNotifications() {
             if ('Notification' in window && Notification.permission === 'granted') {
-                const now = new Date();
-                const nextHour = new Date(now);
-                nextHour.setHours(now.getHours() + 1, 0, 0, 0);
-                const timeUntilNextHour = nextHour.getTime() - now.getTime();
-                
-                setTimeout(() => {
-                    showNotification();
-                    setInterval(showNotification, 60 * 60 * 1000);
-                }, timeUntilNextHour);
+                // Проверяем каждую минуту
+                setInterval(showNotification, 60 * 1000);
             }
         }
 
-        // Show notification
+        // Show notification (теперь 3 раза в день)
         function showNotification() {
             if ('Notification' in window && Notification.permission === 'granted') {
-                const hour = new Date().getHours();
-                if (hour >= 8 && hour <= 22) {
-                    const notification = new Notification('Время записать настроение! 😊', {
+                const now = new Date();
+                const hour = now.getHours();
+                const minute = now.getMinutes();
+                
+                // Уведомления в 9:00, 15:00, 21:00
+                const notificationTimes = [9, 15, 21];
+                
+                if (notificationTimes.includes(hour) && minute === 0) {
+                    const timeOfDay = hour === 9 ? 'Утро' : hour === 15 ? 'День' : 'Вечер';
+                    const notification = new Notification(`${timeOfDay}: Время записать настроение! 😊`, {
                         body: 'Как вы себя чувствуете сейчас?',
                         tag: 'mood-reminder'
                     });
@@ -592,13 +1402,45 @@
             try {
                 const savedMoodData = JSON.parse(localStorage.getItem('moodData') || '{}');
                 const savedDailyMoods = JSON.parse(localStorage.getItem('dailyMoods') || '{}');
-                moodData = savedMoodData;
+                
+                // Конвертируем старый формат данных в новый
+                moodData = convertOldDataFormat(savedMoodData);
                 dailyMoods = savedDailyMoods;
+                
+                console.log('Данные загружены:', { moodData, dailyMoods });
             } catch (e) {
                 console.log('Error loading data:', e);
                 moodData = {};
                 dailyMoods = {};
             }
+        }
+
+        function convertOldDataFormat(oldData) {
+            const newData = {};
+            
+            Object.keys(oldData).forEach(dateKey => {
+                const dayData = oldData[dateKey];
+                
+                // Если данные уже в новом формате (массив), оставляем как есть
+                if (Array.isArray(dayData)) {
+                    newData[dateKey] = dayData;
+                } else if (typeof dayData === 'object') {
+                    // Конвертируем старый формат {hour: mood} в новый [{hour, minute, mood, timestamp}]
+                    newData[dateKey] = [];
+                    Object.keys(dayData).forEach(hour => {
+                        const mood = dayData[hour];
+                        // Создаем примерную запись для старых данных
+                        newData[dateKey].push({
+                            hour: parseInt(hour),
+                            minute: 0, // Устанавливаем минуты в 0 для старых записей
+                            mood: mood,
+                            timestamp: new Date().setHours(parseInt(hour), 0, 0, 0) // Примерное время
+                        });
+                    });
+                }
+            });
+            
+            return newData;
         }
 
         function saveData() {
@@ -624,41 +1466,83 @@
             const minutes = now.getMinutes().toString().padStart(2, '0');
             document.getElementById('timeDisplay').textContent = 
                 `${hours}:${minutes} - Время записать настроение`;
+            
+            // Обновляем цвета кнопок настроения
+            updateMoodButtonColors();
             document.getElementById('moodPopup').classList.remove('hidden');
         }
 
+        function updateMoodButtonColors() {
+            const goodBtn = document.getElementById('goodMoodBtn');
+            const neutralBtn = document.getElementById('neutralMoodBtn');
+            const sadBtn = document.getElementById('sadMoodBtn');
+
+            const goodColor = getCSSVariable('--mood-good');
+            const neutralColor = getCSSVariable('--mood-neutral');
+            const sadColor = getCSSVariable('--mood-sad');
+
+            goodBtn.style.borderColor = goodColor;
+            goodBtn.style.background = `linear-gradient(135deg, ${goodColor}20, ${goodColor}10)`;
+
+            neutralBtn.style.borderColor = neutralColor;
+            neutralBtn.style.background = `linear-gradient(135deg, ${neutralColor}20, ${neutralColor}10)`;
+
+            sadBtn.style.borderColor = sadColor;
+            sadBtn.style.background = `linear-gradient(135deg, ${sadColor}20, ${sadColor}10)`;
+        }
+
         function recordMood(mood) {
-            const dateKey = getDateKey(currentDate);
-            const hour = currentDate.getHours();
+            const now = new Date();
+            const dateKey = getDateKey(now);
+            const hour = now.getHours();
+            const minute = now.getMinutes();
+            const timestamp = now.getTime();
             
+            // Создаем запись с полной информацией
+            const moodEntry = {
+                hour: hour,
+                minute: minute,
+                mood: mood,
+                timestamp: timestamp
+            };
+            
+            // Инициализируем массив записей для дня, если не существует
             if (!moodData[dateKey]) {
-                moodData[dateKey] = {};
+                moodData[dateKey] = [];
             }
             
-            moodData[dateKey][hour] = mood;
+            // Добавляем новую запись к существующим (не перезаписываем!)
+            moodData[dateKey].push(moodEntry);
+            
+            // Пересчитываем доминирующее настроение дня
             calculateDayMood(dateKey);
             saveData();
             updateCalendar();
             updateStats();
             closeMoodPopup();
+            
+            console.log(`Записано настроение: ${mood} в ${hour}:${minute.toString().padStart(2, '0')}`);
         }
 
         function calculateDayMood(dateKey) {
-            const dayData = moodData[dateKey] || {};
-            const moods = Object.values(dayData);
+            const dayEntries = moodData[dateKey] || [];
             
-            if (moods.length === 0) return;
+            if (dayEntries.length === 0) return;
 
-            const moodCounts = moods.reduce((acc, mood) => {
-                acc[mood] = (acc[mood] || 0) + 1;
+            // Подсчитываем количество каждого типа настроения
+            const moodCounts = dayEntries.reduce((acc, entry) => {
+                acc[entry.mood] = (acc[entry.mood] || 0) + 1;
                 return acc;
             }, {});
 
+            // Находим доминирующее настроение
             const dominantMood = Object.keys(moodCounts).reduce((a, b) => 
                 moodCounts[a] > moodCounts[b] ? a : b
             );
 
             dailyMoods[dateKey] = dominantMood;
+            
+            console.log(`День ${dateKey}: ${dayEntries.length} записей, доминирует: ${dominantMood}`, moodCounts);
         }
 
         function closeMoodPopup() {
@@ -714,7 +1598,9 @@
                     
                     if (dayMood) {
                         dayDiv.classList.add('has-mood');
-                        dayDiv.style.background = `linear-gradient(135deg, ${moodTypes[dayMood].color}, ${adjustBrightness(moodTypes[dayMood].color, -20)})`;
+                        const moodColor = getCSSVariable(`--mood-${dayMood}`);
+                        const darkerColor = adjustBrightness(moodColor, -20);
+                        dayDiv.style.background = `linear-gradient(135deg, ${moodColor}, ${darkerColor})`;
                     }
                     
                     dayDiv.textContent = current.getDate();
@@ -723,6 +1609,23 @@
                 
                 calendarDays.appendChild(weekDiv);
             }
+            
+            // Обновляем цвета легенды
+            updateLegendColors();
+        }
+
+        function updateLegendColors() {
+            const goodElement = document.getElementById('legendGood');
+            const neutralElement = document.getElementById('legendNeutral');
+            const sadElement = document.getElementById('legendSad');
+
+            const goodColor = getCSSVariable('--mood-good');
+            const neutralColor = getCSSVariable('--mood-neutral');
+            const sadColor = getCSSVariable('--mood-sad');
+
+            goodElement.style.background = `linear-gradient(135deg, ${goodColor}, ${adjustBrightness(goodColor, -20)})`;
+            neutralElement.style.background = `linear-gradient(135deg, ${neutralColor}, ${adjustBrightness(neutralColor, -20)})`;
+            sadElement.style.background = `linear-gradient(135deg, ${sadColor}, ${adjustBrightness(sadColor, -20)})`;
         }
 
         function adjustBrightness(hex, percent) {
@@ -754,12 +1657,83 @@
             const neutralPercent = Math.round((counts.neutral || 0) / total * 100);
             const sadPercent = Math.round((counts.sad || 0) / total * 100);
 
-            document.getElementById('goodPercent').textContent = `${goodPercent}%`;
-            document.getElementById('neutralPercent').textContent = `${neutralPercent}%`;
-            document.getElementById('sadPercent').textContent = `${sadPercent}%`;
+            const goodElement = document.getElementById('goodPercent');
+            const neutralElement = document.getElementById('neutralPercent');
+            const sadElement = document.getElementById('sadPercent');
+
+            goodElement.textContent = `${goodPercent}%`;
+            goodElement.style.color = getCSSVariable('--mood-good');
+            
+            neutralElement.textContent = `${neutralPercent}%`;
+            neutralElement.style.color = getCSSVariable('--mood-neutral');
+            
+            sadElement.textContent = `${sadPercent}%`;
+            sadElement.style.color = getCSSVariable('--mood-sad');
             document.getElementById('totalRecords').textContent = `Всего записей: ${total}`;
             
             document.getElementById('stats').style.display = 'block';
+        }
+
+        // Показать/скрыть детальную статистику
+        function toggleDetailedStats() {
+            const detailedStats = document.getElementById('detailedStats');
+            const isVisible = detailedStats.style.display !== 'none';
+            
+            if (isVisible) {
+                detailedStats.style.display = 'none';
+            } else {
+                showTodayEntries();
+                detailedStats.style.display = 'block';
+            }
+        }
+
+        function showTodayEntries() {
+            const today = new Date();
+            const todayKey = getDateKey(today);
+            const todayEntries = moodData[todayKey] || [];
+            const todayEntriesElement = document.getElementById('todayEntries');
+            
+            if (todayEntries.length === 0) {
+                todayEntriesElement.innerHTML = '<p style="color: var(--text-secondary); font-style: italic;">Пока нет записей за сегодня</p>';
+                return;
+            }
+            
+            // Сортируем записи по времени
+            const sortedEntries = [...todayEntries].sort((a, b) => a.timestamp - b.timestamp);
+            
+            const entriesHTML = sortedEntries.map(entry => {
+                const time = `${entry.hour.toString().padStart(2, '0')}:${entry.minute.toString().padStart(2, '0')}`;
+                const moodEmoji = entry.mood === 'good' ? '😊' : entry.mood === 'neutral' ? '😐' : '😢';
+                const moodName = moodTypes[entry.mood].name;
+                
+                return `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--border-color);">
+                        <span>${time}</span>
+                        <span>${moodEmoji} ${moodName}</span>
+                    </div>
+                `;
+            }).join('');
+            
+            todayEntriesElement.innerHTML = entriesHTML;
+            
+            // Показываем общий счет за день
+            const moodCounts = sortedEntries.reduce((acc, entry) => {
+                acc[entry.mood] = (acc[entry.mood] || 0) + 1;
+                return acc;
+            }, {});
+            
+            const summaryHTML = `
+                <div style="margin-top: 12px; padding-top: 8px; border-top: 2px solid var(--border-color); font-weight: bold;">
+                    <div>Итого за день:</div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 11px;">
+                        <span>😊 ${moodCounts.good || 0}</span>
+                        <span>😐 ${moodCounts.neutral || 0}</span>
+                        <span>😢 ${moodCounts.sad || 0}</span>
+                    </div>
+                </div>
+            `;
+            
+            todayEntriesElement.innerHTML += summaryHTML;
         }
 
         // Add event listener for notifications button
