@@ -33,423 +33,6 @@
             --mood-sad: #3b82f6;
         }
 
-        // Фильтры статистики
-        let currentStatsFilter = '3days';
-
-        function setStatsFilter(filter) {
-            currentStatsFilter = filter;
-            
-            // Обновляем активную кнопку
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelector(`[onclick="setStatsFilter('${filter}')"]`).classList.add('active');
-            
-            // Обновляем статистику
-            updateStatsPage();
-        }
-
-        function updateStatsPage() {
-            updateHourlyChart();
-            updateOverviewStats();
-        }
-
-        function updateHourlyChart() {
-            const today = new Date();
-            const todayKey = getDateKey(today);
-            const todayEntries = moodData[todayKey] || [];
-            
-            const hourlyChart = document.getElementById('hourlyChart');
-            if (!hourlyChart) return;
-            
-            hourlyChart.innerHTML = '';
-            
-            // Создаем блоки для каждого часа (6:00 - 23:00)
-            for (let hour = 6; hour <= 23; hour++) {
-                const hourBlock = document.createElement('div');
-                hourBlock.className = 'hour-block';
-                
-                // Ищем записи для этого часа
-                const hourEntries = todayEntries.filter(entry => entry.hour === hour);
-                
-                if (hourEntries.length > 0) {
-                    // Определяем доминирующее настроение для часа
-                    const hourMoodCounts = hourEntries.reduce((acc, entry) => {
-                        acc[entry.mood] = (acc[entry.mood] || 0) + 1;
-                        return acc;
-                    }, {});
-                    
-                    const dominantMood = Object.keys(hourMoodCounts).reduce((a, b) => 
-                        hourMoodCounts[a] > hourMoodCounts[b] ? a : b
-                    );
-                    
-                    const moodColor = getCSSVariable(`--mood-${dominantMood}`);
-                    hourBlock.style.backgroundColor = moodColor;
-                    hourBlock.classList.add('has-data');
-                    hourBlock.title = `${hour}:00 - ${hourEntries.length} записей`;
-                } else {
-                    hourBlock.style.backgroundColor = 'transparent';
-                    hourBlock.title = `${hour}:00 - нет записей`;
-                }
-                
-                hourBlock.textContent = hour;
-                hourBlock.onclick = () => showHourDetails(hour, hourEntries);
-                
-                hourlyChart.appendChild(hourBlock);
-            }
-        }
-
-        function showHourDetails(hour, entries) {
-            if (entries.length === 0) {
-                alert(`${hour}:00 - записей нет`);
-                return;
-            }
-            
-            const details = entries.map(entry => {
-                const time = `${entry.hour.toString().padStart(2, '0')}:${entry.minute.toString().padStart(2, '0')}`;
-                const moodName = moodTypes[entry.mood].name;
-                return `${time} - ${moodName}`;
-            }).join('\n');
-            
-            alert(`${hour}:00\n${entries.length} записей:\n\n${details}`);
-        }
-
-        function updateOverviewStats() {
-            const periodData = getDataForPeriod(currentStatsFilter);
-            
-            const currentPeriodElement = document.getElementById('currentPeriod');
-            const statsGoodElement = document.getElementById('statsGoodPercent');
-            const statsNeutralElement = document.getElementById('statsNeutralPercent');
-            const statsSadElement = document.getElementById('statsSadPercent');
-            const statsTotalElement = document.getElementById('statsTotalRecords');
-            const avgPerDayElement = document.getElementById('avgPerDay');
-            const activeDaysElement = document.getElementById('activeDays');
-            
-            console.log('Обновляем статистику для периода:', currentStatsFilter, periodData); // Для отладки
-            
-            if (!currentPeriodElement) {
-                console.log('Элементы статистики еще не найдены'); // Для отладки
-                return; // Элементы еще не созданы
-            }
-            
-            // ИСПРАВЛЕНИЕ: Обновляем название периода в заголовке
-            currentPeriodElement.textContent = getPeriodName(currentStatsFilter);
-            
-            if (periodData.totalEntries === 0) {
-                statsGoodElement.textContent = '0%';
-                statsNeutralElement.textContent = '0%';
-                statsSadElement.textContent = '0%';
-                statsTotalElement.textContent = 'Всего записей: 0';
-                avgPerDayElement.textContent = '0';
-                activeDaysElement.textContent = '0';
-                return;
-            }
-            
-            const goodPercent = Math.round((periodData.moodCounts.good || 0) / periodData.totalEntries * 100);
-            const neutralPercent = Math.round((periodData.moodCounts.neutral || 0) / periodData.totalEntries * 100);
-            const sadPercent = Math.round((periodData.moodCounts.sad || 0) / periodData.totalEntries * 100);
-            
-            statsGoodElement.textContent = `${goodPercent}%`;
-            statsGoodElement.style.color = getCSSVariable('--mood-good');
-            
-            statsNeutralElement.textContent = `${neutralPercent}%`;
-            statsNeutralElement.style.color = getCSSVariable('--mood-neutral');
-            
-            statsSadElement.textContent = `${sadPercent}%`;
-            statsSadElement.style.color = getCSSVariable('--mood-sad');
-            
-            statsTotalElement.textContent = `Всего записей: ${periodData.totalEntries}`;
-            avgPerDayElement.textContent = (periodData.totalEntries / Math.max(periodData.days, 1)).toFixed(1);
-            activeDaysElement.textContent = periodData.activeDays;
-            
-            console.log('Статистика обновлена:', {
-                period: getPeriodName(currentStatsFilter),
-                goodPercent,
-                neutralPercent,
-                sadPercent,
-                totalEntries: periodData.totalEntries
-            }); // Для отладки
-        }
-
-        function getDataForPeriod(period) {
-            const now = new Date();
-            let startDate = new Date();
-            
-            switch (period) {
-                case '3days':
-                    startDate.setDate(now.getDate() - 3);
-                    break;
-                case 'week':
-                    startDate.setDate(now.getDate() - 7);
-                    break;
-                case 'month':
-                    startDate.setMonth(now.getMonth() - 1);
-                    break;
-                case 'all':
-                    startDate = new Date('2020-01-01'); // Начало времен
-                    break;
-            }
-            
-            let totalEntries = 0;
-            let moodCounts = { good: 0, neutral: 0, sad: 0 };
-            let activeDays = 0;
-            
-            Object.keys(moodData).forEach(dateKey => {
-                const date = new Date(dateKey);
-                if (date >= startDate && date <= now) {
-                    const dayEntries = moodData[dateKey];
-                    if (dayEntries && dayEntries.length > 0) {
-                        activeDays++;
-                        dayEntries.forEach(entry => {
-                            totalEntries++;
-                            moodCounts[entry.mood] = (moodCounts[entry.mood] || 0) + 1;
-                        });
-                    }
-                }
-            });
-            
-            const days = Math.max(Math.ceil((now - startDate) / (1000 * 60 * 60 * 24)), 1);
-            
-            return {
-                totalEntries,
-                moodCounts,
-                activeDays,
-                days
-            };
-        }
-
-        function getPeriodName(period) {
-            switch (period) {
-                case '3days': return '3 дня';
-                case 'week': return 'неделя';
-                case 'month': return 'месяц';
-                case 'all': return 'все время';
-                default: return period;
-            }
-        }
-
-        // Навигация между страницами
-        function switchPage(page) {
-            currentPage = page;
-            
-            const calendarPage = document.getElementById('calendarPage');
-            const statsPage = document.getElementById('statsPage');
-            const navCalendar = document.getElementById('navCalendar');
-            const navStats = document.getElementById('navStats');
-            
-            if (page === 'calendar') {
-                calendarPage.style.display = 'block';
-                statsPage.classList.remove('active');
-                navCalendar.classList.add('active');
-                navStats.classList.remove('active');
-            } else if (page === 'stats') {
-                calendarPage.style.display = 'none';
-                statsPage.classList.add('active');
-                navCalendar.classList.remove('active');
-                navStats.classList.add('active');
-                // Используем setTimeout чтобы дать время DOM обновиться
-                setTimeout(updateStatsPage, 100);
-            }
-        }
-
-        // Фильтры статистики
-        let currentStatsFilter = '3days';
-
-        function setStatsFilter(filter) {
-            currentStatsFilter = filter;
-            
-            console.log('Устанавливаем фильтр:', filter); // Для отладки
-            
-            // Обновляем активную кнопку
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active');
-                // Проверяем какой фильтр у кнопки
-                const btnOnClick = btn.getAttribute('onclick');
-                if (btnOnClick && btnOnClick.includes(`'${filter}'`)) {
-                    btn.classList.add('active');
-                }
-            });
-            
-            // Обновляем статистику
-            updateStatsPage();
-        }
-
-        function updateStatsPage() {
-            console.log('Обновляем страницу статистики'); // Для отладки
-            updateHourlyChart();
-            updateOverviewStats();
-        }
-
-        // Фильтры статистики
-        let currentStatsFilter = '3days';
-
-        function setStatsFilter(filter) {
-            currentStatsFilter = filter;
-            
-            // Обновляем активную кнопку
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelector(`[onclick="setStatsFilter('${filter}')"]`).classList.add('active');
-            
-            // Обновляем статистику
-            updateStatsPage();
-        }
-
-        function updateStatsPage() {
-            updateHourlyChart();
-            updateOverviewStats();
-        }
-
-        function updateHourlyChart() {
-            const today = new Date();
-            const todayKey = getDateKey(today);
-            const todayEntries = moodData[todayKey] || [];
-            
-            const hourlyChart = document.getElementById('hourlyChart');
-            hourlyChart.innerHTML = '';
-            
-            // Создаем блоки для каждого часа (6:00 - 23:00)
-            for (let hour = 6; hour <= 23; hour++) {
-                const hourBlock = document.createElement('div');
-                hourBlock.className = 'hour-block';
-                
-                // Ищем записи для этого часа
-                const hourEntries = todayEntries.filter(entry => entry.hour === hour);
-                
-                if (hourEntries.length > 0) {
-                    // Определяем доминирующее настроение для часа
-                    const hourMoodCounts = hourEntries.reduce((acc, entry) => {
-                        acc[entry.mood] = (acc[entry.mood] || 0) + 1;
-                        return acc;
-                    }, {});
-                    
-                    const dominantMood = Object.keys(hourMoodCounts).reduce((a, b) => 
-                        hourMoodCounts[a] > hourMoodCounts[b] ? a : b
-                    );
-                    
-                    const moodColor = getCSSVariable(`--mood-${dominantMood}`);
-                    hourBlock.style.backgroundColor = moodColor;
-                    hourBlock.classList.add('has-data');
-                    hourBlock.title = `${hour}:00 - ${hourEntries.length} записей`;
-                } else {
-                    hourBlock.style.backgroundColor = 'transparent';
-                    hourBlock.title = `${hour}:00 - нет записей`;
-                }
-                
-                hourBlock.textContent = hour;
-                hourBlock.onclick = () => showHourDetails(hour, hourEntries);
-                
-                hourlyChart.appendChild(hourBlock);
-            }
-        }
-
-        function showHourDetails(hour, entries) {
-            if (entries.length === 0) {
-                alert(`${hour}:00 - записей нет`);
-                return;
-            }
-            
-            const details = entries.map(entry => {
-                const time = `${entry.hour.toString().padStart(2, '0')}:${entry.minute.toString().padStart(2, '0')}`;
-                const moodName = moodTypes[entry.mood].name;
-                return `${time} - ${moodName}`;
-            }).join('\n');
-            
-            alert(`${hour}:00\n${entries.length} записей:\n\n${details}`);
-        }
-
-        function updateOverviewStats() {
-            const periodData = getDataForPeriod(currentStatsFilter);
-            
-            if (periodData.totalEntries === 0) {
-                document.getElementById('currentPeriod').textContent = getPeriodName(currentStatsFilter);
-                document.getElementById('statsGoodPercent').textContent = '0%';
-                document.getElementById('statsNeutralPercent').textContent = '0%';
-                document.getElementById('statsSadPercent').textContent = '0%';
-                document.getElementById('statsTotalRecords').textContent = 'Всего записей: 0';
-                document.getElementById('avgPerDay').textContent = '0';
-                document.getElementById('activeDays').textContent = '0';
-                return;
-            }
-            
-            const goodPercent = Math.round((periodData.moodCounts.good || 0) / periodData.totalEntries * 100);
-            const neutralPercent = Math.round((periodData.moodCounts.neutral || 0) / periodData.totalEntries * 100);
-            const sadPercent = Math.round((periodData.moodCounts.sad || 0) / periodData.totalEntries * 100);
-            
-            document.getElementById('currentPeriod').textContent = getPeriodName(currentStatsFilter);
-            
-            const goodElement = document.getElementById('statsGoodPercent');
-            const neutralElement = document.getElementById('statsNeutralPercent');
-            const sadElement = document.getElementById('statsSadPercent');
-
-            goodElement.textContent = `${goodPercent}%`;
-            goodElement.style.color = getCSSVariable('--mood-good');
-            
-            neutralElement.textContent = `${neutralPercent}%`;
-            neutralElement.style.color = getCSSVariable('--mood-neutral');
-            
-            sadElement.textContent = `${sadPercent}%`;
-            sadElement.style.color = getCSSVariable('--mood-sad');
-            
-            document.getElementById('statsTotalRecords').textContent = `Всего записей: ${periodData.totalEntries}`;
-            document.getElementById('avgPerDay').textContent = (periodData.totalEntries / periodData.days).toFixed(1);
-            document.getElementById('activeDays').textContent = periodData.activeDays;
-        }
-
-        function getDataForPeriod(period) {
-            const now = new Date();
-            let startDate = new Date();
-            
-            switch (period) {
-                case '3days':
-                    startDate.setDate(now.getDate() - 3);
-                    break;
-                case 'week':
-                    startDate.setDate(now.getDate() - 7);
-                    break;
-                case 'month':
-                    startDate.setMonth(now.getMonth() - 1);
-                    break;
-                case 'all':
-                    startDate = new Date('2020-01-01'); // Начало времен
-                    break;
-            }
-            
-            let totalEntries = 0;
-            let moodCounts = { good: 0, neutral: 0, sad: 0 };
-            let activeDays = 0;
-            
-            Object.keys(moodData).forEach(dateKey => {
-                const date = new Date(dateKey);
-                if (date >= startDate && date <= now) {
-                    const dayEntries = moodData[dateKey];
-                    if (dayEntries.length > 0) {
-                        activeDays++;
-                        dayEntries.forEach(entry => {
-                            totalEntries++;
-                            moodCounts[entry.mood] = (moodCounts[entry.mood] || 0) + 1;
-                        });
-                    }
-                }
-            });
-            
-            const days = Math.ceil((now - startDate) / (1000 * 60 * 60 * 24));
-            
-            return {
-                totalEntries,
-                moodCounts,
-                activeDays,
-                days
-            };
-        }
-
-        function getPeriodName(period) {
-            switch (period) {
-                case '3days': return '3 дня';
-                case 'week': return 'неделя';
-                case 'month': return 'месяц';
-                case 'all': return 'все время';
-                default: return period;
-            }
-        }
-
         /* Светлая тема - Палитра "Природа" */
         [data-theme="light-nature"] {
             --bg-primary: #f0fdf4;
@@ -540,17 +123,17 @@
           position: relative;
           display: flex;
           flex-direction: column;
-          align-items: center;      /* центрируем содержимое */
+          align-items: center;
           gap: 12px;
           text-align: center;
         }
             
         .header-actions {
           display: flex;
-          justify-content: center;  /* по центру */
+          justify-content: center;
           align-items: center;
           gap: 12px;
-          flex-wrap: wrap;          /* на маленьких экранах кнопки перейдут вниз */
+          flex-wrap: wrap;
           margin-top: 4px;
         }
 
@@ -562,7 +145,7 @@
           left: 50%;
           right: auto;
           transform: translateX(-50%);
-          z-index: 1100;         /* поверх контента */
+          z-index: 1100;
           background: rgba(255, 255, 255, 0.95);
           border-radius: 12px;
           padding: 10px;
@@ -574,7 +157,6 @@
         }
         .palette-selector[hidden] { display: none; }
 
-            
         .palette-option {
           background: none;
           border: none;
@@ -593,7 +175,6 @@
 
         .record-btn,
         .theme-toggle {
-          /* визуальный стиль */
           background: rgba(255, 255, 255, 0.22);
           border: 1px solid rgba(255, 255, 255, 0.4);
           color: var(--text-on-accent);
@@ -604,13 +185,11 @@
           transition: all .2s ease;
           backdrop-filter: blur(6px);
           -webkit-backdrop-filter: blur(6px);
-        
-          /* выравнивание и одинаковая ширина */
           display: inline-flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
-          min-width: 180px;   /* можно уменьшить/убрать при необходимости */
+          min-width: 180px;
           font-weight: 600;
         }
 
@@ -631,6 +210,7 @@
           font-weight: bold;
           margin: 0;
         }
+
         .month-nav {
             display: flex;
             justify-content: space-between;
@@ -900,44 +480,6 @@
             display: none !important;
         }
 
-        /* === AI CHAT === */
-        .chat-launcher{
-          position: fixed; right: 20px; bottom: 96px; z-index: 1200;
-          background: rgba(255,255,255,0.22);
-          border: 1px solid rgba(255,255,255,0.4);
-          color: var(--text-on-accent);
-          border-radius: 9999px; padding: 10px 14px; font-size: 18px;
-          backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-          box-shadow: 0 8px 20px rgba(0,0,0,.15);
-        }
-        
-        .chat-panel{
-          position: fixed; right: 8px; bottom: 80px; z-index: 1200;
-          width: min(360px, 92vw); max-height: 70vh;
-          background: var(--bg-secondary); color: var(--text-primary);
-          border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,.25);
-          display: flex; flex-direction: column; overflow: hidden;
-          border: 1px solid var(--border-color);
-        }
-        .chat-header{ display:flex; justify-content:space-between; align-items:center;
-          padding:10px 12px; background: var(--bg-primary); border-bottom:1px solid var(--border-color);
-        }
-        .chat-close{ background:none; border:none; font-size:16px; cursor:pointer; color:var(--text-secondary); }
-        
-        .chat-messages{ padding:12px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; }
-        .msg{ max-width: 90%; padding:10px 12px; border-radius:14px; font-size:14px; line-height:1.35; }
-        .msg.user{ align-self:flex-end; background: var(--mood-sad); color:#fff; }
-        .msg.bot{ align-self:flex-start; background: var(--bg-primary); border:1px solid var(--border-color); }
-        
-        .chat-input-row{ display:flex; gap:8px; padding:10px; border-top:1px solid var(--border-color); }
-        #chatInput{ flex:1; padding:10px 12px; border-radius:10px; border:1px solid var(--border-color);
-          background:var(--bg-primary); color:var(--text-primary); }
-        .send-btn{ padding:10px 14px; border-radius:10px; border:1px solid var(--border-color);
-          background:var(--bg-secondary); cursor:pointer; }
-        
-        .chat-disclaimer{ font-size:11px; color:var(--text-secondary); text-align:center; padding:6px 10px 10px; }
-        /* === /AI CHAT === */
-            
         /* Нижняя навигация */
         .bottom-nav {
             position: fixed;
@@ -991,8 +533,9 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             min-height: calc(100vh - 16px);
-            margin-bottom: 80px; /* Место для навигации */
+            margin-bottom: 80px;
             transition: background-color 0.3s ease;
+            position: relative; /* добавляем для лучшего позиционирования */
         }
 
         /* Страница статистики */
@@ -1078,6 +621,177 @@
             display: none;
         }
 
+        /* === ЧАТ СТРАНИЦА === */
+        .chat-page {
+            display: none;
+            flex-direction: column;
+            height: calc(100vh - 240px); /* увеличиваем отступ для header и bottom-nav */
+            max-height: calc(100vh - 240px);
+        }
+
+        .chat-page.active {
+            display: flex;
+        }
+
+        .chat-header {
+            background: var(--bg-primary);
+            padding: 20px;
+            border-bottom: 2px solid var(--border-color);
+            text-align: center;
+        }
+
+        .chat-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .chat-header p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.4;
+            animation: messageSlideIn 0.3s ease;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: var(--mood-good);
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+
+        .message.ai {
+            align-self: flex-start;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-bottom-left-radius: 6px;
+        }
+
+        .message.system {
+            align-self: center;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--text-secondary);
+            border-radius: 12px;
+            font-size: 13px;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        @keyframes messageSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-input-container {
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            flex-shrink: 0; /* предотвращаем сжатие */
+        }
+
+        .chat-input {
+            flex: 1;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
+            padding: 12px 16px;
+            font-size: 15px;
+            color: var(--text-primary);
+            resize: none;
+            min-height: 20px;
+            max-height: 100px;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .chat-input:focus {
+            border-color: var(--mood-good);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+
+        .chat-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .send-button {
+            background: var(--mood-good);
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+            font-size: 18px;
+        }
+
+        .send-button:hover:not(:disabled) {
+            background: #16a34a;
+            transform: scale(1.05);
+        }
+
+        .send-button:disabled {
+            background: var(--text-secondary);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .typing-indicator {
+            align-self: flex-start;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            border-bottom-left-radius: 6px;
+            padding: 12px 16px;
+            color: var(--text-secondary);
+            font-style: italic;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .chat-disclaimer {
+            padding: 8px 20px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-align: center;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+        }
+
         /* Анимации */
         .day {
             animation: dayFadeIn 0.3s ease;
@@ -1106,41 +820,28 @@
             <button id="enableNotifications" class="install-btn">Включить уведомления</button>
         </div>
 
-    <!-- Нижняя навигация -->
-    <div class="bottom-nav">
-        <button class="nav-item active" id="navCalendar" onclick="switchPage('calendar')">
-            <div class="nav-icon">👤</div>
-            <div>Профиль</div>
-        </button>
-        <button class="nav-item" id="navStats" onclick="switchPage('stats')">
-            <div class="nav-icon">📊</div>
-            <div>Статистика</div>
-        </button>
-    </div>
-
         <!-- Header -->
         <div class="header">
             <h1>📅 Календарь Настроения</h1>
             
-          <div class="header-actions">
-            <button class="record-btn" onclick="triggerMoodCheck()">🕐 Записать настроение</button>
+            <div class="header-actions">
+                <button class="record-btn" onclick="triggerMoodCheck()">🕐 Записать настроение</button>
         
-            <div class="theme-selector">
-              <button class="theme-toggle" onclick="toggleTheme()" aria-expanded="false" aria-controls="paletteSelector">🎨 Тема</button>
-              <div class="palette-selector" id="paletteSelector" hidden>
-                <button class="palette-option" onclick="setPalette('light')">🌞 Светлая</button>
-                <button class="palette-option" onclick="setPalette('light-nature')">🌿 Природа</button>
-                <button class="palette-option" onclick="setPalette('light-ocean')">🌊 Океан</button>
-                <button class="palette-option" onclick="setPalette('dark')">🌙 Темная</button>
-                <button class="palette-option" onclick="setPalette('dark-space')">🚀 Космос</button>
-                <button class="palette-option" onclick="setPalette('dark-purple')">💜 Фиолет</button>
-              </div>
+                <div class="theme-selector">
+                    <button class="theme-toggle" onclick="toggleTheme()" aria-expanded="false" aria-controls="paletteSelector">🎨 Тема</button>
+                    <div class="palette-selector" id="paletteSelector" hidden>
+                        <button class="palette-option" onclick="setPalette('light')">🌞 Светлая</button>
+                        <button class="palette-option" onclick="setPalette('light-nature')">🌿 Природа</button>
+                        <button class="palette-option" onclick="setPalette('light-ocean')">🌊 Океан</button>
+                        <button class="palette-option" onclick="setPalette('dark')">🌙 Темная</button>
+                        <button class="palette-option" onclick="setPalette('dark-space')">🚀 Космос</button>
+                        <button class="palette-option" onclick="setPalette('dark-purple')">💜 Фиолет</button>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
 
-
-        <!-- Month Navigation -->
+        <!-- Calendar Page -->
         <div class="calendar-page" id="calendarPage">
             <div class="month-nav">
                 <button class="nav-btn" onclick="navigateMonth(-1)">←</button>
@@ -1148,7 +849,6 @@
                 <button class="nav-btn" onclick="navigateMonth(1)">→</button>
             </div>
 
-            <!-- Calendar -->
             <div class="calendar">
                 <div class="weekdays">
                     <div class="weekday">Вс</div>
@@ -1162,13 +862,11 @@
                 <div id="calendarDays"></div>
             </div>
 
-            <!-- Кнопка для показа записей сегодня -->
             <div style="padding: 16px;">
                 <button onclick="toggleDetailedStats()" style="background: none; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 12px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; width: 100%;">
                     📋 Показать записи сегодня
                 </button>
                 
-                <!-- Детальная статистика (скрыта по умолчанию) -->
                 <div id="detailedStats" class="detailed-stats" style="display: none; margin-top: 16px; padding: 16px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-color);">
                     <h4 style="font-size: 16px; margin-bottom: 12px; color: var(--text-primary);">Записи за сегодня:</h4>
                     <div id="todayEntries" style="font-size: 14px; color: var(--text-secondary);"></div>
@@ -1176,9 +874,8 @@
             </div>
         </div>
 
-        <!-- Страница статистики -->
+        <!-- Stats Page -->
         <div class="stats-page" id="statsPage">
-            <!-- Фильтры времени -->
             <div class="stats-filters">
                 <button class="filter-btn active" onclick="setStatsFilter('3days')">3 дня</button>
                 <button class="filter-btn" onclick="setStatsFilter('week')">Неделя</button>
@@ -1186,7 +883,6 @@
                 <button class="filter-btn" onclick="setStatsFilter('all')">Все время</button>
             </div>
 
-            <!-- Корреляция настроения по текущему дню -->
             <div class="correlation-section">
                 <h3>📊 Настроение сегодня по часам</h3>
                 <div id="hourlyChart" class="hourly-chart"></div>
@@ -1195,7 +891,6 @@
                 </p>
             </div>
 
-            <!-- Общая статистика -->
             <div class="overview-section">
                 <h3>📈 Общая статистика (<span id="currentPeriod">3 дня</span>)</h3>
                 <div class="stat-row">
@@ -1212,7 +907,6 @@
                 </div>
                 <div class="total-records" id="statsTotalRecords">Всего записей: 0</div>
                 
-                <!-- Средняя активность -->
                 <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border-color);">
                     <div class="stat-row">
                         <span class="stat-label">Записей в день:</span>
@@ -1225,24 +919,52 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <button id="chatLauncher" class="chat-launcher" aria-controls="aiChat" aria-expanded="false">💬</button>
-    
-    <div id="aiChat" class="chat-panel hidden" role="dialog" aria-label="Поддержка">
-      <div class="chat-header">
-        <strong>Поддержка</strong>
-        <button id="chatClose" class="chat-close" aria-label="Закрыть">✕</button>
-      </div>
-    
-      <div id="chatMessages" class="chat-messages" aria-live="polite"></div>
-    
-      <form id="chatForm" class="chat-input-row">
-        <input id="chatInput" type="text" placeholder="Напишите, как вы себя чувствуете…" autocomplete="off" />
-        <button class="send-btn" type="submit">Отправить</button>
-      </form>
-    
-      <p class="chat-disclaimer">Советы носят справочный характер и не заменяют помощь специалиста.</p>
+        <!-- Chat Page -->
+        <div class="chat-page" id="chatPage">
+            <div class="chat-header">
+                <h2>🤖 ИИ Помощник</h2>
+                <p>Поделитесь своими мыслями и получите поддержку</p>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="message system">
+                    Добро пожаловать! Я здесь, чтобы выслушать и поддержать вас. Как дела?
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <textarea 
+                    class="chat-input" 
+                    id="chatInput" 
+                    placeholder="Расскажите, как вы себя чувствуете..."
+                    rows="1"
+                ></textarea>
+                <button class="send-button" id="sendButton" onclick="sendMessage()">
+                    ✈️
+                </button>
+            </div>
+
+            <div class="chat-disclaimer">
+                ИИ помощник предоставляет общую поддержку и не заменяет профессиональную медицинскую помощь
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <button class="nav-item active" id="navCalendar" onclick="switchPage('calendar')">
+                <div class="nav-icon">📅</div>
+                <div>Календарь</div>
+            </button>
+            <button class="nav-item" id="navStats" onclick="switchPage('stats')">
+                <div class="nav-icon">📊</div>
+                <div>Статистика</div>
+            </button>
+            <button class="nav-item" id="navChat" onclick="switchPage('chat')">
+                <div class="nav-icon">🤖</div>
+                <div>ИИ Чат</div>
+            </button>
+        </div>
     </div>
     
     <!-- Mood Popup -->
@@ -1277,9 +999,10 @@
         let moodData = {};
         let dailyMoods = {};
         let currentTheme = 'light';
-        let currentPage = 'calendar'; // 'calendar' или 'stats'
+        let currentPage = 'calendar';
+        let currentStatsFilter = '3days';
 
-        // Mood types (используем CSS переменные)
+        // Mood types
         const moodTypes = {
             good: { name: 'Хорошее' },
             neutral: { name: 'Нейтральное' },
@@ -1291,16 +1014,231 @@
             'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
         ];
 
-        // Фильтры статистики - ОПРЕДЕЛЯЕМ СРАЗУ
-        let currentStatsFilter = '3days';
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            loadTheme();
+            updateCalendar();
+            checkNotificationPermission();
+            scheduleNotifications();
+            switchPage('calendar');
+            setupChatInput();
+            maybeProactiveChat();
+        });
 
-        // ОПРЕДЕЛЯЕМ ВСЕ ФУНКЦИИ СТАТИСТИКИ СРАЗУ
+        // Close menu on outside click
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('paletteSelector');
+            const btn = document.querySelector('.theme-toggle');
+            if (!menu || menu.hasAttribute('hidden')) return;
+            if (!e.target.closest('.theme-selector')) {
+                menu.setAttribute('hidden','');
+                btn.setAttribute('aria-expanded','false');
+            }
+        });
+        
+        // Close menu on Esc
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const menu = document.getElementById('paletteSelector');
+                const btn = document.querySelector('.theme-toggle');
+                if (menu && !menu.hasAttribute('hidden')) {
+                    menu.setAttribute('hidden','');
+                    btn.setAttribute('aria-expanded','false');
+                }
+            }
+        });
+
+        // Theme management
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('moodCalendarTheme') || 'light';
+            currentTheme = savedTheme;
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateActivePalette();
+        }
+
+        function toggleTheme() {
+            const selector = document.getElementById('paletteSelector');
+            const btn = document.querySelector('.theme-toggle');
+            const willOpen = selector.hasAttribute('hidden');
+        
+            if (willOpen) {
+                selector.removeAttribute('hidden');
+                btn.setAttribute('aria-expanded', 'true');
+            } else {
+                selector.setAttribute('hidden', '');
+                btn.setAttribute('aria-expanded', 'false');
+            }
+        }
+        
+        function setPalette(themeName) {
+            currentTheme = themeName;
+            document.documentElement.setAttribute('data-theme', themeName);
+            localStorage.setItem('moodCalendarTheme', themeName);
+            updateActivePalette();
+        
+            document.getElementById('paletteSelector').setAttribute('hidden','');
+            document.querySelector('.theme-toggle').setAttribute('aria-expanded','false');
+            updateCalendar();
+        }
+
+        function updateActivePalette() {
+            const options = document.querySelectorAll('.palette-option');
+            options.forEach(option => {
+                option.classList.remove('active');
+                const themeName = option.getAttribute('onclick').match(/'([^']+)'/)[1];
+                if (themeName === currentTheme) {
+                    option.classList.add('active');
+                }
+            });
+        }
+
+        function getCSSVariable(variableName) {
+            return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
+        }
+
+        // Page navigation
+        function switchPage(page) {
+            currentPage = page;
+            
+            const calendarPage = document.getElementById('calendarPage');
+            const statsPage = document.getElementById('statsPage');
+            const chatPage = document.getElementById('chatPage');
+            const navCalendar = document.getElementById('navCalendar');
+            const navStats = document.getElementById('navStats');
+            const navChat = document.getElementById('navChat');
+            
+            // Hide all pages
+            calendarPage.style.display = 'none';
+            statsPage.classList.remove('active');
+            chatPage.classList.remove('active');
+            
+            // Remove active from all nav items
+            navCalendar.classList.remove('active');
+            navStats.classList.remove('active');
+            navChat.classList.remove('active');
+            
+            // Show selected page and activate nav item
+            if (page === 'calendar') {
+                calendarPage.style.display = 'block';
+                navCalendar.classList.add('active');
+            } else if (page === 'stats') {
+                statsPage.classList.add('active');
+                navStats.classList.add('active');
+                updateStatsPage();
+            } else if (page === 'chat') {
+                chatPage.classList.add('active');
+                navChat.classList.add('active');
+                // Focus chat input when switching to chat
+                setTimeout(() => {
+                    document.getElementById('chatInput').focus();
+                }, 100);
+            }
+        }
+
+        // Chat functionality
+        function setupChatInput() {
+            const chatInput = document.getElementById('chatInput');
+            const sendButton = document.getElementById('sendButton');
+            
+            // Auto-resize textarea
+            chatInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+                
+                // Enable/disable send button
+                sendButton.disabled = !this.value.trim();
+            });
+            
+            // Send on Enter (but not Shift+Enter)
+            chatInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        }
+
+        function sendMessage() {
+            const chatInput = document.getElementById('chatInput');
+            const message = chatInput.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message
+            addMessage('user', message);
+            
+            // Clear input
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+            document.getElementById('sendButton').disabled = true;
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Simulate AI response (replace with actual AI integration later)
+            setTimeout(() => {
+                hideTypingIndicator();
+                const aiResponse = generateAIResponse(message);
+                addMessage('ai', aiResponse);
+            }, 1000 + Math.random() * 2000); // Random delay between 1-3 seconds
+        }
+
+        function addMessage(sender, text) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.textContent = text;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const chatMessages = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.textContent = 'ИИ печатает...';
+            
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        function generateAIResponse(userMessage) {
+            // Placeholder AI responses - replace with actual AI integration
+            const responses = [
+                'Спасибо, что поделились своими мыслями. Как вы думаете, что могло бы помочь вам почувствовать себя лучше?',
+                'Я понимаю, что вы переживаете. Помните, что все чувства временны и проходят.',
+                'Попробуйте сделать несколько глубоких вдохов. Это может помочь успокоиться.',
+                'Хорошо, что вы говорите о своих ощущениях. Это важный шаг к улучшению самочувствия.',
+                'Возможно, стоит попробовать короткую прогулку или выйти на свежий воздух?',
+                'Что обычно помогает вам справляться с подобными ситуациями?'
+            ];
+            
+            // Simple keyword matching for more relevant responses
+            const lowerMessage = userMessage.toLowerCase();
+            
+            if (lowerMessage.includes('грустн') || lowerMessage.includes('плох') || lowerMessage.includes('тревож')) {
+                return responses[Math.floor(Math.random() * 3)];
+            } else if (lowerMessage.includes('хорош') || lowerMessage.includes('счастлив') || lowerMessage.includes('радост')) {
+                return 'Замечательно слышать, что у вас хорошее настроение! Что сегодня особенно радует?';
+            } else {
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+        }
+
+        // Stats functionality
         function setStatsFilter(filter) {
             currentStatsFilter = filter;
             
-            console.log('Устанавливаем фильтр:', filter);
-            
-            // Обновляем активную кнопку
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.remove('active');
                 const btnOnClick = btn.getAttribute('onclick');
@@ -1309,12 +1247,10 @@
                 }
             });
             
-            // Обновляем статистику
             updateStatsPage();
         }
 
         function updateStatsPage() {
-            console.log('Обновляем страницу статистики');
             updateHourlyChart();
             updateOverviewStats();
         }
@@ -1329,7 +1265,6 @@
             
             hourlyChart.innerHTML = '';
             
-            // Создаем блоки для каждого часа (6:00 - 23:00)
             for (let hour = 6; hour <= 23; hour++) {
                 const hourBlock = document.createElement('div');
                 hourBlock.className = 'hour-block';
@@ -1388,14 +1323,8 @@
             const avgPerDayElement = document.getElementById('avgPerDay');
             const activeDaysElement = document.getElementById('activeDays');
             
-            console.log('Обновляем статистику для периода:', currentStatsFilter, periodData);
+            if (!currentPeriodElement) return;
             
-            if (!currentPeriodElement) {
-                console.log('Элементы статистики еще не найдены');
-                return;
-            }
-            
-            // Обновляем название периода в заголовке
             currentPeriodElement.textContent = getPeriodName(currentStatsFilter);
             
             if (periodData.totalEntries === 0) {
@@ -1424,14 +1353,6 @@
             statsTotalElement.textContent = `Всего записей: ${periodData.totalEntries}`;
             avgPerDayElement.textContent = (periodData.totalEntries / Math.max(periodData.days, 1)).toFixed(1);
             activeDaysElement.textContent = periodData.activeDays;
-            
-            console.log('Статистика обновлена:', {
-                period: getPeriodName(currentStatsFilter),
-                goodPercent,
-                neutralPercent,
-                sadPercent,
-                totalEntries: periodData.totalEntries
-            });
         }
 
         function getDataForPeriod(period) {
@@ -1491,124 +1412,13 @@
             }
         }
 
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            loadData();
-            loadTheme();
-            updateCalendar();
-            checkNotificationPermission();
-            scheduleNotifications();
-            switchPage('calendar');
-            maybeProactiveChat();// Показываем календарь по умолчанию
-        });
-                // Закрыть меню по клику вне .theme-selector
-        document.addEventListener('click', (e) => {
-          const menu = document.getElementById('paletteSelector');
-          const btn  = document.querySelector('.theme-toggle');
-          if (!menu || menu.hasAttribute('hidden')) return;
-          if (!e.target.closest('.theme-selector')) {
-            menu.setAttribute('hidden','');
-            btn.setAttribute('aria-expanded','false');
-          }
-        });
-        
-        // Закрыть меню по Esc
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape') {
-            const menu = document.getElementById('paletteSelector');
-            const btn  = document.querySelector('.theme-toggle');
-            if (menu && !menu.hasAttribute('hidden')) {
-              menu.setAttribute('hidden','');
-              btn.setAttribute('aria-expanded','false');
-            }
-          }
-        });
-
-
-        // Theme management
-        function loadTheme() {
-            const savedTheme = localStorage.getItem('moodCalendarTheme') || 'light';
-            currentTheme = savedTheme;
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            updateActivePalette();
-        }
-
-        function toggleTheme() {
-          const selector = document.getElementById('paletteSelector');
-          const btn = document.querySelector('.theme-toggle');
-          const willOpen = selector.hasAttribute('hidden');
-        
-          if (willOpen) {
-            selector.removeAttribute('hidden');
-            btn.setAttribute('aria-expanded', 'true');
-          } else {
-            selector.setAttribute('hidden', '');
-            btn.setAttribute('aria-expanded', 'false');
-          }
-        }
-        
-        function setPalette(themeName) {
-          currentTheme = themeName;
-          document.documentElement.setAttribute('data-theme', themeName);
-          localStorage.setItem('moodCalendarTheme', themeName);
-          updateActivePalette();
-        
-          // закрыть меню после выбора
-          document.getElementById('paletteSelector').setAttribute('hidden','');
-          document.querySelector('.theme-toggle').setAttribute('aria-expanded','false');
-        
-          // обновить цвета и календарь
-          updateCalendar();
-        }
-
-
-        function updateActivePalette() {
-            const options = document.querySelectorAll('.palette-option');
-            options.forEach(option => {
-                option.classList.remove('active');
-                const themeName = option.getAttribute('onclick').match(/'([^']+)'/)[1];
-                if (themeName === currentTheme) {
-                    option.classList.add('active');
-                }
-            });
-        }
-
-        // Get CSS variable value
-        function getCSSVariable(variableName) {
-            return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
-        }
-
-        // Навигация между страницами
-        function switchPage(page) {
-            currentPage = page;
-            
-            const calendarPage = document.getElementById('calendarPage');
-            const statsPage = document.getElementById('statsPage');
-            const navCalendar = document.getElementById('navCalendar');
-            const navStats = document.getElementById('navStats');
-            
-            if (page === 'calendar') {
-                calendarPage.style.display = 'block';
-                statsPage.classList.remove('active');
-                navCalendar.classList.add('active');
-                navStats.classList.remove('active');
-            } else if (page === 'stats') {
-                calendarPage.style.display = 'none';
-                statsPage.classList.add('active');
-                navCalendar.classList.remove('active');
-                navStats.classList.add('active');
-                updateStatsPage();
-            }
-        }
-
-        // Check notification permission
+        // Notification functions
         function checkNotificationPermission() {
             if ('Notification' in window && Notification.permission === 'default') {
                 document.getElementById('installPrompt').classList.remove('hidden');
             }
         }
 
-        // Request notification permission
         async function requestNotificationPermission() {
             if ('Notification' in window) {
                 const permission = await Notification.requestPermission();
@@ -1623,27 +1433,18 @@
             }
         }
 
-        // Schedule notifications (3 раза в день)
-        // TODO: Улучшить механику уведомлений - сделать менее заметными и более автоматическими
-        // Материалы для изучения:
-        // - Web Push API: https://developer.mozilla.org/en-US/docs/Web/API/Push_API
-        // - Background Sync: https://developer.mozilla.org/en-US/docs/Web/API/Background_Sync_API
-        // - Service Worker Notifications: https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerRegistration/showNotification
         function scheduleNotifications() {
             if ('Notification' in window && Notification.permission === 'granted') {
-                // Проверяем каждую минуту
                 setInterval(showNotification, 60 * 1000);
             }
         }
 
-        // Show notification (теперь 3 раза в день)
         function showNotification() {
             if ('Notification' in window && Notification.permission === 'granted') {
                 const now = new Date();
                 const hour = now.getHours();
                 const minute = now.getMinutes();
                 
-                // Уведомления в 9:00, 15:00, 21:00
                 const notificationTimes = [9, 15, 21];
                 
                 if (notificationTimes.includes(hour) && minute === 0) {
@@ -1668,11 +1469,8 @@
                 const savedMoodData = JSON.parse(localStorage.getItem('moodData') || '{}');
                 const savedDailyMoods = JSON.parse(localStorage.getItem('dailyMoods') || '{}');
                 
-                // Конвертируем старый формат данных в новый
                 moodData = convertOldDataFormat(savedMoodData);
                 dailyMoods = savedDailyMoods;
-                
-                console.log('Данные загружены:', { moodData, dailyMoods });
             } catch (e) {
                 console.log('Error loading data:', e);
                 moodData = {};
@@ -1686,20 +1484,17 @@
             Object.keys(oldData).forEach(dateKey => {
                 const dayData = oldData[dateKey];
                 
-                // Если данные уже в новом формате (массив), оставляем как есть
                 if (Array.isArray(dayData)) {
                     newData[dateKey] = dayData;
                 } else if (typeof dayData === 'object') {
-                    // Конвертируем старый формат {hour: mood} в новый [{hour, minute, mood, timestamp}]
                     newData[dateKey] = [];
                     Object.keys(dayData).forEach(hour => {
                         const mood = dayData[hour];
-                        // Создаем примерную запись для старых данных
                         newData[dateKey].push({
                             hour: parseInt(hour),
-                            minute: 0, // Устанавливаем минуты в 0 для старых записей
+                            minute: 0,
                             mood: mood,
-                            timestamp: new Date().setHours(parseInt(hour), 0, 0, 0) // Примерное время
+                            timestamp: new Date().setHours(parseInt(hour), 0, 0, 0)
                         });
                     });
                 }
@@ -1723,31 +1518,68 @@
             const day = date.getDate().toString().padStart(2, '0');
             return `${year}-${month}-${day}`;
         }
-        // === AI: анализ ===
+
+        // AI analysis functions
         function getSadStreak(daysWindow = 10) {
-          const today = new Date();
-          let streak = 0;
-          for (let i = 0; i < daysWindow; i++) {
-            const d = new Date(today); d.setDate(today.getDate() - i);
-            const key = getDateKey(d);
-            if (dailyMoods[key] === 'sad') streak++; else break;
-          }
-          return streak;
+            const today = new Date();
+            let streak = 0;
+            for (let i = 0; i < daysWindow; i++) {
+                const d = new Date(today);
+                d.setDate(today.getDate() - i);
+                const key = getDateKey(d);
+                if (dailyMoods[key] === 'sad') streak++;
+                else break;
+            }
+            return streak;
         }
         
         function getMoodSummary(days = 14) {
-          const today = new Date();
-          const counts = { good:0, neutral:0, sad:0 }; let total = 0;
-          for (let i = 0; i < days; i++) {
-            const d = new Date(today); d.setDate(today.getDate() - i);
-            const key = getDateKey(d); const mood = dailyMoods[key];
-            if (mood) { counts[mood]++; total++; }
-          }
-          return { daysConsidered: days, counts, total };
+            const today = new Date();
+            const counts = { good: 0, neutral: 0, sad: 0 };
+            let total = 0;
+            
+            for (let i = 0; i < days; i++) {
+                const d = new Date(today);
+                d.setDate(today.getDate() - i);
+                const key = getDateKey(d);
+                const mood = dailyMoods[key];
+                if (mood) {
+                    counts[mood]++;
+                    total++;
+                }
+            }
+            return { daysConsidered: days, counts, total };
         }
 
-
+        const SAD_STREAK_THRESHOLD = 3;
+        const PROACTIVE_COOLDOWN_DAYS = 3;
         
+        function maybeProactiveChat() {
+            try {
+                const streak = getSadStreak(10);
+                const lastAt = localStorage.getItem('aiLastProactiveAt');
+                const todayKey = getDateKey(new Date());
+        
+                if (streak >= SAD_STREAK_THRESHOLD) {
+                    if (lastAt) {
+                        const last = new Date(lastAt);
+                        const diffDays = Math.floor((Date.now() - last.getTime()) / (1000 * 3600 * 24));
+                        if (diffDays < PROACTIVE_COOLDOWN_DAYS) return;
+                    }
+                    localStorage.setItem('aiLastProactiveAt', todayKey);
+                    
+                    // Switch to chat page and add proactive message
+                    switchPage('chat');
+                    setTimeout(() => {
+                        const intro = `Я заметил, что последние ${streak} ${streak === 1 ? 'день' : 'дня'} вам грустно. Хотите немного поддержки или пару простых практик?`;
+                        addMessage('ai', intro);
+                    }, 500);
+                }
+            } catch (e) {
+                console.log('Error in proactive chat:', e);
+            }
+        }
+
         // Mood recording
         function triggerMoodCheck() {
             const now = new Date();
@@ -1756,7 +1588,6 @@
             document.getElementById('timeDisplay').textContent = 
                 `${hours}:${minutes} - Время записать настроение`;
             
-            // Обновляем цвета кнопок настроения
             updateMoodButtonColors();
             document.getElementById('moodPopup').classList.remove('hidden');
         }
@@ -1787,7 +1618,6 @@
             const minute = now.getMinutes();
             const timestamp = now.getTime();
             
-            // Создаем запись с полной информацией
             const moodEntry = {
                 hour: hour,
                 minute: minute,
@@ -1795,20 +1625,14 @@
                 timestamp: timestamp
             };
             
-            // Инициализируем массив записей для дня, если не существует
             if (!moodData[dateKey]) {
                 moodData[dateKey] = [];
             }
             
-            // Добавляем новую запись к существующим (не перезаписываем!)
             moodData[dateKey].push(moodEntry);
-            
-            // Пересчитываем доминирующее настроение дня
             calculateDayMood(dateKey);
             saveData();
             updateCalendar();
-            
-            // ИСПРАВЛЕНИЕ: Обязательно закрываем окно после записи настроения
             closeMoodPopup();
             maybeProactiveChat();
             
@@ -1820,50 +1644,23 @@
             
             if (dayEntries.length === 0) return;
 
-            // Подсчитываем количество каждого типа настроения
             const moodCounts = dayEntries.reduce((acc, entry) => {
                 acc[entry.mood] = (acc[entry.mood] || 0) + 1;
                 return acc;
             }, {});
 
-            // Находим доминирующее настроение
             const dominantMood = Object.keys(moodCounts).reduce((a, b) => 
                 moodCounts[a] > moodCounts[b] ? a : b
             );
 
             dailyMoods[dateKey] = dominantMood;
-            
-            console.log(`День ${dateKey}: ${dayEntries.length} записей, доминирует: ${dominantMood}`, moodCounts);
         }
 
         function closeMoodPopup() {
             document.getElementById('moodPopup').classList.add('hidden');
         }
-        
-        const SAD_STREAK_THRESHOLD = 3;
-        const PROACTIVE_COOLDOWN_DAYS = 3;
-        
-        function maybeProactiveChat() {
-          try {
-            const streak = getSadStreak(10);
-            const lastAt = localStorage.getItem('aiLastProactiveAt');
-            const todayKey = getDateKey(new Date());
-        
-            if (streak >= SAD_STREAK_THRESHOLD) {
-              if (lastAt) {
-                const last = new Date(lastAt);
-                const diffDays = Math.floor((Date.now() - last.getTime())/(1000*3600*24));
-                if (diffDays < PROACTIVE_COOLDOWN_DAYS) return;
-              }
-              localStorage.setItem('aiLastProactiveAt', todayKey);
-              const intro = `Я заметил(а), что последние ${streak} ${streak===1?'день':'дня'} вам грустно. Хотите немного поддержки или пару простых практик?`;
-              openChat(intro);
-            }
-          } catch(e) {}
-        }
 
-
-        // Calendar
+        // Calendar functions
         function navigateMonth(direction) {
             selectedDate.setMonth(selectedDate.getMonth() + direction);
             updateCalendar();
@@ -1923,7 +1720,6 @@
                 
                 calendarDays.appendChild(weekDiv);
             }
-            
         }
 
         function adjustBrightness(hex, percent) {
@@ -1937,42 +1733,6 @@
                 (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
         }
 
-        function updateStats() {
-            const allMoods = Object.values(dailyMoods);
-            const total = allMoods.length;
-            
-            if (total === 0) {
-                document.getElementById('stats').style.display = 'none';
-                return;
-            }
-
-            const counts = allMoods.reduce((acc, mood) => {
-                acc[mood] = (acc[mood] || 0) + 1;
-                return acc;
-            }, {});
-
-            const goodPercent = Math.round((counts.good || 0) / total * 100);
-            const neutralPercent = Math.round((counts.neutral || 0) / total * 100);
-            const sadPercent = Math.round((counts.sad || 0) / total * 100);
-
-            const goodElement = document.getElementById('goodPercent');
-            const neutralElement = document.getElementById('neutralPercent');
-            const sadElement = document.getElementById('sadPercent');
-
-            goodElement.textContent = `${goodPercent}%`;
-            goodElement.style.color = getCSSVariable('--mood-good');
-            
-            neutralElement.textContent = `${neutralPercent}%`;
-            neutralElement.style.color = getCSSVariable('--mood-neutral');
-            
-            sadElement.textContent = `${sadPercent}%`;
-            sadElement.style.color = getCSSVariable('--mood-sad');
-            document.getElementById('totalRecords').textContent = `Всего записей: ${total}`;
-            
-            document.getElementById('stats').style.display = 'block';
-        }
-
-        // Показать/скрыть детальную статистику
         function toggleDetailedStats() {
             const detailedStats = document.getElementById('detailedStats');
             const isVisible = detailedStats.style.display !== 'none';
@@ -1996,7 +1756,6 @@
                 return;
             }
             
-            // Сортируем записи по времени
             const sortedEntries = [...todayEntries].sort((a, b) => a.timestamp - b.timestamp);
             
             const entriesHTML = sortedEntries.map(entry => {
@@ -2014,7 +1773,6 @@
             
             todayEntriesElement.innerHTML = entriesHTML;
             
-            // Показываем общий счет за день
             const moodCounts = sortedEntries.reduce((acc, entry) => {
                 acc[entry.mood] = (acc[entry.mood] || 0) + 1;
                 return acc;
@@ -2034,84 +1792,8 @@
             todayEntriesElement.innerHTML += summaryHTML;
         }
 
-        // === AI: чат UI ===
-        const chatPanel  = document.getElementById('aiChat');
-        const chatLaunch = document.getElementById('chatLauncher');
-        const chatClose  = document.getElementById('chatClose');
-        const chatMsgs   = document.getElementById('chatMessages');
-        const chatForm   = document.getElementById('chatForm');
-        const chatInput  = document.getElementById('chatInput');
-        
-        function openChat(initialBotText) {
-          chatPanel.classList.remove('hidden');
-          chatLaunch.setAttribute('aria-expanded','true');
-          if (initialBotText) appendMsg('bot', initialBotText);
-          chatInput.focus();
-        }
-        function closeChat() {
-          chatPanel.classList.add('hidden');
-          chatLaunch.setAttribute('aria-expanded','false');
-        }
-        function appendMsg(sender, text) {
-          const div = document.createElement('div');
-          div.className = `msg ${sender}`;
-          div.textContent = text;
-          chatMsgs.appendChild(div);
-          chatMsgs.scrollTop = chatMsgs.scrollHeight;
-        }
-        
-        chatLaunch?.addEventListener('click', () => openChat());
-        chatClose?.addEventListener('click', closeChat);
-        chatForm?.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const text = chatInput.value.trim();
-          if (!text) return;
-          appendMsg('user', text);
-          chatInput.value = '';
-          const reply = await askAI(text);
-          appendMsg('bot', reply || 'Что-то пошло не так, попробуйте ещё раз 🙏');
-        });
-
-        async function askAI(userText){
-          const summary = getMoodSummary(14);
-          const payload = {
-            messages: [
-              { role: 'system', content:
-                `Ты доброжелательный поддерживающий собеседник. Говори кратко, эмпатично, без диагнозов.
-                 Давай по одному вопросу за раз. Предлагай простые техники (дыхание 4-7-8, короткая прогулка,
-                 запись мыслей, когнитивная переоценка). Если человек говорит об угрозе себе/другим —
-                 мягко дай контакты экстренной помощи и предложи обратиться к специалисту.` },
-              { role: 'assistant', content:
-                `Краткая сводка последних ${summary.daysConsidered} дней:
-                 хороших=${summary.counts.good}, нейтральных=${summary.counts.neutral}, грустных=${summary.counts.sad}.` },
-              { role: 'user', content: userText }
-            ]
-          };
-        
-          try{
-            const res = await fetch('/api/chat', {
-              method: 'POST', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-            });
-            if(!res.ok) throw new Error('Bad response');
-            const data = await res.json();
-            return data.reply;
-          }catch(e){
-            // локальный «мягкий» ответ, чтобы не падать в dev
-            return 'Я рядом. Можете рассказать, что именно вас расстроило сегодня?';
-          }
-        }
-
-
-        
         // Add event listener for notifications button
         document.getElementById('enableNotifications').addEventListener('click', requestNotificationPermission);
     </script>
 </body>
 </html>
-
-
-
-
-
-
