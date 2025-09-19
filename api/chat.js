@@ -1,61 +1,72 @@
-// /api/chat.js — Vercel Serverless Function (Node 18+)
+// api/chat.js — Vercel Serverless Function (Node 18, CommonJS)
+
 module.exports = async function handler(req, res) {
+  // --- CORS ---
   const ALLOWED_ORIGINS = [
-    'https://annzinchuk-oliver.github.io',            // GitHub Pages (твоя витрина)
-    'https://mood-calendar-omega.vercel.app'          // Vercel-прод
+    'https://annzinchuk-oliver.github.io',      // витрина GitHub Pages
+    'https://mood-calendar-omega.vercel.app'    // прод Vercel
   ];
-  const origin = req.headers.origin;
-  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+  const origin = req.headers.origin || '';
+  if (ALLOWED_ORIGINS.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Max-Age', '86400'); // кэшируем preflight
-  if (req.method === 'OPTIONS') return res.status(204).end();
-  // ---- /CORS ----
+
+  if (req.method === 'OPTIONS') {
+    res.status(204).end();
+    return;
+  }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
   }
-}
 
   try {
-    // читаем тело запроса (frontend шлет { messages: [...] })
+    // --- читаем тело запроса ---
     const body = typeof req.body === 'object' ? req.body : JSON.parse(req.body || '{}');
     const { messages = [] } = body;
     if (!Array.isArray(messages)) {
-      return res.status(400).json({ error: 'messages must be an array' });
+      res.status(400).json({ error: 'messages must be an array' });
+      return;
     }
 
-    // >>> ЭТО ГЛАВНАЯ ЗАМЕНА: идем в Groq OpenAI-совместимый endpoint
-    const upstream = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    // --- вызов провайдера (Groq или OpenAI) ---
+    const useGroq = !!process.env.GROQ_API_KEY;
+    const apiKey = useGroq ? process.env.GROQ_API_KEY : process.env.OPENAI_API_KEY;
+    const model =
+      (useGroq ? process.env.GROQ_MODEL : process.env.OPENAI_MODEL) ||
+      (useGroq ? 'llama-3.1-8b-instant' : 'gpt-4o-mini');
+
+    const endpoint = useGroq
+      ? 'https://api.groq.com/openai/v1/chat/completions'
+      : 'https://api.openai.com/v1/chat/completions';
+
+    const upstream = await fetch(endpoint, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        model: process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
-        temperature: 0.7,
-        messages
-      })
+      body: JSON.stringify({ model, temperature: 0.7, messages })
     });
 
     const data = await upstream.json();
 
     if (!upstream.ok) {
-      // пробрасываем код/сообщение вверх, чтобы видеть причину в логах Vercel
-      console.error('Groq upstream error:', upstream.status, data);
-      return res.status(upstream.status).json(data);
+      console.error('Upstream error:', upstream.status, data);
+      res.status(upstream.status).json(data);
+      return;
     }
 
     const reply =
       data?.choices?.[0]?.message?.content?.trim() ||
-      'Извини, не удалось сформировать ответ.';
+      'Извини, сейчас не получается ответить.';
 
-    return res.status(200).json({ reply });
+    res.status(200).json({ reply });
   } catch (e) {
     console.error(e);
-    return res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ reply: 'Извини, сейчас не получается ответить.' });
   }
-}
+};
