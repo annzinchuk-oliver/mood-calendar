@@ -1180,7 +1180,14 @@
                 }
             });
         }
-
+        
+        const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname) || location.hostname === '';
+        const isVercel = location.hostname.endsWith('.vercel.app');
+        
+        const API_BASE = (isLocal || isVercel)
+          ? '' // относительный путь => /api/chat
+          : 'https://mood-calendar-omega.vercel.app'; // когда открываем с GitHub Pages
+        
         async function askAI(userText) {
           const summary = getMoodSummary(14);
           const payload = {
@@ -1197,7 +1204,7 @@
             ]
           };
         
-          const res = await fetch('/api/chat', {
+          const res = await fetch(`${API_BASE}/api/chat`, {
             method: 'POST',
             headers: {'Content-Type':'application/json'},
             body: JSON.stringify(payload)
@@ -1834,6 +1841,7 @@
     </script>
 </body>
 </html>
+
 
 
 
