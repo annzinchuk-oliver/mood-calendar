@@ -1,70 +1,54 @@
-// api/chat.js — Vercel Serverless Function (Node 18, CommonJS)
-
+// /api/chat.js — Vercel Serverless Function (Node 18, CommonJS)
 module.exports = async function handler(req, res) {
-  // --- CORS ---
+  // CORS (разрешаем наши витрины)
   const ALLOWED_ORIGINS = [
-    'https://annzinchuk-oliver.github.io',      // GitHub Pages
-    'https://mood-calendar-omega.vercel.app'    // прод-домен Vercel
+    'https://annzinchuk-oliver.github.io',
+    'https://mood-calendar-omega.vercel.app'
   ];
   const origin = req.headers.origin || '';
-  if (ALLOWED_ORIGINS.includes(origin) || origin.endsWith('.vercel.app')) {
+  if (ALLOWED_ORIGINS.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   }
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(204).end();
-  if (req.method !== 'POST')  return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // --- конфиг Groq ---
-  const API_KEY = (process.env.GROQ_API_KEY || '').trim();
-  const MODEL  = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
-  if (!API_KEY) return res.status(500).json({ error: 'Missing GROQ_API_KEY' });
+  // читаем тело
+  const body = typeof req.body === 'object' ? req.body : JSON.parse(req.body || '{}');
+  const { messages = [] } = body;
+  if (!Array.isArray(messages)) return res.status(400).json({ error: 'messages must be an array' });
+
+  // --- ключ и модель Groq ---
+  const apiKey = process.env.GROQ_API_KEY;                // <-- одно имя, без вариантов
+  const model  = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+  if (!apiKey) return res.status(500).json({ error: 'Missing GROQ_API_KEY' });
 
   try {
-    // --- читаем JSON- тело запроса надёжно ---
-    const body = await readJson(req);
-    const messages = Array.isArray(body.messages) ? body.messages : [];
-
-    // --- вызов Groq (OpenAI-совместимый endpoint) ---
+    // вызов Groq (OpenAI-совместимый endpoint)
     const upstream = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ model, temperature: 0.7, messages }),
+      body: JSON.stringify({ model, temperature: 0.7, messages })
     });
 
-
-    const text = await upstream.text();
+    const data = await upstream.json();
 
     if (!upstream.ok) {
-      // Вернём оригинальную ошибку Groq как JSON, если это JSON.
-      console.error('Groq upstream error:', upstream.status, text);
-      return res.status(upstream.status).json(safeJson(text));
+      console.error('Groq upstream error:', upstream.status, data);
+      return res.status(upstream.status).json({ error: data?.error?.message || 'Upstream error' });
     }
 
-    const data  = safeJson(text);
-    const reply = data?.choices?.[0]?.message?.content?.trim()
-               || 'Извини, сейчас не получается ответить.';
+    const reply =
+      data.choices?.[0]?.message?.content?.trim() ||
+      'Извини, сейчас не получается ответить.';
+
     return res.status(200).json({ reply });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: 'Server error' });
-  }
-
-  // --- helpers ---
-  function readJson(req) {
-    if (req.body && typeof req.body === 'object') return Promise.resolve(req.body);
-    return new Promise((resolve) => {
-      let raw = '';
-      req.on('data', (c) => (raw += c));
-      req.on('end', () => {
-        try { resolve(JSON.parse(raw || '{}')); } catch { resolve({}); }
-      });
-    });
-  }
-  function safeJson(s) {
-    try { return JSON.parse(s); } catch { return { error: s }; }
   }
 };
