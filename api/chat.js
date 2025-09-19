@@ -1,6 +1,11 @@
 // api/chat.js — Vercel Serverless Function (Node 18, CommonJS)
 
 module.exports = async function handler(req, res) {
+  const API_KEY = process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY;
+  if (!API_KEY) {
+    console.error('Missing API key (GROQ_API_KEY / OPENAI_API_KEY)');
+    return res.status(500).json({ error: 'Server is misconfigured: API key is missing' });
+  }
   // --- CORS ---
   const ALLOWED_ORIGINS = [
     'https://annzinchuk-oliver.github.io',      // витрина GitHub Pages
@@ -46,7 +51,7 @@ module.exports = async function handler(req, res) {
     const upstream = await fetch(endpoint, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ model, temperature: 0.7, messages })
