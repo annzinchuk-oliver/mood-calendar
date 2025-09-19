@@ -1,5 +1,5 @@
 // /api/chat.js — Vercel Serverless Function (Node 18+)
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   const ALLOWED_ORIGINS = [
     'https://annzinchuk-oliver.github.io',            // GitHub Pages (твоя витрина)
     'https://mood-calendar-omega.vercel.app'          // Vercel-прод
