@@ -1,8 +1,23 @@
 // /api/chat.js — Vercel Serverless Function (Node 18+)
 export default async function handler(req, res) {
+  const ALLOWED_ORIGINS = [
+    'https://annzinchuk-oliver.github.io',            // GitHub Pages (твоя витрина)
+    'https://mood-calendar-omega.vercel.app'          // Vercel-прод
+  ];
+  const origin = req.headers.origin;
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Max-Age', '86400'); // кэшируем preflight
+  if (req.method === 'OPTIONS') return res.status(204).end();
+  // ---- /CORS ----
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+}
 
   try {
     // читаем тело запроса (frontend шлет { messages: [...] })
