@@ -29,11 +29,12 @@ module.exports = async function handler(req, res) {
     const upstream = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${API_KEY}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ model: MODEL, temperature: 0.7, messages })
+      body: JSON.stringify({ model, temperature: 0.7, messages }),
     });
+
 
     const text = await upstream.text();
 
