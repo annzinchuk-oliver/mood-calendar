@@ -717,19 +717,33 @@
         }
 
         .chat-input {
-            flex: 1;
-            background: var(--bg-primary);
-            border: 2px solid var(--border-color);
-            border-radius: 20px;
-            padding: 12px 16px;
-            font-size: 15px;
-            color: var(--text-primary);
-            resize: none;
-            min-height: 20px;
-            max-height: 100px;
-            transition: all 0.2s ease;
-            outline: none;
+          flex: 1;
+          background: var(--bg-primary);
+          border: 2px solid var(--border-color);
+          border-radius: 20px;
+          padding: 12px 16px;
+          padding-right: 52px;
+          font-size: 15px;
+          line-height: 1.35;
+          color: var(--text-primary);
+          resize: none;              /* убираем ручной ресайз */
+          min-height: 44px;          /* вместо 20px — чтобы плейсхолдер помещался */
+          max-height: 160px;         /* даём вырасти до 160px */
+          overflow-y: auto;          
+          outline: none;
+          transition: all 0.2s ease;
         }
+        
+        /* на всякий случай прячем скроллбар в движках */
+        .chat-input::-webkit-scrollbar { display: none; }
+        .chat-input { scrollbar-width: none; -ms-overflow-style: none; }
+        
+        .chat-input::placeholder {
+          font-size: 14px;
+          line-height: 1.3;
+          color: var(--text-secondary);
+        }
+
 
         .chat-input:focus {
             border-color: var(--mood-good);
@@ -1135,26 +1149,34 @@
                 }, 100);
             }
         }
+        
+        function autoResize(ta, max = 160) {
+          ta.style.height = 'auto';
+          ta.style.height = Math.min(ta.scrollHeight, max) + 'px';
+        }
 
         // Chat functionality
         function setupChatInput() {
             const chatInput = document.getElementById('chatInput');
             const sendButton = document.getElementById('sendButton');
-            
+
+            autoResize(chatInput);
             // Auto-resize textarea
-            chatInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = Math.min(this.scrollHeight, 100) + 'px';
-                
-                // Enable/disable send button
+              // Авто-ресайз при вводе + включение/выключение кнопки
+            chatInput.addEventListener('input', function () {
+                autoResize(this);                       // ← было две строки с height — заменили на хелпер
                 sendButton.disabled = !this.value.trim();
             });
             
             // Send on Enter (but not Shift+Enter)
-            chatInput.addEventListener('keydown', function(e) {
+            chatInput.addEventListener('focus', function () {
+                autoResize(this);
+            });
+            
+            chatInput.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
+                  e.preventDefault();
+                  sendMessage();
                 }
             });
         }
@@ -1812,5 +1834,6 @@
     </script>
 </body>
 </html>
+
 
 
