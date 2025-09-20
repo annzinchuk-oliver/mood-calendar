@@ -1,0 +1,7 @@
+{
+  "name": "mood-calendar",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/inject-version.mjs"
+  }
+}
