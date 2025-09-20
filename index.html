@@ -23,92 +23,11 @@
     <!-- <script src="main.js?v=__BUILD_ID__" defer></script> -->
     
     <style>
-        :root {
-            /* Светлая тема - Палитра по умолчанию */
-            --bg-primary: #f9fafb;
-            --bg-secondary: white;
-            --bg-accent: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --bg-legend: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --text-on-accent: white;
-            --border-color: #e2e8f0;
-            --border-hover: #cbd5e1;
-            --day-hover: #f3f4f6;
-            --mood-good: #22c55e;
-            --mood-neutral: #eab308;
-            --mood-sad: #3b82f6;
-        }
-
-        /* Светлая тема - Палитра "Природа" */
-        [data-theme="light-nature"] {
-            --bg-primary: #f0fdf4;
-            --bg-secondary: #ffffff;
-            --bg-accent: linear-gradient(135deg, #059669 0%, #047857 100%);
-            --bg-legend: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-            --mood-good: #16a34a;
-            --mood-neutral: #ca8a04;
-            --mood-sad: #0369a1;
-        }
-
-        /* Светлая тема - Палитра "Океан" */
-        [data-theme="light-ocean"] {
-            --bg-primary: #f0f9ff;
-            --bg-secondary: #ffffff;
-            --bg-accent: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-            --bg-legend: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            --mood-good: #059669;
-            --mood-neutral: #d97706;
-            --mood-sad: #2563eb;
-        }
-
-        /* Темная тема - По умолчанию */
-        [data-theme="dark"] {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-accent: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            --bg-legend: linear-gradient(135deg, #334155 0%, #475569 100%);
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --text-on-accent: white;
-            --border-color: #475569;
-            --border-hover: #64748b;
-            --day-hover: #334155;
-            --mood-good: #10b981;
-            --mood-neutral: #f59e0b;
-            --mood-sad: #3b82f6;
-        }
-
-        /* Темная тема - Палитра "Космос" */
-        [data-theme="dark-space"] {
-            --bg-primary: #0c0a09;
-            --bg-secondary: #1c1917;
-            --bg-accent: linear-gradient(135deg, #7c2d12 0%, #92400e 100%);
-            --bg-legend: linear-gradient(135deg, #292524 0%, #44403c 100%);
-            --text-primary: #fafaf9;
-            --text-secondary: #d6d3d1;
-            --mood-good: #059669;
-            --mood-neutral: #d97706;
-            --mood-sad: #0ea5e9;
-        }
-
-        /* Темная тема - Палитра "Фиолет" */
-        [data-theme="dark-purple"] {
-            --bg-primary: #0f0a19;
-            --bg-secondary: #1e1b31;
-            --bg-accent: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            --bg-legend: linear-gradient(135deg, #2e1065 0%, #581c87 100%);
-            --text-primary: #f5f3ff;
-            --text-secondary: #d8b4fe;
-            --mood-good: #22c55e;
-            --mood-neutral: #fbbf24;
-            --mood-sad: #60a5fa;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        
+        *, *::before, *::after {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
         }
 
         body {
@@ -124,9 +43,9 @@
         }
 
         .header {
-          background: var(--bg-accent);
+          background: linear-gradient(135deg, var(--brand), var(--brand-2));
           padding: 20px;
-          color: var(--text-on-accent);
+          color: #fff;
           position: relative;
           display: flex;
           flex-direction: column;
@@ -178,38 +97,6 @@
         .palette-option:hover,
         .palette-option.active {
           background: rgba(0,0,0,0.08);
-        }
-
-        .record-btn,
-        .theme-toggle {
-          background: rgba(255, 255, 255, 0.22);
-          border: 1px solid rgba(255, 255, 255, 0.4);
-          color: var(--text-on-accent);
-          padding: 10px 18px;
-          border-radius: 9999px;
-          font-size: 14px;
-          cursor: pointer;
-          transition: all .2s ease;
-          backdrop-filter: blur(6px);
-          -webkit-backdrop-filter: blur(6px);
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          min-width: 180px;
-          font-weight: 600;
-        }
-
-        .record-btn:hover,
-        .theme-toggle:hover {
-          background: rgba(255, 255, 255, 0.35);
-          transform: translateY(-1px);
-        }
-
-        .record-btn:focus-visible,
-        .theme-toggle:focus-visible {
-          outline: 3px solid rgba(255,255,255,.7);
-          outline-offset: 2px;
         }
             
         .header h1 {
@@ -466,23 +353,6 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
 
-        .install-btn {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            margin-top: 12px;
-            transition: all 0.2s ease;
-        }
-
-        .install-btn:hover, .install-btn:active {
-            background: #2563eb;
-            transform: translateY(-1px);
-        }
-
         .hidden {
             display: none !important;
         }
@@ -561,27 +431,6 @@
             margin-bottom: 20px;
             justify-content: center;
             flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 8px 16px;
-            border: 2px solid var(--border-color);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s ease;
-        }
-
-        .filter-btn.active {
-            border-color: var(--mood-good);
-            background: var(--mood-good);
-            color: white;
-        }
-
-        .filter-btn:hover {
-            border-color: var(--mood-good);
         }
 
         .correlation-section, .overview-section {
@@ -751,14 +600,9 @@
           color: var(--text-secondary);
         }
 
-
         .chat-input:focus {
             border-color: var(--mood-good);
             box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
-        }
-
-        .chat-input::placeholder {
-            color: var(--text-secondary);
         }
 
         .send-button {
@@ -846,11 +690,11 @@
             <h1>📅 Календарь Настроения</h1>
             
             <div class="header-actions">
-                <button class="record-btn" onclick="triggerMoodCheck()">🕐 Записать настроение</button>
+                <button class="btn btn--primary" id="addMoodBtn">📝 Записать настроение</button>
         
                 <div class="theme-selector">
-                    <button class="theme-toggle" onclick="toggleTheme()" aria-expanded="false" aria-controls="paletteSelector">🎨 Тема</button>
-                    <div class="palette-selector" id="paletteSelector" hidden>
+                    <button id="themeToggle" class="btn btn--ghost" aria-expanded="false" aria-controls="paletteSelector" onclick="toggleTheme()">Тема</button>
+                    <div id="paletteSelector" class="palette-selector" hidden>
                         <button class="palette-option" onclick="setPalette('light')">🌞 Светлая</button>
                         <button class="palette-option" onclick="setPalette('light-nature')">🌿 Природа</button>
                         <button class="palette-option" onclick="setPalette('light-ocean')">🌊 Океан</button>
@@ -884,9 +728,9 @@
             </div>
 
             <div style="padding: 16px;">
-                <button onclick="toggleDetailedStats()" style="background: none; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 12px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; width: 100%;">
-                    📋 Показать записи сегодня
-                </button>
+                <button onclick="toggleDetailedStats()" class="btn btn--ghost" style="width:100%">
+  📋 Показать записи сегодня
+</button>
                 
                 <div id="detailedStats" class="detailed-stats" style="display: none; margin-top: 16px; padding: 16px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-color);">
                     <h4 style="font-size: 16px; margin-bottom: 12px; color: var(--text-primary);">Записи за сегодня:</h4>
@@ -1051,26 +895,31 @@
 
         // Close menu on outside click
         document.addEventListener('click', (e) => {
-            const menu = document.getElementById('paletteSelector');
-            const btn = document.querySelector('.theme-toggle');
-            if (!menu || menu.hasAttribute('hidden')) return;
-            if (!e.target.closest('.theme-selector')) {
-                menu.setAttribute('hidden','');
-                btn.setAttribute('aria-expanded','false');
-            }
+          const menu = document.getElementById('paletteSelector');
+          const btn  = document.getElementById('themeToggle');
+          if (!menu || menu.hasAttribute('hidden')) return;
+        
+          // не закрываем, если клик по кнопке или внутри меню/контейнера
+          const insideContainer = e.target.closest('.theme-selector');
+          if (!insideContainer) {
+            menu.setAttribute('hidden', '');
+            btn?.setAttribute('aria-expanded', 'false');
+          }
         });
+
         
         // Close menu on Esc
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                const menu = document.getElementById('paletteSelector');
-                const btn = document.querySelector('.theme-toggle');
-                if (menu && !menu.hasAttribute('hidden')) {
-                    menu.setAttribute('hidden','');
-                    btn.setAttribute('aria-expanded','false');
-                }
-            }
+          if (e.key !== 'Escape') return;
+          const menu = document.getElementById('paletteSelector');
+          const btn  = document.getElementById('themeToggle');
+          if (menu && !menu.hasAttribute('hidden')) {
+            menu.setAttribute('hidden', '');
+            btn?.setAttribute('aria-expanded', 'false');
+          }
         });
+
+
 
         // Theme management
         function loadTheme() {
@@ -1081,29 +930,33 @@
         }
 
         function toggleTheme() {
-            const selector = document.getElementById('paletteSelector');
-            const btn = document.querySelector('.theme-toggle');
-            const willOpen = selector.hasAttribute('hidden');
+          const selector = document.getElementById('paletteSelector');
+          const btn = document.getElementById('themeToggle');
+          const willOpen = selector.hasAttribute('hidden');
         
-            if (willOpen) {
-                selector.removeAttribute('hidden');
-                btn.setAttribute('aria-expanded', 'true');
-            } else {
-                selector.setAttribute('hidden', '');
-                btn.setAttribute('aria-expanded', 'false');
-            }
+          if (willOpen) {
+            selector.removeAttribute('hidden');
+            btn?.setAttribute('aria-expanded', 'true');
+          } else {
+            selector.setAttribute('hidden', '');
+            btn?.setAttribute('aria-expanded', 'false');
+          }
         }
         
         function setPalette(themeName) {
-            currentTheme = themeName;
-            document.documentElement.setAttribute('data-theme', themeName);
-            localStorage.setItem('moodCalendarTheme', themeName);
-            updateActivePalette();
+          currentTheme = themeName;
+          document.documentElement.setAttribute('data-theme', themeName);
+          localStorage.setItem('moodCalendarTheme', themeName);
+          updateActivePalette();
         
-            document.getElementById('paletteSelector').setAttribute('hidden','');
-            document.querySelector('.theme-toggle').setAttribute('aria-expanded','false');
-            updateCalendar();
+          const menu = document.getElementById('paletteSelector');
+          const btn  = document.getElementById('themeToggle');
+          menu.setAttribute('hidden','');
+          btn?.setAttribute('aria-expanded','false');
+        
+          updateCalendar();
         }
+
 
         function updateActivePalette() {
             const options = document.querySelectorAll('.palette-option');
@@ -1952,6 +1805,7 @@
     </script>
 </body>
 </html>
+
 
 
 
