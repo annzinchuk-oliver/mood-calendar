@@ -1,0 +1,68 @@
+/* Кнопки */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap: var(--space-2);
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  font: 600 var(--fs-sm)/1 var(--font-sans);
+  transition: background var(--dur-2) var(--ease), transform var(--dur-1) var(--ease), border-color var(--dur-2) var(--ease);
+  box-shadow: var(--shadow-sm);
+}
+.btn:hover { background: var(--hover); transform: translateY(-1px); }
+.btn:focus-visible { outline: 3px solid color-mix(in srgb, var(--brand) 40%, transparent); outline-offset: 2px; }
+
+.btn--primary {
+  border-color: color-mix(in srgb, var(--brand) 25%, var(--border));
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  color: #fff;
+}
+.btn--primary:hover { filter: brightness(1.03); }
+
+.btn--ghost {
+  background: transparent; border-color: var(--border);
+}
+
+/* Карточки/панели */
+.card {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Инпут/текстовая область */
+.input, .textarea {
+  width:100%;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-2);
+  color: var(--text);
+  font: var(--fs-md)/1.35 var(--font-sans);
+  padding: var(--space-3) var(--space-4);
+  transition: border-color var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
+}
+.input:focus, .textarea:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent);
+  outline: none;
+}
+
+/* Чип/значок (например, часы в статистике) */
+.chip {
+  display:inline-flex; align-items:center; justify-content:center;
+  padding: 6px 10px;
+  border-radius: var(--radius-1);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: 600 var(--fs-sm)/1 var(--font-sans);
+}
+
+/* Цветовые подсказки для графиков */
+.bar--good { background: var(--success); }
+.bar--neutral { background: var(--warning); }
+.bar--sad { background: var(--info); }
