@@ -1029,16 +1029,18 @@
         ];
 
         // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            loadData();
-            loadTheme();
-            updateCalendar();
-            checkNotificationPermission();
-            scheduleNotifications();
-            switchPage('calendar');
-            setupChatInput();
-            maybeProactiveChat();
+        document.addEventListener('DOMContentLoaded', async function() {
+          await runMigrationsIfNeeded();   // ← добавили
+          loadData();
+          loadTheme();
+          updateCalendar();
+          checkNotificationPermission();
+          scheduleNotifications();
+          switchPage('calendar');
+          setupChatInput();
+          maybeProactiveChat();
         });
+
 
         // Close menu on outside click
         document.addEventListener('click', (e) => {
@@ -1506,22 +1508,124 @@
                 }
             }
         }
-
-        // Data management
-        function loadData() {
-            try {
-                const savedMoodData = JSON.parse(localStorage.getItem('moodData') || '{}');
-                const savedDailyMoods = JSON.parse(localStorage.getItem('dailyMoods') || '{}');
-                
-                moodData = convertOldDataFormat(savedMoodData);
-                dailyMoods = savedDailyMoods;
-            } catch (e) {
-                console.log('Error loading data:', e);
-                moodData = {};
-                dailyMoods = {};
-            }
+      
+        const SCHEMA_KEY = 'moodSchemaVersion';
+        const CURRENT_SCHEMA_VERSION = 3;
+        
+        // Универсальные JSON-хелперы
+        function getJson(key, fallback = null) {
+          try {
+            const raw = localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : fallback;
+          } catch (e) {
+            console.warn('[storage] broken JSON in', key, e);
+            return fallback;
+          }
         }
-
+        function setJson(key, value) {
+          localStorage.setItem(key, JSON.stringify(value));
+        }
+        
+      
+        const MIGRATIONS = [
+          {
+            version: 1,
+            name: 'Normalize moodData to array-of-entries',
+            run() {
+              const raw = getJson('moodData', {});
+              const normalized = {};
+        
+              Object.keys(raw || {}).forEach(dateKey => {
+                const day = raw[dateKey];
+        
+                if (Array.isArray(day)) {
+                  normalized[dateKey] = day; 
+                  return;
+                }
+        
+             
+                const arr = [];
+                if (day && typeof day === 'object') {
+                  Object.keys(day).forEach(h => {
+                    const hour = parseInt(h, 10);
+                    arr.push({
+                      hour,
+                      minute: 0,
+                      mood: day[h],
+                      timestamp: new Date(`${dateKey}T${String(hour).padStart(2,'0')}:00:00`).getTime()
+                    });
+                  });
+                }
+                normalized[dateKey] = arr.sort((a,b) => a.timestamp - b.timestamp);
+              });
+        
+              setJson('moodData', normalized);
+            }
+          },
+          {
+            version: 2,
+            name: 'Recompute dailyMoods from moodData',
+            run() {
+              const md = getJson('moodData', {});
+              const dm = {};
+        
+              Object.keys(md || {}).forEach(k => {
+                const entries = md[k] || [];
+                if (!entries.length) return;
+                const counts = entries.reduce((acc, e) => {
+                  acc[e.mood] = (acc[e.mood] || 0) + 1;
+                  return acc;
+                }, {});
+                const dominant = Object.keys(counts).reduce((a,b) => counts[a] >= counts[b] ? a : b);
+                dm[k] = dominant;
+              });
+        
+              setJson('dailyMoods', dm);
+            }
+          },
+          {
+            version: 3,
+            name: 'Ensure chat history key and cap length',
+            run() {
+              // переносим возможные старые ключи и ограничиваем длину истории
+              const legacy = getJson('chat') ?? getJson('chatMessages', []);
+              const arr = Array.isArray(legacy) ? legacy : [];
+              setJson('chatMessages', arr.slice(-100));
+              localStorage.removeItem('chat'); // чистим старое имя ключа, если было
+            }
+          }
+        ];
+        
+        async function runMigrationsIfNeeded() {
+          let current = parseInt(localStorage.getItem(SCHEMA_KEY) || '0', 10);
+        
+          for (const m of MIGRATIONS) {
+            if (m.version > current) {
+              try {
+                console.info(`[migrate] -> v${m.version}: ${m.name}`);
+                await Promise.resolve(m.run());
+                localStorage.setItem(SCHEMA_KEY, String(m.version));
+                current = m.version;
+              } catch (e) {
+                console.error('[migrate] failed', m.version, m.name, e);
+                break; // остановим цепочку, чтобы не усугублять
+              }
+            }
+          }
+        }
+       
+        function loadData() {
+          try {
+            moodData   = getJson('moodData', {}) || {};
+            dailyMoods = getJson('dailyMoods', {}) || {};
+          } 
+          catch (e) {
+            console.log('Error loading data:', e);
+            moodData = {};
+            dailyMoods = {};
+          }
+        }
+        
         function convertOldDataFormat(oldData) {
             const newData = {};
             
@@ -1841,6 +1945,7 @@
     </script>
 </body>
 </html>
+
 
 
 
