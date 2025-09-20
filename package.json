@@ -2,6 +2,7 @@
   "name": "mood-calendar",
   "private": true,
   "scripts": {
-    "build": "node scripts/inject-version.mjs"
+    "build": "node scripts/inject-version.mjs",
+    "vercel-build": "npm run build"
   }
 }
