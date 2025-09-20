@@ -1,30 +1,107 @@
-/* Кнопки */
-.btn {
-  display:inline-flex; align-items:center; justify-content:center; gap: var(--space-2);
+/* ==========================================================
+   COMPONENTS — базовые стили для кнопок, карточек, инпутов
+   Файл: styles/components.css
+   Требует styles/tokens.css (переменные тем и скейлы)
+   ========================================================== */
+
+/* =================== Buttons =================== */
+/* База для .btn И для текущих классов проекта */
+.btn,
+.record-btn,
+.theme-toggle,
+.filter-btn,
+.install-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
   padding: 10px 16px;
   border-radius: var(--radius-pill);
   border: 1.5px solid var(--border);
   background: var(--surface-2);
   color: var(--text);
   font: 600 var(--fs-sm)/1 var(--font-sans);
-  transition: background var(--dur-2) var(--ease), transform var(--dur-1) var(--ease), border-color var(--dur-2) var(--ease);
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background var(--dur-2) var(--ease),
+    transform var(--dur-1) var(--ease),
+    border-color var(--dur-2) var(--ease),
+    box-shadow var(--dur-2) var(--ease);
   box-shadow: var(--shadow-sm);
 }
-.btn:hover { background: var(--hover); transform: translateY(-1px); }
-.btn:focus-visible { outline: 3px solid color-mix(in srgb, var(--brand) 40%, transparent); outline-offset: 2px; }
 
-.btn--primary {
+.btn:hover,
+.record-btn:hover,
+.theme-toggle:hover,
+.filter-btn:hover,
+.install-btn:hover {
+  background: var(--hover);
+  transform: translateY(-1px);
+}
+
+.btn:active,
+.record-btn:active,
+.theme-toggle:active,
+.filter-btn:active,
+.install-btn:active {
+  transform: translateY(0);
+}
+
+.btn:disabled,
+.record-btn:disabled,
+.theme-toggle:disabled,
+.filter-btn:disabled,
+.install-btn:disabled {
+  opacity: .6;
+  pointer-events: none;
+  transform: none;
+  filter: grayscale(.1);
+}
+
+.btn:focus-visible,
+.record-btn:focus-visible,
+.theme-toggle:focus-visible,
+.filter-btn:focus-visible,
+.install-btn:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--brand) 40%, transparent);
+  outline-offset: 2px;
+}
+
+/* Вариант primary — применяем и к .record-btn / .install-btn */
+.btn--primary,
+.record-btn,
+.install-btn {
   border-color: color-mix(in srgb, var(--brand) 25%, var(--border));
   background: linear-gradient(135deg, var(--brand), var(--brand-2));
   color: #fff;
+  box-shadow: var(--shadow-md);
 }
-.btn--primary:hover { filter: brightness(1.03); }
-
-.btn--ghost {
-  background: transparent; border-color: var(--border);
+.btn--primary:hover,
+.record-btn:hover,
+.install-btn:hover {
+  filter: brightness(1.03);
 }
 
-/* Карточки/панели */
+/* Вариант ghost — применяем и к .theme-toggle / .filter-btn (неактивная) */
+.btn--ghost,
+.theme-toggle,
+.filter-btn {
+  background: transparent;
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+/* Активное состояние фильтра периода */
+.filter-btn.active {
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  color: #fff;
+  border-color: transparent;
+  box-shadow: var(--shadow-sm);
+}
+
+/* =================== Cards / Panels =================== */
 .card {
   background: var(--surface-2);
   color: var(--text);
@@ -34,35 +111,110 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* Инпут/текстовая область */
-.input, .textarea {
-  width:100%;
+/* =================== Inputs =================== */
+.input,
+.textarea,
+.chat-input {
+  width: 100%;
   background: var(--surface);
   border: 2px solid var(--border);
   border-radius: var(--radius-2);
   color: var(--text);
   font: var(--fs-md)/1.35 var(--font-sans);
   padding: var(--space-3) var(--space-4);
-  transition: border-color var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
-}
-.input:focus, .textarea:focus {
-  border-color: var(--brand);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent);
+  transition:
+    border-color var(--dur-2) var(--ease),
+    box-shadow var(--dur-2) var(--ease),
+    background var(--dur-2) var(--ease);
   outline: none;
 }
 
-/* Чип/значок (например, часы в статистике) */
+.input::placeholder,
+.textarea::placeholder,
+.chat-input::placeholder {
+  color: var(--text-muted);
+}
+
+.input:focus,
+.textarea:focus,
+.chat-input:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent);
+}
+
+/* скрываем скролл у многострочного ввода (как просили) */
+.textarea,
+.chat-input {
+  resize: none;
+  max-height: 140px;    /* чтобы не разрасталась бесконечно */
+  overflow: auto;
+  scrollbar-width: none;         /* Firefox */
+}
+.textarea::-webkit-scrollbar,
+.chat-input::-webkit-scrollbar { /* WebKit */
+  display: none;
+}
+
+/* =================== Chips =================== */
 .chip {
-  display:inline-flex; align-items:center; justify-content:center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 6px 10px;
   border-radius: var(--radius-1);
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);
   font: 600 var(--fs-sm)/1 var(--font-sans);
+  box-shadow: var(--shadow-sm);
 }
 
-/* Цветовые подсказки для графиков */
+/* =================== Bars / Chart colors =================== */
 .bar--good { background: var(--success); }
 .bar--neutral { background: var(--warning); }
 .bar--sad { background: var(--info); }
+
+/* =================== Chat bubbles (тонкая унификация) =================== */
+.message {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 18px;
+  font: var(--fs-md)/1.4 var(--font-sans);
+  box-shadow: var(--shadow-sm);
+}
+.message.user {
+  align-self: flex-end;
+  background: var(--success);
+  color: #fff;
+  border-bottom-right-radius: 6px;
+}
+.message.ai {
+  align-self: flex-start;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 6px;
+}
+.message.system {
+  align-self: center;
+  background: color-mix(in srgb, var(--info) 12%, transparent);
+  color: var(--text-muted);
+  border: 1px dashed var(--border);
+}
+
+/* =================== Misc =================== */
+/* Квадратики часов в статистике (если нет своих стилей) */
+.hour-block {
+  text-align: center;
+  padding: 8px 4px;
+  border-radius: var(--radius-1);
+  font: var(--fs-xs)/1 var(--font-sans);
+  color: var(--text);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.hour-block.has-data {
+  color: #fff;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
