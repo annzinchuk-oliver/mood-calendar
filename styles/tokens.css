@@ -1,0 +1,132 @@
+/* =============== PRIMITIVE TOKENS (скейлы) =============== */
+:root {
+  /* Spacing — 8pt grid */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+
+  /* Radius */
+  --radius-1: 8px;
+  --radius-2: 12px;
+  --radius-3: 16px;
+  --radius-pill: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 6px rgba(0,0,0,.08);
+  --shadow-md: 0 8px 24px rgba(0,0,0,.12);
+  --shadow-lg: 0 18px 40px rgba(0,0,0,.18);
+
+  /* Typography */
+  --font-sans: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,system-ui,sans-serif;
+  --fs-xs: 12px; --fs-sm: 14px; --fs-md: 16px; --fs-lg: 18px; --fs-xl: 22px;
+
+  /* Motion */
+  --dur-1: .15s; --dur-2: .2s; --dur-3: .3s;
+  --ease: cubic-bezier(.2,.7,.2,1);
+}
+
+/* =============== THEME PALETTES (только «краски») =============== */
+[data-theme="light"], :root {
+  --palette-bg: #f9fafb;
+  --palette-surface: #ffffff;
+  --palette-text: #1e293b;
+  --palette-text-muted: #64748b;
+  --palette-border: #e2e8f0;
+  --palette-border-strong: #cbd5e1;
+  --palette-hover: #f3f4f6;
+
+  --palette-brand: #4f46e5;
+  --palette-brand-2: #7c3aed;
+
+  /* mood */
+  --palette-good: #22c55e;
+  --palette-neutral: #eab308;
+  --palette-sad: #3b82f6;
+}
+
+[data-theme="dark"] {
+  --palette-bg: #0f172a;
+  --palette-surface: #1e293b;
+  --palette-text: #f1f5f9;
+  --palette-text-muted: #cbd5e1;
+  --palette-border: #475569;
+  --palette-border-strong: #64748b;
+  --palette-hover: #334155;
+
+  --palette-brand: #4f46e5;
+  --palette-brand-2: #7c3aed;
+
+  --palette-good: #10b981;
+  --palette-neutral: #f59e0b;
+  --palette-sad: #3b82f6;
+}
+
+/* остальные твоие темы — просто задают палитры */
+[data-theme="light-nature"] {
+  --palette-bg:#f0fdf4; --palette-surface:#fff;
+  --palette-text:#1e293b; --palette-text-muted:#64748b;
+  --palette-border:#dcfce7; --palette-border-strong:#86efac;
+  --palette-hover:#ecfdf5;
+  --palette-brand:#059669; --palette-brand-2:#047857;
+  --palette-good:#16a34a; --palette-neutral:#ca8a04; --palette-sad:#0369a1;
+}
+
+[data-theme="light-ocean"] {
+  --palette-bg:#f0f9ff; --palette-surface:#fff;
+  --palette-text:#1e293b; --palette-text-muted:#64748b;
+  --palette-border:#e0f2fe; --palette-border-strong:#93c5fd;
+  --palette-hover:#eff6ff;
+  --palette-brand:#0ea5e9; --palette-brand-2:#0284c7;
+  --palette-good:#059669; --palette-neutral:#d97706; --palette-sad:#2563eb;
+}
+
+[data-theme="dark-space"] {
+  --palette-bg:#0c0a09; --palette-surface:#1c1917;
+  --palette-text:#fafaf9; --palette-text-muted:#d6d3d1;
+  --palette-border:#292524; --palette-border-strong:#44403c;
+  --palette-hover:#262522;
+  --palette-brand:#7c2d12; --palette-brand-2:#92400e;
+  --palette-good:#059669; --palette-neutral:#d97706; --palette-sad:#0ea5e9;
+}
+
+[data-theme="dark-purple"] {
+  --palette-bg:#0f0a19; --palette-surface:#1e1b31;
+  --palette-text:#f5f3ff; --palette-text-muted:#d8b4fe;
+  --palette-border:#2e1065; --palette-border-strong:#581c87;
+  --palette-hover:#2b2642;
+  --palette-brand:#6366f1; --palette-brand-2:#8b5cf6;
+  --palette-good:#22c55e; --palette-neutral:#fbbf24; --palette-sad:#60a5fa;
+}
+
+/* =============== SEMANTIC TOKENS (мост с компонентами) =============== */
+:root, [data-theme] {
+  --surface: var(--palette-bg);
+  --surface-2: var(--palette-surface);
+  --text: var(--palette-text);
+  --text-muted: var(--palette-text-muted);
+  --border: var(--palette-border);
+  --border-strong: var(--palette-border-strong);
+  --hover: var(--palette-hover);
+
+  --brand: var(--palette-brand);
+  --brand-2: var(--palette-brand-2);
+
+  --success: var(--palette-good);
+  --warning: var(--palette-neutral);
+  --info: var(--palette-sad);
+
+  /* совместимость со старыми переменными (чтобы ничего не ломалось) */
+  --bg-primary: var(--surface);
+  --bg-secondary: var(--surface-2);
+  --text-primary: var(--text);
+  --text-secondary: var(--text-muted);
+  --border-color: var(--border);
+  --border-hover: var(--border-strong);
+  --day-hover: var(--hover);
+  --mood-good: var(--success);
+  --mood-neutral: var(--warning);
+  --mood-sad: var(--info);
+}
