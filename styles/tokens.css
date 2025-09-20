@@ -1,3 +1,8 @@
+/* ==========================================================
+   TOKENS — единый источник правды для тем и скейлов
+   Файл: styles/tokens.css
+   ========================================================== */
+
 /* =============== PRIMITIVE TOKENS (скейлы) =============== */
 :root {
   /* Spacing — 8pt grid */
@@ -7,6 +12,7 @@
   --space-4: 16px;
   --space-5: 20px;
   --space-6: 24px;
+  --space-8: 32px;
 
   /* Radius */
   --radius-1: 8px;
@@ -14,60 +20,71 @@
   --radius-3: 16px;
   --radius-pill: 9999px;
 
-  /* Shadows */
+  /* Typography */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  --fs-xs: 12px;
+  --fs-sm: 14px;
+  --fs-md: 15px;
+  --fs-lg: 16px;
+  --fs-xl: 20px;
+
+  /* Motion */
+  --dur-1: .14s;
+  --dur-2: .2s;
+  --dur-3: .3s;
+  --ease: cubic-bezier(.22,1,.36,1);
+
+  /* Elevation (используются компонентами) */
   --shadow-sm: 0 2px 6px rgba(0,0,0,.08);
   --shadow-md: 0 8px 24px rgba(0,0,0,.12);
   --shadow-lg: 0 18px 40px rgba(0,0,0,.18);
-
-  /* Typography */
-  --font-sans: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,system-ui,sans-serif;
-  --fs-xs: 12px; --fs-sm: 14px; --fs-md: 16px; --fs-lg: 18px; --fs-xl: 22px;
-
-  /* Motion */
-  --dur-1: .15s; --dur-2: .2s; --dur-3: .3s;
-  --ease: cubic-bezier(.2,.7,.2,1);
 }
 
-/* =============== THEME PALETTES (только «краски») =============== */
+/* ==========================================================
+   THEME PALETTES (только «краски»; семантика ниже)
+   По умолчанию считаем светлую тему. Если атрибут data-theme
+   не задан, применится :root. Ниже добавлен авто-переключатель
+   на тёмную через prefers-color-scheme.
+   ========================================================== */
 [data-theme="light"], :root {
   --palette-bg: #f9fafb;
   --palette-surface: #ffffff;
-  --palette-text: #1e293b;
-  --palette-text-muted: #64748b;
-  --palette-border: #e2e8f0;
-  --palette-border-strong: #cbd5e1;
+  --palette-text: #1f2937;
+  --palette-text-muted: #6b7280;
+  --palette-border: #e5e7eb;
+  --palette-border-strong: #d1d5db;
   --palette-hover: #f3f4f6;
 
-  --palette-brand: #4f46e5;
-  --palette-brand-2: #7c3aed;
+  --palette-brand: #4f46e5;   /* индиго */
+  --palette-brand-2: #7c3aed; /* фиолет */
 
-  /* mood */
-  --palette-good: #22c55e;
-  --palette-neutral: #eab308;
-  --palette-sad: #3b82f6;
+  /* moods */
+  --palette-good: #22c55e;    /* зеленый */
+  --palette-neutral: #eab308; /* жёлтый */
+  --palette-sad: #3b82f6;     /* синий */
 }
 
 [data-theme="dark"] {
   --palette-bg: #0f172a;
-  --palette-surface: #1e293b;
-  --palette-text: #f1f5f9;
-  --palette-text-muted: #cbd5e1;
-  --palette-border: #475569;
-  --palette-border-strong: #64748b;
-  --palette-hover: #334155;
+  --palette-surface: #111827;
+  --palette-text: #e5e7eb;
+  --palette-text-muted: #9ca3af;
+  --palette-border: #1f2937;
+  --palette-border-strong: #374151;
+  --palette-hover: #1b2435;
 
-  --palette-brand: #4f46e5;
-  --palette-brand-2: #7c3aed;
+  --palette-brand: #6366f1;
+  --palette-brand-2: #8b5cf6;
 
-  --palette-good: #10b981;
+  --palette-good: #34d399;
   --palette-neutral: #f59e0b;
-  --palette-sad: #3b82f6;
+  --palette-sad: #60a5fa;
 }
 
-/* остальные твоие темы — просто задают палитры */
+/* Доп. палитры (опционально) */
 [data-theme="light-nature"] {
-  --palette-bg:#f0fdf4; --palette-surface:#fff;
-  --palette-text:#1e293b; --palette-text-muted:#64748b;
+  --palette-bg:#f0fdf4; --palette-surface:#ffffff;
+  --palette-text:#1f2937; --palette-text-muted:#64748b;
   --palette-border:#dcfce7; --palette-border-strong:#86efac;
   --palette-hover:#ecfdf5;
   --palette-brand:#059669; --palette-brand-2:#047857;
@@ -75,8 +92,8 @@
 }
 
 [data-theme="light-ocean"] {
-  --palette-bg:#f0f9ff; --palette-surface:#fff;
-  --palette-text:#1e293b; --palette-text-muted:#64748b;
+  --palette-bg:#f0f9ff; --palette-surface:#ffffff;
+  --palette-text:#1f2937; --palette-text-muted:#64748b;
   --palette-border:#e0f2fe; --palette-border-strong:#93c5fd;
   --palette-hover:#eff6ff;
   --palette-brand:#0ea5e9; --palette-brand-2:#0284c7;
@@ -87,9 +104,9 @@
   --palette-bg:#0c0a09; --palette-surface:#1c1917;
   --palette-text:#fafaf9; --palette-text-muted:#d6d3d1;
   --palette-border:#292524; --palette-border-strong:#44403c;
-  --palette-hover:#262522;
+  --palette-hover:#23201c;
   --palette-brand:#7c2d12; --palette-brand-2:#92400e;
-  --palette-good:#059669; --palette-neutral:#d97706; --palette-sad:#0ea5e9;
+  --palette-good:#10b981; --palette-neutral:#d97706; --palette-sad:#0ea5e9;
 }
 
 [data-theme="dark-purple"] {
@@ -101,31 +118,73 @@
   --palette-good:#22c55e; --palette-neutral:#fbbf24; --palette-sad:#60a5fa;
 }
 
-/* =============== SEMANTIC TOKENS (мост с компонентами) =============== */
+/* Авто-тёмная, если не указан data-theme явно */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --palette-bg: #0f172a;
+    --palette-surface: #111827;
+    --palette-text: #e5e7eb;
+    --palette-text-muted: #9ca3af;
+    --palette-border: #1f2937;
+    --palette-border-strong: #374151;
+    --palette-hover: #1b2435;
+
+    --palette-brand: #6366f1;
+    --palette-brand-2: #8b5cf6;
+
+    --palette-good: #34d399;
+    --palette-neutral: #f59e0b;
+    --palette-sad: #60a5fa;
+  }
+}
+
+/* ==========================================================
+   SEMANTIC TOKENS (мост между палитрами и компонентами)
+   ========================================================== */
 :root, [data-theme] {
+  /* Базовые поверхности и текст */
   --surface: var(--palette-bg);
   --surface-2: var(--palette-surface);
   --text: var(--palette-text);
   --text-muted: var(--palette-text-muted);
+
+  /* Границы и состояния наведения */
   --border: var(--palette-border);
   --border-strong: var(--palette-border-strong);
   --hover: var(--palette-hover);
 
+  /* Бренд и статусы */
   --brand: var(--palette-brand);
   --brand-2: var(--palette-brand-2);
-
   --success: var(--palette-good);
   --warning: var(--palette-neutral);
   --info: var(--palette-sad);
 
-  /* совместимость со старыми переменными (чтобы ничего не ломалось) */
+  /* Графики / диаграммы */
+  --chart-good: var(--success);
+  --chart-neutral: var(--warning);
+  --chart-sad: var(--info);
+
+  /* Текст/фон для инвертированных элементов */
+  --on-brand: #ffffff;
+}
+
+/* ==========================================================
+   BACKWARD COMPAT (чтобы не ломать существующие стили)
+   ========================================================== */
+:root, [data-theme] {
   --bg-primary: var(--surface);
-  --bg-secondary: var(--surface-2);
+  --bg-elevated: var(--surface-2);
+  --bg-secondary: var(--surface-2);       /* если где-то используется */
   --text-primary: var(--text);
   --text-secondary: var(--text-muted);
   --border-color: var(--border);
   --border-hover: var(--border-strong);
+
+  /* hover для дней календаря */
   --day-hover: var(--hover);
+
+  /* настроения */
   --mood-good: var(--success);
   --mood-neutral: var(--warning);
   --mood-sad: var(--info);
