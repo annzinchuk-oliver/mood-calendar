@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="app-version" content="%APP_VERSION%">
     <title>Календарь Настроения</title>
     
     <!-- PWA Meta Tags -->
@@ -14,6 +15,12 @@
     
     <!-- Простой манифест для PWA -->
     <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi0JrQsNC70LXQvdC00LDRgNGMINCd0LDRgdGC0YDQvtC10L3QuNGPIiwic2hvcnRfbmFtZSI6ItCa0LDQu9C10L3QtNCw0YDRjCIsImRlc2NyaXB0aW9uIjoi0J7RgtGB0LvQtdC20LjQstCw0LnRgtC1INGB0LLQvtC1INC90LDRgdGC0YDQvtC10L3QuNC1INC60LDQttC00YvQuSDQtNC10L3RjCIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZmZmZmZmIiwidGhlbWVfY29sb3IiOiIjNEY0NkU1IiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0Nzdmcgdmlld0JveD0nMCAwIDEwMCAxMDAnIGZpbGw9JyUyMzRGNDZFNScgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyUzRSUzQ3JlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIHJ4PScxMCcvJTNFJTNDdGV4dCB4PSc1MCcgeT0nNTAnIGZvbnQtc2l6ZT0nNDAnIGZpbGw9J3doaXRlJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBkeT0nLjNlbSclM0Xwn5OBJTNFL3RleHQlM0UlM0Mvc3ZnJTNFIiwic2l6ZXMiOiIxOTJ4MTkyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
+    
+    <!-- index.html (в <head>) -->
+    <link rel="stylesheet" href="styles/tokens.css?v=__BUILD_ID__">
+    <link rel="stylesheet" href="styles/components.css?v=__BUILD_ID__">
+    <!-- если появится JS-файл -->
+    <!-- <script src="main.js?v=__BUILD_ID__" defer></script> -->
     
     <style>
         :root {
@@ -1945,6 +1952,7 @@
     </script>
 </body>
 </html>
+
 
 
 
