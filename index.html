@@ -69,11 +69,12 @@
           right: auto;
           transform: translateX(-50%);
           z-index: 1100;
-          background: rgba(255, 255, 255, 0.95);
+          background: var(--surface-2);
+          border: 1px solid var(--border);
           border-radius: 12px;
           padding: 10px;
           min-width: 160px;
-          box-shadow: 0 10px 24px rgba(0,0,0,.2);
+          box-shadow: var(--shadow-md);
           display: flex;
           flex-direction: column;
           gap: 6px;
@@ -87,7 +88,7 @@
           border-radius: 8px;
           cursor: pointer;
           font-size: 13px;
-          color: #1e293b;
+          color: var(--text);
           text-align: left;
           transition: background .2s ease;
         }
@@ -109,27 +110,6 @@
             padding: 20px;
             background: var(--bg-secondary);
             border-bottom: 2px solid var(--border-color);
-        }
-
-        .nav-btn {
-            background: var(--bg-primary);
-            border: 2px solid var(--border-color);
-            color: var(--text-primary);
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            font-size: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-
-        .nav-btn:hover, .nav-btn:active {
-            background: var(--day-hover);
-            border-color: var(--border-hover);
-            transform: scale(1.1);
         }
 
         .month-title {
@@ -214,7 +194,7 @@
         .stats h3 {
             font-size: 18px;
             font-weight: 600;
-            color: #1e293b;
+            color: var(--text);
             margin-bottom: 16px;
             display: flex;
             align-items: center;
@@ -283,12 +263,12 @@
             font-weight: 700;
             text-align: center;
             margin-bottom: 16px;
-            color: #1e293b;
+            color: var(--text);
         }
 
         .mood-popup p {
             font-size: 15px;
-            color: #64748b;
+            color: color: var(--text-muted);
             text-align: center;
             margin-bottom: 28px;
         }
@@ -483,11 +463,6 @@
             border: 1px solid var(--border-color);
         }
 
-        .hour-block.has-data {
-            color: white;
-            font-weight: bold;
-        }
-
         /* Скрытие основного контента календаря на странице статистики */
         .calendar-page {
             display: block;
@@ -537,136 +512,6 @@
             gap: 16px;
         }
 
-        .message {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            font-size: 15px;
-            line-height: 1.4;
-            animation: messageSlideIn 0.3s ease;
-        }
-
-        .message.user {
-            align-self: flex-end;
-            background: var(--mood-good);
-            color: white;
-            border-bottom-right-radius: 6px;
-        }
-
-        .message.ai {
-            align-self: flex-start;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            border-bottom-left-radius: 6px;
-        }
-
-        .message.system {
-            align-self: center;
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--text-secondary);
-            border-radius: 12px;
-            font-size: 13px;
-            text-align: center;
-            max-width: 90%;
-        }
-
-        @keyframes messageSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .chat-input-container {
-            padding: 12px 16px;
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            gap: 12px;
-            align-items: flex-end;
-            flex-shrink: 0; /* предотвращаем сжатие */
-        }
-
-        .chat-input {
-          flex: 1;
-          background: var(--bg-primary);
-          border: 2px solid var(--border-color);
-          border-radius: 20px;
-          padding: 12px 16px;
-          padding-right: 52px;
-          font-size: 15px;
-          line-height: 1.35;
-          color: var(--text-primary);
-          resize: none;              /* убираем ручной ресайз */
-          min-height: 44px;          /* вместо 20px — чтобы плейсхолдер помещался */
-          max-height: 160px;         /* даём вырасти до 160px */
-          overflow-y: auto;          
-          outline: none;
-          transition: all 0.2s ease;
-        }
-        
-        /* на всякий случай прячем скроллбар в движках */
-        .chat-input::-webkit-scrollbar { display: none; }
-        .chat-input { scrollbar-width: none; -ms-overflow-style: none; }
-        
-        .chat-input::placeholder {
-          font-size: 14px;
-          line-height: 1.3;
-          color: var(--text-secondary);
-        }
-
-        .chat-input:focus {
-            border-color: var(--mood-good);
-            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
-        }
-
-        .send-button {
-            background: var(--mood-good);
-            border: none;
-            border-radius: 50%;
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: white;
-            font-size: 18px;
-        }
-
-        .send-button:hover:not(:disabled) {
-            background: #16a34a;
-            transform: scale(1.05);
-        }
-
-        .send-button:disabled {
-            background: var(--text-secondary);
-            cursor: not-allowed;
-            opacity: 0.5;
-        }
-
-        .typing-indicator {
-            align-self: flex-start;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 18px;
-            border-bottom-left-radius: 6px;
-            padding: 12px 16px;
-            color: var(--text-secondary);
-            font-style: italic;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
 
         .chat-disclaimer {
             padding: 8px 20px;
@@ -729,9 +574,9 @@
         
         <div class="calendar-page" id="calendarPage">
             <div class="month-nav">
-                <button class="nav-btn" onclick="navigateMonth(-1)">←</button>
+                <button class="btn btn--ghost btn--icon" onclick="navigateMonth(-1)">←</button>
                 <div class="month-title" id="monthTitle"></div>
-                <button class="nav-btn" onclick="navigateMonth(1)">→</button>
+                <button class="btn btn--ghost btn--icon" onclick="navigateMonth(1)">→</button>
             </div>
 
             <div class="calendar">
@@ -751,10 +596,10 @@
         
         <div class="stats-page" id="statsPage">
             <div class="stats-filters">
-              <button class="btn btn--ghost active" onclick="setStatsFilter('3days')">3 дня</button>
-              <button class="btn btn--ghost" onclick="setStatsFilter('week')">Неделя</button>
-              <button class="btn btn--ghost" onclick="setStatsFilter('month')">Месяц</button>
-              <button class="btn btn--ghost" onclick="setStatsFilter('all')">Все время</button>
+                <button class="btn btn--ghost filter-btn active" onclick="setStatsFilter('3days')">3 дня</button>
+                <button class="btn btn--ghost filter-btn" onclick="setStatsFilter('week')">Неделя</button>
+                <button class="btn btn--ghost filter-btn" onclick="setStatsFilter('month')">Месяц</button>
+                <button class="btn btn--ghost filter-btn" onclick="setStatsFilter('all')">Все время</button>
             </div>
 
 
@@ -815,9 +660,7 @@
                     placeholder="Расскажите, как вы себя чувствуете..."
                     rows="1"
                 ></textarea>
-                <button class="send-button" id="sendButton" onclick="sendMessage()">
-                    ✈️
-                </button>
+                <button class="btn btn--primary btn--circle" id="sendButton" onclick="sendMessage()">✈️</button>
             </div>
 
             <div class="chat-disclaimer">
@@ -1497,31 +1340,6 @@
             dailyMoods = {};
           }
         }
-        
-        function convertOldDataFormat(oldData) {
-            const newData = {};
-            
-            Object.keys(oldData).forEach(dateKey => {
-                const dayData = oldData[dateKey];
-                
-                if (Array.isArray(dayData)) {
-                    newData[dateKey] = dayData;
-                } else if (typeof dayData === 'object') {
-                    newData[dateKey] = [];
-                    Object.keys(dayData).forEach(hour => {
-                        const mood = dayData[hour];
-                        newData[dateKey].push({
-                            hour: parseInt(hour),
-                            minute: 0,
-                            mood: mood,
-                            timestamp: new Date().setHours(parseInt(hour), 0, 0, 0)
-                        });
-                    });
-                }
-            });
-            
-            return newData;
-        }
 
         function saveData() {
             try {
@@ -1759,6 +1577,7 @@
     </script>
 </body>
 </html>
+
 
 
 
