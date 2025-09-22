@@ -669,8 +669,8 @@
         </div>
 
         <!-- Fixed action button -->
-        <div class="action-record">
-          <button class="btn btn--primary btn--xl" id="recordBtnFixed">📝 Записать настроение</button>
+        <div class="calendar-cta">
+          <button class="btn btn--primary" id="addMoodBtn">📝 Записать настроение</button>
         </div>
 
         <!-- Bottom Navigation -->
@@ -1420,33 +1420,29 @@
 
         // Mood recording
         function triggerMoodCheck() {
-            const now = new Date();
-            const hours = now.getHours().toString().padStart(2, '0');
-            const minutes = now.getMinutes().toString().padStart(2, '0');
-            document.getElementById('timeDisplay').textContent = 
-                `${hours}:${minutes} - Время записать настроение`;
+          const now = new Date();
+          const hours = now.getHours().toString().padStart(2, '0');
+          const minutes = now.getMinutes().toString().padStart(2, '0');
+          document.getElementById('timeDisplay').textContent =
+            `${hours}:${minutes} - Время записать настроение`;
             
             updateMoodButtonColors();
             document.getElementById('moodPopup').classList.remove('hidden');
+            document.body.classList.add('popup-open');
         }
 
         function updateMoodButtonColors() {
-            const goodBtn = document.getElementById('goodMoodBtn');
-            const neutralBtn = document.getElementById('neutralMoodBtn');
-            const sadBtn = document.getElementById('sadMoodBtn');
-
-            const goodColor = getCSSVariable('--mood-good');
-            const neutralColor = getCSSVariable('--mood-neutral');
-            const sadColor = getCSSVariable('--mood-sad');
-
-            goodBtn.style.borderColor = goodColor;
-            goodBtn.style.background = `linear-gradient(135deg, ${goodColor}20, ${goodColor}10)`;
-
-            neutralBtn.style.borderColor = neutralColor;
-            neutralBtn.style.background = `linear-gradient(135deg, ${neutralColor}20, ${neutralColor}10)`;
-
-            sadBtn.style.borderColor = sadColor;
-            sadBtn.style.background = `linear-gradient(135deg, ${sadColor}20, ${sadColor}10)`;
+          const good = getCSSVariable('--mood-good');
+          const neutral = getCSSVariable('--mood-neutral');
+          const sad = getCSSVariable('--mood-sad');
+        
+          const g = document.getElementById('goodMoodBtn');
+          const n = document.getElementById('neutralMoodBtn');
+          const s = document.getElementById('sadMoodBtn');
+        
+          if (g) { g.style.borderColor = good; g.style.background = ''; }
+          if (n) { n.style.borderColor = neutral; n.style.background = ''; }
+          if (s) { s.style.borderColor = sad; s.style.background = ''; }
         }
 
         function recordMood(mood) {
@@ -1495,7 +1491,8 @@
         }
 
         function closeMoodPopup() {
-            document.getElementById('moodPopup').classList.add('hidden');
+          document.getElementById('moodPopup').classList.add('hidden');
+          document.body.classList.remove('popup-open');
         }
 
         // Calendar functions
@@ -1577,6 +1574,7 @@
     </script>
 </body>
 </html>
+
 
 
 
