@@ -1431,17 +1431,17 @@
         }
 
         function updateMoodButtonColors() {
-          const good = getCSSVariable('--mood-good');
+          const good    = getCSSVariable('--mood-good');
           const neutral = getCSSVariable('--mood-neutral');
-          const sad = getCSSVariable('--mood-sad');
+          const sad     = getCSSVariable('--mood-sad');
         
           const g = document.getElementById('goodMoodBtn');
           const n = document.getElementById('neutralMoodBtn');
           const s = document.getElementById('sadMoodBtn');
         
-          if (g) { g.style.borderColor = good; g.style.background = ''; }
-          if (n) { n.style.borderColor = neutral; n.style.background = ''; }
-          if (s) { s.style.borderColor = sad; s.style.background = ''; }
+          if (g) g.style.borderColor = good;
+          if (n) n.style.borderColor = neutral;
+          if (s) s.style.borderColor = sad;
         }
 
         function recordMood(mood) {
@@ -1573,6 +1573,7 @@
     </script>
 </body>
 </html>
+
 
 
 
