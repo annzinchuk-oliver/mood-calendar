@@ -749,7 +749,7 @@
           setupChatInput();
           maybeProactiveChat();
 
-          document.getElementById('recordBtnFixed')?.addEventListener('click', triggerMoodCheck);
+          document.getElementById('addMoodBtn')?.addEventListener('click', triggerMoodCheck);
         });
 
 
@@ -830,41 +830,40 @@
 
         // Page navigation
         function switchPage(page) {
-            currentPage = page;
-            
-            const calendarPage = document.getElementById('calendarPage');
-            const statsPage = document.getElementById('statsPage');
-            const chatPage = document.getElementById('chatPage');
-            const navCalendar = document.getElementById('navCalendar');
-            const navStats = document.getElementById('navStats');
-            const navChat = document.getElementById('navChat');
-            
-            // Hide all pages
-            calendarPage.style.display = 'none';
-            statsPage.classList.remove('active');
-            chatPage.classList.remove('active');
-            
-            // Remove active from all nav items
-            navCalendar.classList.remove('active');
-            navStats.classList.remove('active');
-            navChat.classList.remove('active');
-            
-            // Show selected page and activate nav item
-            if (page === 'calendar') {
-                calendarPage.style.display = 'block';
-                navCalendar.classList.add('active');
-            } else if (page === 'stats') {
-                statsPage.classList.add('active');
-                navStats.classList.add('active');
-                updateStatsPage();
-            } else if (page === 'chat') {
-                chatPage.classList.add('active');
-                navChat.classList.add('active');
-                // Focus chat input when switching to chat
-                setTimeout(() => {
-                    document.getElementById('chatInput').focus();
-                }, 100);
-            }
+          currentPage = page;
+        
+          const calendarPage = document.getElementById('calendarPage');
+          const statsPage    = document.getElementById('statsPage');
+          const chatPage     = document.getElementById('chatPage');
+          const navCalendar  = document.getElementById('navCalendar');
+          const navStats     = document.getElementById('navStats');
+          const navChat      = document.getElementById('navChat');
+          const cta          = document.querySelector('.calendar-cta');
+        
+          // скрыть всё
+          calendarPage.style.display = 'none';
+          statsPage.classList.remove('active');
+          chatPage.classList.remove('active');
+          navCalendar.classList.remove('active');
+          navStats.classList.remove('active');
+          navChat.classList.remove('active');
+        
+          // показать нужное + CTA только на календаре
+          if (page === 'calendar') {
+            calendarPage.style.display = 'block';
+            navCalendar.classList.add('active');
+            if (cta) cta.hidden = false;
+          } else if (page === 'stats') {
+            statsPage.classList.add('active');
+            navStats.classList.add('active');
+            if (cta) cta.hidden = true;
+            updateStatsPage();
+          } else if (page === 'chat') {
+            chatPage.classList.add('active');
+            navChat.classList.add('active');
+            if (cta) cta.hidden = true;
+            setTimeout(() => document.getElementById('chatInput')?.focus(), 100);
+          }
         }
         
         function autoResize(ta, max = 160) {
@@ -1574,6 +1573,7 @@
     </script>
 </body>
 </html>
+
 
 
 
