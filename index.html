@@ -371,6 +371,28 @@
             box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
         }
 
+        .action-record{
+          position: fixed;
+          left: 50%;
+          transform: translateX(-50%);
+          bottom: 84px;              /* чуть выше .bottom-nav */
+          width: 100%;
+          max-width: 400px;          /* как у .app-container */
+          padding: 0 16px;
+          z-index: 1100;
+          pointer-events: none;      /* чтобы клики проходили только по кнопке */
+        }
+        .action-record .btn{
+          width: 100%;
+          pointer-events: auto;
+        }
+        
+        /* Чуть более крупная кнопка */
+        .btn--xl{
+          padding: 14px 20px;
+          font-size: 16px;
+        }
+        
         .nav-item {
             display: flex;
             flex-direction: column;
@@ -408,7 +430,7 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             min-height: calc(100vh - 16px);
-            margin-bottom: 80px;
+            margin-bottom: 140px;
             transition: background-color 0.3s ease;
             position: relative; /* добавляем для лучшего позиционирования */
         }
@@ -688,8 +710,6 @@
             <h1>📅 Календарь Настроения</h1>
             
             <div class="header-actions">
-                <button class="btn btn--primary" id="addMoodBtn">📝 Записать настроение</button>
-        
                 <div class="theme-selector">
                     <button id="themeToggle" class="btn btn--ghost"
                         onclick="toggleTheme()" aria-expanded="false" aria-controls="paletteSelector">Тема</button>
@@ -725,17 +745,6 @@
                     <div class="weekday">Сб</div>
                 </div>
                 <div id="calendarDays"></div>
-            </div>
-
-            <div style="padding: 16px;">
-                <button onclick="toggleDetailedStats()" class="btn btn--ghost" style="width:100%">
-  📋 Показать записи сегодня
-</button>
-                
-                <div id="detailedStats" class="detailed-stats" style="display: none; margin-top: 16px; padding: 16px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-color);">
-                    <h4 style="font-size: 16px; margin-bottom: 12px; color: var(--text-primary);">Записи за сегодня:</h4>
-                    <div id="todayEntries" style="font-size: 14px; color: var(--text-secondary);"></div>
-                </div>
             </div>
         </div>
 
@@ -816,6 +825,11 @@
             </div>
         </div>
 
+        <!-- Fixed action button -->
+        <div class="action-record">
+          <button class="btn btn--primary btn--xl" id="recordBtnFixed">📝 Записать настроение</button>
+        </div>
+
         <!-- Bottom Navigation -->
         <div class="bottom-nav">
             <button class="nav-item active" id="navCalendar" onclick="switchPage('calendar')">
@@ -891,17 +905,19 @@
           switchPage('calendar');
           setupChatInput();
           maybeProactiveChat();
+
+          document.getElementById('recordBtnFixed')?.addEventListener('click', triggerMoodCheck);
         });
 
 
         // Close menu on outside click
         document.addEventListener('click', (e) => {
           const menu = document.getElementById('paletteSelector');
-          const btn  = document.getElementById('themeToggle');
+          const themeBtn = document.getElementById('themeToggle');
           if (!menu || menu.hasAttribute('hidden')) return;
           if (!e.target.closest('.theme-selector')) {
             menu.setAttribute('hidden','');
-            btn.setAttribute('aria-expanded','false');
+            if (themeBtn) themeBtn.setAttribute('aria-expanded','false');
           }
         });
 
@@ -916,8 +932,6 @@
             btn?.setAttribute('aria-expanded', 'false');
           }
         });
-
-
 
         // Theme management
         function loadTheme() {
@@ -1739,70 +1753,13 @@
                 (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
         }
 
-        function toggleDetailedStats() {
-            const detailedStats = document.getElementById('detailedStats');
-            const isVisible = detailedStats.style.display !== 'none';
-            
-            if (isVisible) {
-                detailedStats.style.display = 'none';
-            } else {
-                showTodayEntries();
-                detailedStats.style.display = 'block';
-            }
-        }
-
-        function showTodayEntries() {
-            const today = new Date();
-            const todayKey = getDateKey(today);
-            const todayEntries = moodData[todayKey] || [];
-            const todayEntriesElement = document.getElementById('todayEntries');
-            
-            if (todayEntries.length === 0) {
-                todayEntriesElement.innerHTML = '<p style="color: var(--text-secondary); font-style: italic;">Пока нет записей за сегодня</p>';
-                return;
-            }
-            
-            const sortedEntries = [...todayEntries].sort((a, b) => a.timestamp - b.timestamp);
-            
-            const entriesHTML = sortedEntries.map(entry => {
-                const time = `${entry.hour.toString().padStart(2, '0')}:${entry.minute.toString().padStart(2, '0')}`;
-                const moodEmoji = entry.mood === 'good' ? '😊' : entry.mood === 'neutral' ? '😐' : '😢';
-                const moodName = moodTypes[entry.mood].name;
-                
-                return `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--border-color);">
-                        <span>${time}</span>
-                        <span>${moodEmoji} ${moodName}</span>
-                    </div>
-                `;
-            }).join('');
-            
-            todayEntriesElement.innerHTML = entriesHTML;
-            
-            const moodCounts = sortedEntries.reduce((acc, entry) => {
-                acc[entry.mood] = (acc[entry.mood] || 0) + 1;
-                return acc;
-            }, {});
-            
-            const summaryHTML = `
-                <div style="margin-top: 12px; padding-top: 8px; border-top: 2px solid var(--border-color); font-weight: bold;">
-                    <div>Итого за день:</div>
-                    <div style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 11px;">
-                        <span>😊 ${moodCounts.good || 0}</span>
-                        <span>😐 ${moodCounts.neutral || 0}</span>
-                        <span>😢 ${moodCounts.sad || 0}</span>
-                    </div>
-                </div>
-            `;
-            
-            todayEntriesElement.innerHTML += summaryHTML;
-        }
 
         // Add event listener for notifications button
         document.getElementById('enableNotifications').addEventListener('click', requestNotificationPermission);
     </script>
 </body>
 </html>
+
 
 
 
