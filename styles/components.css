@@ -234,48 +234,44 @@
 :root { --nav-height: 72px; }
 
 /* Кнопка "Записать настроение" как фиксированная панель */
-.calendar-cta {
+.calendar-cta{
   position: fixed;
-  left: 16px;
-  right: 16px;
-  bottom: calc(var(--nav-height) + 12px); /* прямо над нижней навигацией */
-  z-index: 500;                            /* ниже поп-апа */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: auto;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 88px; /* 56px навигация + 32px зазор */
+  width: calc(100% - 32px);
+  max-width: 400px;
+  z-index: 1100;
+  pointer-events: none; /* чтобы не ловить клики по контейнеру */
 }
 
-.calendar-cta .btn {
-  width: 100%;
-  max-width: 680px;   /* чтобы красиво на широких экранах */
-  padding: 14px 18px;
-  border-radius: var(--radius-pill);
-  font: 700 var(--fs-md)/1 var(--font-sans);
-}
+.calendar-cta .btn{ width:100%; pointer-events: all; }
 
+.app-container{ padding-bottom: 140px; }
 /* Прятать CTA, когда открыт поп-ап */
 .popup-open .calendar-cta { display: none; }
 
 /* Поп-ап: повышаем контраст на тёмной теме */
-.mood-popup { backdrop-filter: blur(5px); }
-.mood-popup-content {
+.mood-popup{
+  background: color-mix(in srgb, var(--surface) 25%, transparent);
+}
+.mood-popup-content{
   background: var(--surface-2);
   color: var(--text);
-  border: 1px solid var(--border-strong);
-  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
 }
+.mood-popup h3{ color: var(--text); }
+.mood-popup p { color: var(--text-muted); }
 
-/* Кнопки настроения — более «воздушные», с чёткой рамкой */
-.mood-btn {
+/* Кнопки настроения — прозрачность и наведение */
+.mood-btn{
   background: var(--surface);
-  border: 2px solid var(--border);
-  color: var(--text);
-  transition: background var(--dur-2) var(--ease), transform var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease);
-  box-shadow: var(--shadow-sm);
 }
-.mood-btn:hover { background: var(--hover); transform: translateY(-1px); }
+.mood-btn:hover{
+  background: var(--hover);
+}
 
+body.popup-open{ overflow: hidden; }
 /* Цветовые акценты рамок */
 #goodMoodBtn    { border-color: color-mix(in srgb, var(--success) 70%, var(--border)); }
 #neutralMoodBtn { border-color: color-mix(in srgb, var(--warning) 70%, var(--border)); }
