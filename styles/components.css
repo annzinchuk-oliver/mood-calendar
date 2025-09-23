@@ -297,8 +297,6 @@
 
 body.modal-open .calendar-cta{ display: none; }
 
-.app-container { padding-bottom: 140px; }
-
 /* крупный размер кнопки для CTA */
 .btn--xl { padding: 14px 18px; font-size: var(--fs-md); }
 
