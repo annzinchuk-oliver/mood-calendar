@@ -67,6 +67,7 @@
           top: calc(100% + 8px);
           left: 50%;
           right: auto;
+          padding: 10px;
           transform: translateX(-50%);
           z-index: 1100;
           background: var(--surface-2);
@@ -84,7 +85,7 @@
         .palette-option {
           background: none;
           border: none;
-          : 8px 10px;
+          padding: 8px 10px;
           border-radius: 8px;
           cursor: pointer;
           font-size: 13px;
@@ -268,7 +269,7 @@
 
         .mood-popup p {
             font-size: 15px;
-            color: color: var(--text-muted);
+            color: var(--text-muted);
             text-align: center;
             margin-bottom: 28px;
         }
@@ -351,21 +352,18 @@
             box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .action-record{
+        .calendar-cta{
           position: fixed;
           left: 50%;
           transform: translateX(-50%);
-          bottom: 84px;              /* чуть выше .bottom-nav */
+          bottom: 84px;                 /* чуть выше нижней навигации */
           width: 100%;
-          max-width: 400px;          /* как у .app-container */
+          max-width: 400px;
           padding: 0 16px;
           z-index: 1100;
-          pointer-events: none;      /* чтобы клики проходили только по кнопке */
+          pointer-events: none;         /* клики только по кнопкам */
         }
-        .action-record .btn{
-          width: 100%;
-          pointer-events: auto;
-        }
+        .calendar-cta .btn{ width:100%; pointer-events:auto; }
         
         /* Чуть более крупная кнопка */
         .btn--xl{
@@ -889,19 +887,21 @@
           if (navChat)     navChat.classList.remove('active');
         
           // показать выбранную
-            if (page === 'calendar') {
-                cta && (cta.style.display = 'flex');
-              } else {
-                cta && (cta.style.display = 'none');
-              }         
-            else if (page === 'chat') {
+            // показать выбранную
+          if (page === 'calendar') {
+            calendarPage.style.display = 'block';
+            cta && (cta.style.display = 'flex');
+            navCalendar && navCalendar.classList.add('active');
+            } else if (page === 'chat') {
             chatPage.classList.add('active');
-            if (navChat) navChat.classList.add('active');
+            cta && (cta.style.display = 'none');
+            navChat && navChat.classList.add('active');
             setTimeout(() => document.getElementById('chatInput')?.focus(), 100);
-          }
+            }
         
-          /* ← ДОБАВЬ ЭТО: флаг для показа CTA только на календаре */
-          document.body.classList.toggle('on-calendar', page === 'calendar');
+        // флаг на тело — если используешь в стилях
+        document.body.classList.toggle('on-calendar', page === 'calendar');
+
         }
 
 
@@ -1055,21 +1055,19 @@
         }
         
         function openStats() {
-          const modal = document.getElementById('statsModal');
-          if (!modal) return;
-          modal.hidden = false;
-          document.body.style.overflow = 'hidden'; // запрет прокрутки фона
-          updateStatsPage?.(); // если функция есть — обновим данные
+          const sheet = document.getElementById('statsSheet');
+          if (!sheet) return;
+          sheet.hidden = false;
+          document.body.style.overflow = 'hidden';
+          updateStatsPage?.();
         }
-        
         function closeStats() {
-          const modal = document.getElementById('statsModal');
-          if (!modal) return;
-          modal.hidden = true;
+          const sheet = document.getElementById('statsSheet');
+          if (!sheet) return;
+          sheet.hidden = true;
           document.body.style.overflow = '';
         }
 
-        
           // Закрытие по клику на фон и по Esc
           document.addEventListener('click', (e) => {
             if (e.target && e.target.id === 'statsBackdrop') closeStats();
@@ -1080,31 +1078,22 @@
         
           // Свайп-вниз для закрытия листа
 // Свайп-вниз или влево для закрытия модалки
-        (function enableStatsSwipe(){
+        function enableStatsSwipe(){
           const panel = document.getElementById('statsPanel');
           if (!panel) return;
-        
-          let sx = 0, sy = 0, dx = 0, dy = 0;
-        
-          panel.addEventListener('touchstart', (e) => {
-            const t = e.touches[0];
-            sx = t.clientX; sy = t.clientY; dx = dy = 0;
+          let sx=0, sy=0, dx=0, dy=0;
+          panel.addEventListener('touchstart', e => {
+            const t = e.touches[0]; sx=t.clientX; sy=t.clientY; dx=dy=0;
           }, {passive:true});
-        
-          panel.addEventListener('touchmove', (e) => {
-            const t = e.touches[0];
-            dx = t.clientX - sx;
-            dy = t.clientY - sy;
+          panel.addEventListener('touchmove', e => {
+            const t = e.touches[0]; dx = t.clientX - sx; dy = t.clientY - sy;
           }, {passive:true});
-        
           panel.addEventListener('touchend', () => {
             if (Math.abs(dy) > 60 || Math.abs(dx) > 80) closeStats();
-            sx = sy = dx = dy = 0;
           });
-        })();
-
-          document.addEventListener('DOMContentLoaded', enableStatsSwipe);
+        }
         
+        document.addEventListener('DOMContentLoaded', enableStatsSwipe);
 
         function updateHourlyChart() {
             const today = new Date();
@@ -1680,6 +1669,7 @@
     </script>
 </body>
 </html>
+
 
 
 
