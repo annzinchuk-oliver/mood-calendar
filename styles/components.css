@@ -234,18 +234,31 @@
 :root { --nav-height: 72px; }
 
 /* Кнопка "Записать настроение" как фиксированная панель */
-.calendar-cta {
-  position: sticky;
-  bottom: 88px;        /* держим кнопку над нижней навигацией */
-  margin: 16px;
-  z-index: 2;          /* чтобы была над контентом карточки */
+.calendar-cta{
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 88px;                /* 56px навигация + ~32px зазор */
+  width: calc(100% - 32px);
+  max-width: 400px;
+  z-index: 1100;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  /* чтобы клики шли по кнопкам */
+  pointer-events: none;
+}
+.calendar-cta .btn{
+  width: 100%;
+  pointer-events: auto;
 }
 
-.calendar-cta .btn {
-  width: 100%;           /* растягиваем на ширину контейнера */
-}
+/* крупный размер кнопки для CTA */
+.btn--xl { padding: 14px 18px; font-size: var(--fs-md); }
 
-.app-container{ padding-bottom: 140px; }
+.app-container{ padding-bottom: 160px; }
 /* Прятать CTA, когда открыт поп-ап */
 .popup-open .calendar-cta { display: none; }
 
