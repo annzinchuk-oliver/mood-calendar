@@ -360,11 +360,3 @@ body.popup-open{ overflow: hidden; }
   margin: 6px auto 12px;
 }
 
-/* открытое состояние */
-.sheet.open { pointer-events: auto; }
-.sheet.open .sheet__backdrop { opacity: 1; }
-.sheet.open .sheet__panel { transform: translate(-50%, 0); }
-
-/* чтобы контент под листом не перекрывался кнопками */
-body.modal-open { overflow: hidden; }
-
