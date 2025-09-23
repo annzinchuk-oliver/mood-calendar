@@ -347,62 +347,35 @@ body.popup-open{ overflow: hidden; }
 
 /* Bottom sheet (статистика) */
 /* bottom-sheet для статистики */
-.sheet[hidden]{ display:none; }
-.sheet__backdrop{
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.45);
-  backdrop-filter: blur(2px);
-  z-index: 1200;
-}
-/* ===== Центрированная модалка (sheet) ===== */
-.sheet{
-  position: fixed;
-  inset: 0;
-  display: none;                /* по умолчанию скрыта */
-  align-items: center;
-  justify-content: center;
-  z-index: 1200;
-}
-.sheet.open{ display: flex; }   /* показать модалку */
+/* скрытое состояние — элемент вообще не участвует в раскладке */
+#statsSheet[hidden]{ display:none !important; }
 
+/* модалка на весь вьюпорт, клики проходят только по панели/бекдропу */
+.sheet{
+  position: fixed; inset: 0; z-index: 1200;
+  display: grid; place-items: center;
+  pointer-events: none;
+}
 .sheet__backdrop{
   position: absolute; inset: 0;
   background: rgba(0,0,0,.45);
   backdrop-filter: blur(2px);
-  opacity: 1;
+  pointer-events: auto;
 }
-
 .sheet__panel{
-  position: relative;
-  width: min(560px, 92vw);
-  max-height: 85vh;
-  overflow: auto;
-  background: var(--surface-2);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-2);
-  padding: 16px;
+  pointer-events: auto;
+  width: min(640px, calc(100% - 32px));
+  max-height: 80vh; overflow: auto;
+  background: var(--surface-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius-2);
   box-shadow: var(--shadow-lg);
-  transform: translate(0,0);    /* фиксируем по центру */
+  transform: translateY(0);
+  transition: transform var(--dur-2) var(--ease), opacity var(--dur-2) var(--ease);
 }
-
-.sheet__close{
-  position: absolute;
-  top: 8px; right: 8px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  border-radius: var(--radius-1);
-  padding: 6px 10px;
-  cursor: pointer;
+/* декоративная ручка сверху, опционально */
+.sheet__panel::before{
+  content:""; display:block; width:56px; height:4px;
+  border-radius: 9999px; background: var(--border-strong);
+  margin:10px auto 4px;
 }
-
-/* Небольшая «ручка» сверху для жеста */
-.sheet__handle{
-  position: sticky; top: 0;
-  margin: -6px auto 12px;
-  width: 76px; height: 4px;
-  border-radius: 999px;
-  background: var(--border);
-  opacity: .7;
-}
+.sheet__header{ display:flex; justify-content:space-between; align-items:center; padding: 8px 12px 0; }
