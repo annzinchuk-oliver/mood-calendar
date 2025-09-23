@@ -71,7 +71,7 @@
           background: var(--surface-2);
           border: 1px solid var(--border);
           border-radius: 12px;
-          : 10px;
+          padding: 10px;
           min-width: 160px;
           box-shadow: var(--shadow-md);
           display: flex;
@@ -349,19 +349,6 @@
             padding: 12px 0;
             box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
         }
-
-        .calendar-cta{
-          position: static;          /* ключевая замена */
-          width: auto;
-          max-width: 400px;
-          margin: 16px auto 0;       /* по центру контейнера */
-          display: flex;
-          flex-direction: column;    /* одна под другой */
-          gap: 10px;
-          align-items: stretch;
-        }
-        .calendar-cta .btn{ width: 100%; }
-
         
         /* Чуть более крупная кнопка */
         .btn--xl{
@@ -459,7 +446,7 @@
             border: 1px solid var(--border-color);
         }
 
-        /* Скрытие основного контента календаря на странице статистики */
+
         .calendar-page {
             display: block;
         }
@@ -597,55 +584,6 @@
               <h3>📈 Статистика</h3>
               <button class="btn btn--ghost" onclick="closeStats()">✕</button>
             </div>
-        
-        <div class="stats-page" id="statsPage">
-            <div class="stats-filters">
-                <button class="btn btn--ghost filter-btn active" onclick="setStatsFilter('3days')">3 дня</button>
-                <button class="btn btn--ghost filter-btn" onclick="setStatsFilter('week')">Неделя</button>
-                <button class="btn btn--ghost filter-btn" onclick="setStatsFilter('month')">Месяц</button>
-                <button class="btn btn--ghost filter-btn" onclick="setStatsFilter('all')">Все время</button>
-            </div>
-
-            <div style="padding:12px 16px;">
-              <button class="btn btn--ghost" onclick="closeStats()">Закрыть</button>
-            </div>
-
-            <div class="correlation-section">
-                <h3>📊 Настроение сегодня по часам</h3>
-                <div id="hourlyChart" class="hourly-chart"></div>
-                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px; text-align: center;">
-                    Нажмите на час, чтобы увидеть записи
-                </p>
-            </div>
-
-            <div class="overview-section">
-                <h3>📈 Общая статистика (<span id="currentPeriod">3 дня</span>)</h3>
-                <div class="stat-row">
-                    <span class="stat-label">Хорошие записи:</span>
-                    <span class="stat-value" id="statsGoodPercent">0%</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Нейтральные записи:</span>
-                    <span class="stat-value" id="statsNeutralPercent">0%</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Грустные записи:</span>
-                    <span class="stat-value" id="statsSadPercent">0%</span>
-                </div>
-                <div class="total-records" id="statsTotalRecords">Всего записей: 0</div>
-                
-                <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border-color);">
-                    <div class="stat-row">
-                        <span class="stat-label">Записей в день:</span>
-                        <span class="stat-value" id="avgPerDay">0</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">Активных дней:</span>
-                        <span class="stat-value" id="activeDays">0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Chat Page -->
         <div class="chat-page" id="chatPage">
@@ -798,6 +736,7 @@
           maybeProactiveChat();
 
           document.getElementById('addMoodBtn')?.addEventListener('click', triggerMoodCheck);
+          enableStatsSwipe();
         });
 
 
@@ -1088,29 +1027,28 @@
         
           // Свайп-вниз для закрытия листа
 // Свайп-вниз или влево для закрытия модалки
-        (function enableStatsSwipe(){
-          const panel = document.getElementById('statsPanel');
+        function enableStatsSwipe() {
+          const panel = document.getElementById('statsPanel'); // внутри #statsSheet
           if (!panel) return;
         
-          let sx=0, sy=0, dx=0, dy=0;
+          let sx = 0, sy = 0, dx = 0, dy = 0;
         
-          panel.addEventListener('touchstart', (e)=>{
+          panel.addEventListener('touchstart', (e) => {
             const t = e.touches[0];
             sx = t.clientX; sy = t.clientY; dx = dy = 0;
-          }, {passive:true});
+          }, { passive: true });
         
-          panel.addEventListener('touchmove', (e)=>{
+          panel.addEventListener('touchmove', (e) => {
             const t = e.touches[0];
             dx = t.clientX - sx; dy = t.clientY - sy;
-          }, {passive:true});
+          }, { passive: true });
         
-          panel.addEventListener('touchend', ()=>{
+          panel.addEventListener('touchend', () => {
+            // вниз/влево — закрываем
             if (Math.abs(dy) > 80 || Math.abs(dx) > 120) closeStats();
           });
-        })();
+        }
 
-        
-        document.addEventListener('DOMContentLoaded', enableStatsSwipe);
 
         function updateHourlyChart() {
             const today = new Date();
@@ -1686,6 +1624,7 @@
     </script>
 </body>
 </html>
+
 
 
 
