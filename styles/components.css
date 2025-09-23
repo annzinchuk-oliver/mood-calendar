@@ -265,9 +265,16 @@
 /* Поп-ап: повышаем контраст на тёмной теме */
 .mood-popup { background: rgba(0,0,0,.6); }
 
-.mood-popup-content {
+.mood-popup-content{
   background: var(--surface-2);
   color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.mood-btn{
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
 }
 
 .mood-popup h3{ color: var(--text); }
