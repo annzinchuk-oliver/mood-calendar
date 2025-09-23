@@ -608,6 +608,13 @@
             <button class="btn btn--ghost" style="margin-top:8px; width:100%;" onclick="closeStats()">Закрыть</button>
           </div>
         </div>
+
+        <!-- Fixed action buttons (только для календаря) -->
+        <div class="calendar-cta">
+          <button class="btn btn--primary btn--xl" id="addMoodBtn">📝 Записать настроение</button>
+          <button class="btn btn--primary btn--xl" onclick="openStats()">📊 Статистика</button>
+        </div>
+
         <!-- Bottom Navigation -->
         <div class="bottom-nav">
             <button class="nav-item active" id="navCalendar" onclick="switchPage('calendar')">
@@ -948,9 +955,7 @@
           document.body.classList.remove('modal-open');
         }
           // Закрытие по клику на фон и по Esc
-          document.addEventListener('click', (e) => {
-            if (e.target && e.target.id === 'statsBackdrop') closeStats();
-          });
+
           document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeStats();
           });
@@ -958,7 +963,7 @@
           // Свайп-вниз для закрытия листа
 // Свайп-вниз или влево для закрытия модалки
         function enableStatsSwipe() {
-          const panel = document.getElementById('statsPanel'); // внутри #statsSheet
+          const panel = document.querySelector('#statsSheet .sheet__panel'); // ← так надёжнее
           if (!panel) return;
         
           let sx = 0, sy = 0, dx = 0, dy = 0;
@@ -974,10 +979,10 @@
           }, { passive: true });
         
           panel.addEventListener('touchend', () => {
-            // вниз/влево — закрываем
             if (Math.abs(dy) > 80 || Math.abs(dx) > 120) closeStats();
           });
         }
+
 
 
         function updateHourlyChart() {
@@ -1554,6 +1559,7 @@
     </script>
 </body>
 </html>
+
 
 
 
