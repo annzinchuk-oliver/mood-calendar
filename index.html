@@ -671,9 +671,50 @@
         <!-- Fixed action button -->
         <div class="calendar-cta">
           <button class="btn btn--primary" id="addMoodBtn">📝 Записать настроение</button>
-
+            onclick="openStats()"
             <button class="btn btn--ghost btn--xl" id="openStatsBtn" onclick="switchPage('stats')">📊 Статистика</button> 
         </div>
+
+        <!-- Bottom sheet: Статистика -->
+        <div id="statsSheet" class="sheet" aria-hidden="true">
+          <div class="sheet__backdrop" id="statsBackdrop"></div>
+        
+          <div class="sheet__panel" id="statsPanel" role="dialog" aria-modal="true" aria-labelledby="statsTitle">
+            <div class="sheet__handle"></div>
+            <h3 id="statsTitle" style="margin:0 0 12px;">📈 Статистика</h3>
+        
+            <!-- Сюда можно вставить твой существующий HTML статистики -->
+            <div id="statsBody" style="display:grid; gap:12px;">
+              <div class="stats-filters">
+                <button class="filter-btn active" onclick="setStatsFilter('3days')">3 дня</button>
+                <button class="filter-btn" onclick="setStatsFilter('week')">Неделя</button>
+                <button class="filter-btn" onclick="setStatsFilter('month')">Месяц</button>
+                <button class="filter-btn" onclick="setStatsFilter('all')">Все время</button>
+              </div>
+        
+              <div class="correlation-section">
+                <h3>📊 Настроение сегодня по часам</h3>
+                <div id="hourlyChart" class="hourly-chart"></div>
+                <p style="font-size:12px; color:var(--text-secondary); text-align:center; margin-top:6px;">
+                  Нажмите на час, чтобы увидеть записи
+                </p>
+              </div>
+        
+              <div class="overview-section">
+                <h3>📈 Общая статистика (<span id="currentPeriod">3 дня</span>)</h3>
+                <div class="stat-row"><span class="stat-label">Хорошие записи:</span><span class="stat-value" id="statsGoodPercent">0%</span></div>
+                <div class="stat-row"><span class="stat-label">Нейтральные записи:</span><span class="stat-value" id="statsNeutralPercent">0%</span></div>
+                <div class="stat-row"><span class="stat-label">Грустные записи:</span><span class="stat-value" id="statsSadPercent">0%</span></div>
+                <div class="total-records" id="statsTotalRecords">Всего записей: 0</div>
+                <div class="stat-row"><span class="stat-label">Записей в день:</span><span class="stat-value" id="avgPerDay">0</span></div>
+                <div class="stat-row"><span class="stat-label">Активных дней:</span><span class="stat-value" id="activeDays">0</span></div>
+              </div>
+            </div>
+        
+            <button class="btn btn--ghost" style="margin-top:8px; width:100%;" onclick="closeStats()">Закрыть</button>
+          </div>
+        </div>
+
 
         <!-- Bottom Navigation -->
         <div class="bottom-nav">
@@ -831,36 +872,35 @@
           currentPage = page;
         
           const calendarPage = document.getElementById('calendarPage');
-          const statsPage    = document.getElementById('statsPage');
+          const statsPage    = document.getElementById('statsPage');   // останется внутри модалки
           const chatPage     = document.getElementById('chatPage');
+        
           const navCalendar  = document.getElementById('navCalendar');
-          const navStats     = document.getElementById('navStats'); // может быть null
           const navChat      = document.getElementById('navChat');
         
-          // спрятать все страницы
+          // спрятать страницы
           calendarPage.style.display = 'none';
           statsPage.classList.remove('active');
           chatPage.classList.remove('active');
         
-          // снять активность с нав-элементов (проверяем на null)
+          // снять активность с табов
           if (navCalendar) navCalendar.classList.remove('active');
-          if (navStats)    navStats.classList.remove('active');
           if (navChat)     navChat.classList.remove('active');
         
-          // показать выбранную и отметить активную вкладку, если она есть
+          // показать выбранную
           if (page === 'calendar') {
             calendarPage.style.display = 'block';
             if (navCalendar) navCalendar.classList.add('active');
-          } else if (page === 'stats') {
-            statsPage.classList.add('active');
-            if (navStats) navStats.classList.add('active');
-            updateStatsPage();
           } else if (page === 'chat') {
             chatPage.classList.add('active');
             if (navChat) navChat.classList.add('active');
             setTimeout(() => document.getElementById('chatInput')?.focus(), 100);
           }
+        
+          /* ← ДОБАВЬ ЭТО: флаг для показа CTA только на календаре */
+          document.body.classList.toggle('on-calendar', page === 'calendar');
         }
+
 
         function autoResize(ta, max = 160) {
           ta.style.height = 'auto';
@@ -1010,6 +1050,67 @@
             updateHourlyChart();
             updateOverviewStats();
         }
+        function openStats() {
+            const sheet = document.getElementById('statsSheet');
+            if (!sheet) return;
+            sheet.classList.add('open');
+            document.body.classList.add('modal-open');
+            // Перерисуем текущие значения
+            updateStatsPage && updateStatsPage();
+          }
+          function closeStats() {
+            const sheet = document.getElementById('statsSheet');
+            if (!sheet) return;
+            sheet.classList.remove('open');
+            document.body.classList.remove('modal-open');
+          }
+        
+          // Закрытие по клику на фон и по Esc
+          document.addEventListener('click', (e) => {
+            if (e.target && e.target.id === 'statsBackdrop') closeStats();
+          });
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeStats();
+          });
+        
+          // Свайп-вниз для закрытия листа
+          function enableStatsSwipe() {
+            const panel = document.getElementById('statsPanel');
+            if (!panel) return;
+        
+            let startY = null, currentY = null, dragging = false;
+            const THRESHOLD = 60, MAX_PULL = 120;
+        
+            function onStart(ev) {
+              const t = ev.touches ? ev.touches[0] : ev;
+              startY = t.clientY; currentY = startY; dragging = true;
+              panel.style.transition = 'none';
+            }
+            function onMove(ev) {
+              if (!dragging) return;
+              const t = ev.touches ? ev.touches[0] : ev;
+              currentY = t.clientY;
+              const dy = Math.max(0, currentY - startY);
+              panel.style.transform = `translate(-50%, ${Math.min(dy, MAX_PULL)}px)`;
+            }
+            function onEnd() {
+              if (!dragging) return;
+              dragging = false; panel.style.transition = '';
+              const dy = Math.max(0, currentY - startY);
+              if (dy > THRESHOLD) closeStats();
+              else panel.style.transform = ''; // вернуть на место
+            }
+        
+            panel.addEventListener('touchstart', onStart, {passive:true});
+            panel.addEventListener('touchmove',  onMove,  {passive:true});
+            panel.addEventListener('touchend',   onEnd);
+            panel.addEventListener('mousedown',  onStart);
+            panel.addEventListener('mousemove',  onMove);
+            panel.addEventListener('mouseup',    onEnd);
+            panel.addEventListener('mouseleave', onEnd);
+          }
+          document.addEventListener('DOMContentLoaded', enableStatsSwipe);
+        
 
         function updateHourlyChart() {
             const today = new Date();
@@ -1490,6 +1591,22 @@
           document.body.classList.remove('popup-open');
         }
 
+        /* свайп вниз для закрытия окна настроения */
+        (function enableMoodSwipe(){
+          const panel = document.querySelector('#moodPopup .mood-popup-content');
+          if (!panel) return;
+          let sy=0, dy=0;
+          panel.addEventListener('touchstart',e=>{ sy = e.touches[0].clientY; dy=0; });
+          panel.addEventListener('touchmove',e=>{
+            dy = e.touches[0].clientY - sy;
+            if (dy>0){ panel.style.transform = `translateY(${dy}px)`; }
+          }, {passive:true});
+          panel.addEventListener('touchend',()=>{
+            if (dy>80) closeMoodPopup();
+            panel.style.transform = '';
+          });
+        })();
+        
         // Calendar functions
         function navigateMonth(direction) {
             selectedDate.setMonth(selectedDate.getMonth() + direction);
@@ -1569,6 +1686,7 @@
     </script>
 </body>
 </html>
+
 
 
 
