@@ -66,20 +66,20 @@
 }
 
 [data-theme="dark"] {
-  --palette-bg: #0f172a;
-  --palette-surface: #111827;
-  --palette-text: #e5e7eb;
-  --palette-text-muted: #9ca3af;
-  --palette-border: #1f2937;
-  --palette-border-strong: #374151;
-  --palette-hover: #1b2435;
+  --palette-bg:            #0f172a; /* ок */
+  --palette-surface:       #1b2436; /* было #1e293b → чуть светлее */
+  --palette-text:          #e8edf5; /* было #f1f5f9, можно оставить, но этот мягче */
+  --palette-text-muted:    #b8c2d1; /* было #cbd5e1 → чуть темнее, чтобы не сливаться */
+  --palette-border:        #3a4a63; /* было #475569 */
+  --palette-border-strong: #586a86; /* было #64748b */
+  --palette-hover:         #263142; /* было #334155 */
 
-  --palette-brand: #6366f1;
+  --palette-brand:   #6366f1;
   --palette-brand-2: #8b5cf6;
 
-  --palette-good: #34d399;
+  --palette-good:    #10b981;
   --palette-neutral: #f59e0b;
-  --palette-sad: #60a5fa;
+  --palette-sad:     #3b82f6;
 }
 
 /* Доп. палитры (опционально) */
