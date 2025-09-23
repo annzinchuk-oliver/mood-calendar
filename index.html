@@ -671,6 +671,8 @@
         <!-- Fixed action button -->
         <div class="calendar-cta">
           <button class="btn btn--primary" id="addMoodBtn">📝 Записать настроение</button>
+
+            <button class="btn btn--ghost btn--xl" id="openStatsBtn" onclick="switchPage('stats')">📊 Статистика</button> 
         </div>
 
         <!-- Bottom Navigation -->
@@ -678,10 +680,6 @@
             <button class="nav-item active" id="navCalendar" onclick="switchPage('calendar')">
                 <div class="nav-icon">📅</div>
                 <div>Календарь</div>
-            </button>
-            <button class="nav-item" id="navStats" onclick="switchPage('stats')">
-                <div class="nav-icon">📊</div>
-                <div>Статистика</div>
             </button>
             <button class="nav-item" id="navChat" onclick="switchPage('chat')">
                 <div class="nav-icon">🤖</div>
@@ -836,36 +834,34 @@
           const statsPage    = document.getElementById('statsPage');
           const chatPage     = document.getElementById('chatPage');
           const navCalendar  = document.getElementById('navCalendar');
-          const navStats     = document.getElementById('navStats');
+          const navStats     = document.getElementById('navStats'); // может быть null
           const navChat      = document.getElementById('navChat');
-          const cta          = document.querySelector('.calendar-cta');
         
-          // скрыть всё
+          // спрятать все страницы
           calendarPage.style.display = 'none';
           statsPage.classList.remove('active');
           chatPage.classList.remove('active');
-          navCalendar.classList.remove('active');
-          navStats.classList.remove('active');
-          navChat.classList.remove('active');
         
-          // показать нужное + CTA только на календаре
+          // снять активность с нав-элементов (проверяем на null)
+          if (navCalendar) navCalendar.classList.remove('active');
+          if (navStats)    navStats.classList.remove('active');
+          if (navChat)     navChat.classList.remove('active');
+        
+          // показать выбранную и отметить активную вкладку, если она есть
           if (page === 'calendar') {
             calendarPage.style.display = 'block';
-            navCalendar.classList.add('active');
-            if (cta) cta.hidden = false;
+            if (navCalendar) navCalendar.classList.add('active');
           } else if (page === 'stats') {
             statsPage.classList.add('active');
-            navStats.classList.add('active');
-            if (cta) cta.hidden = true;
+            if (navStats) navStats.classList.add('active');
             updateStatsPage();
           } else if (page === 'chat') {
             chatPage.classList.add('active');
-            navChat.classList.add('active');
-            if (cta) cta.hidden = true;
+            if (navChat) navChat.classList.add('active');
             setTimeout(() => document.getElementById('chatInput')?.focus(), 100);
           }
         }
-        
+
         function autoResize(ta, max = 160) {
           ta.style.height = 'auto';
           ta.style.height = Math.min(ta.scrollHeight, max) + 'px';
@@ -1573,6 +1569,7 @@
     </script>
 </body>
 </html>
+
 
 
 
