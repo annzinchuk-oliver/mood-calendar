@@ -277,16 +277,25 @@
 }
 /* Кнопка "Записать настроение" как фиксированная панель */
 .calendar-cta{
-  position: sticky;                /* ← ключ! */
-  bottom: calc(56px + 12px);       /* над нижней навигацией */
-  margin: 12px 16px 16px;          /* внутри контента */
-  display: none;                   /* по умолчанию скрыто */
-  gap: 10px;
-  flex-direction: column;
-   
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 88px;                 /* 56px навигация + ~32px зазор */
+  width: 100%;
+  max-width: 400px;
+  padding: 0 16px;              /* чтобы отступы не «съедали» ширину */
+  box-sizing: border-box;
+  z-index: 1000;
+  pointer-events: none;         /* кликаются только кнопки внутри */
 }
+.calendar-cta .btn{
+  width: 100%;
+  pointer-events: auto;
+  margin: 0;
+}
+.calendar-cta .btn + .btn{ margin-top: 10px; }
 
-.calendar-cta .btn { width: 100%; }
+body.modal-open .calendar-cta{ display: none; }
 
 .app-container { padding-bottom: 140px; }
 
@@ -345,18 +354,55 @@ body.popup-open{ overflow: hidden; }
   backdrop-filter: blur(2px);
   z-index: 1200;
 }
-.sheet__panel{
-  position: fixed; left: 50%; transform: translateX(-50%);
-  bottom: 0; width: 100%; max-width: 400px;
-  background: var(--surface-2);
-  border-top-left-radius: 16px; border-top-right-radius: 16px;
-  box-shadow: var(--shadow-lg);
-  padding: 12px 16px 16px;
-  z-index: 1201;
+/* ===== Центрированная модалка (sheet) ===== */
+.sheet{
+  position: fixed;
+  inset: 0;
+  display: none;                /* по умолчанию скрыта */
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
 }
-.sheet__handle{
-  width: 44px; height: 4px; border-radius: 999px;
-  background: var(--border);
-  margin: 6px auto 12px;
+.sheet.open{ display: flex; }   /* показать модалку */
+
+.sheet__backdrop{
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(2px);
+  opacity: 1;
 }
 
+.sheet__panel{
+  position: relative;
+  width: min(560px, 92vw);
+  max-height: 85vh;
+  overflow: auto;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2);
+  padding: 16px;
+  box-shadow: var(--shadow-lg);
+  transform: translate(0,0);    /* фиксируем по центру */
+}
+
+.sheet__close{
+  position: absolute;
+  top: 8px; right: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--radius-1);
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+/* Небольшая «ручка» сверху для жеста */
+.sheet__handle{
+  position: sticky; top: 0;
+  margin: -6px auto 12px;
+  width: 76px; height: 4px;
+  border-radius: 999px;
+  background: var(--border);
+  opacity: .7;
+}
