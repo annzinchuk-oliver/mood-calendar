@@ -399,14 +399,6 @@
         }
 
         /* Страница статистики */
-        .stats-page {
-            padding: 20px;
-            display: none;
-        }
-
-        .stats-page.active {
-            display: block;
-        }
 
         .stats-filters {
             display: flex;
@@ -576,61 +568,16 @@
              </div>
         </div>
 
+<!-- Stats: одна корректная модалка -->
         <div id="statsSheet" class="sheet" hidden>
           <div class="sheet__backdrop" onclick="closeStats()"></div>
         
-          <div id="statsPanel" class="sheet__panel" role="dialog" aria-modal="true">
+          <div class="sheet__panel" id="statsPanel" role="dialog" aria-modal="true" aria-labelledby="statsTitle">
             <div class="sheet__header">
-              <h3>📈 Статистика</h3>
-              <button class="btn btn--ghost" onclick="closeStats()">✕</button>
+              <h3 id="statsTitle">📈 Статистика</h3>
+              <button class="sheet__close btn btn--ghost" aria-label="Закрыть" onclick="closeStats()">✕</button>
             </div>
-        </div>
-        <!-- Chat Page -->
-        <div class="chat-page" id="chatPage">
-            <div class="chat-header">
-                <h2>🤖 ИИ Помощник</h2>
-                <p>Поделитесь своими мыслями и получите поддержку</p>
-            </div>
-
-            <div class="chat-messages" id="chatMessages">
-                <div class="message system">
-                    Добро пожаловать! Я здесь, чтобы выслушать и поддержать вас. Как дела?
-                </div>
-            </div>
-
-            <div class="chat-input-container">
-                <textarea 
-                    class="chat-input" 
-                    id="chatInput" 
-                    placeholder="Расскажите, как вы себя чувствуете..."
-                    rows="1"
-                ></textarea>
-                <button class="btn btn--primary btn--circle" id="sendButton" onclick="sendMessage()">✈️</button>
-            </div>
-
-            <div class="chat-disclaimer">
-                ИИ помощник предоставляет общую поддержку и не заменяет профессиональную медицинскую помощь
-            </div>
-        </div>
-
-        <!-- Fixed action button -->
-        <div class="calendar-cta">
-          <button class="btn btn--primary" id="addMoodBtn">📝 Записать настроение</button>
-          <button class="btn btn--primary" id="openStatsBtn" onclick="openStats()">📊 Статистика</button>
-        </div>
-
-        <!-- Bottom sheet: Статистика -->
-        <div id="statsPanel" class="sheet" aria-hidden="true">
-          <div class="sheet__backdrop" onclick="closeStats()"></div>
         
-          <div class="sheet__panel" role="dialog" aria-modal="true" aria-labelledby="statsTitle">
-            <button class="sheet__close" aria-label="Закрыть" onclick="closeStats()">✕</button>
-        
-            <div class="sheet__handle" aria-hidden="true"></div>
-        
-            <h2 id="statsTitle">📈 Статистика</h2>
-        
-            <!-- Сюда можно вставить твой существующий HTML статистики -->
             <div id="statsBody" style="display:grid; gap:12px;">
               <div class="stats-filters">
                 <button class="filter-btn active" onclick="setStatsFilter('3days')">3 дня</button>
@@ -661,8 +608,6 @@
             <button class="btn btn--ghost" style="margin-top:8px; width:100%;" onclick="closeStats()">Закрыть</button>
           </div>
         </div>
-
-
         <!-- Bottom Navigation -->
         <div class="bottom-nav">
             <button class="nav-item active" id="navCalendar" onclick="switchPage('calendar')">
@@ -738,19 +683,6 @@
           document.getElementById('addMoodBtn')?.addEventListener('click', triggerMoodCheck);
           enableStatsSwipe();
         });
-
-
-        // Close menu on outside click
-        document.addEventListener('click', (e) => {
-          const menu = document.getElementById('paletteSelector');
-          const themeBtn = document.getElementById('themeToggle');
-          if (!menu || menu.hasAttribute('hidden')) return;
-          if (!e.target.closest('.theme-selector')) {
-            menu.setAttribute('hidden','');
-            if (themeBtn) themeBtn.setAttribute('aria-expanded','false');
-          }
-        });
-
         
         // Close menu on Esc
         document.addEventListener('keydown', (e) => {
@@ -1622,6 +1554,7 @@
     </script>
 </body>
 </html>
+
 
 
 
