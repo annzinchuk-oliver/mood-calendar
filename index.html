@@ -351,17 +351,17 @@
         }
 
         .calendar-cta{
-          position: fixed;
-          left: 50%;
-          transform: translateX(-50%);
-          bottom: 84px;                 /* чуть выше нижней навигации */
-          width: 100%;
+          position: static;          /* ключевая замена */
+          width: auto;
           max-width: 400px;
-          padding: 0 16px;
-          z-index: 1100;
-          pointer-events: none;         /* клики только по кнопкам */
+          margin: 16px auto 0;       /* по центру контейнера */
+          display: flex;
+          flex-direction: column;    /* одна под другой */
+          gap: 10px;
+          align-items: stretch;
         }
-        .calendar-cta .btn{ width:100%; pointer-events:auto; }
+        .calendar-cta .btn{ width: 100%; }
+
         
         /* Чуть более крупная кнопка */
         .btn--xl{
@@ -589,6 +589,14 @@
              </div>
         </div>
 
+        <div id="statsSheet" class="sheet" hidden>
+          <div class="sheet__backdrop" onclick="closeStats()"></div>
+        
+          <div id="statsPanel" class="sheet__panel" role="dialog" aria-modal="true">
+            <div class="sheet__header">
+              <h3>📈 Статистика</h3>
+              <button class="btn btn--ghost" onclick="closeStats()">✕</button>
+            </div>
         
         <div class="stats-page" id="statsPage">
             <div class="stats-filters">
@@ -598,6 +606,9 @@
                 <button class="btn btn--ghost filter-btn" onclick="setStatsFilter('all')">Все время</button>
             </div>
 
+            <div style="padding:12px 16px;">
+              <button class="btn btn--ghost" onclick="closeStats()">Закрыть</button>
+            </div>
 
             <div class="correlation-section">
                 <h3>📊 Настроение сегодня по часам</h3>
@@ -667,7 +678,7 @@
         <!-- Fixed action button -->
         <div class="calendar-cta">
           <button class="btn btn--primary" id="addMoodBtn">📝 Записать настроение</button>
-          <button class="btn btn--primary btn--xl" id="openStatsBtn" onclick="openStats()">📊 Статистика</button>
+          <button class="btn btn--primary" id="openStatsBtn" onclick="openStats()">📊 Статистика</button>
         </div>
 
         <!-- Bottom sheet: Статистика -->
@@ -1055,14 +1066,18 @@
         }
         
         function openStats(){
-          document.getElementById('statsPanel')?.classList.add('open');
-          document.body.classList.add('modal-open'); // прячем фон и CTA
+          const sheet = document.getElementById('statsSheet');
+          if (!sheet) return;
+          sheet.hidden = false;
+          document.body.classList.add('modal-open');  // по желанию — блокируем скролл фона
+          updateStatsPage();                           // твоя существующая функция
         }
         function closeStats(){
-          document.getElementById('statsPanel')?.classList.remove('open');
+          const sheet = document.getElementById('statsSheet');
+          if (!sheet) return;
+          sheet.hidden = true;
           document.body.classList.remove('modal-open');
         }
-
           // Закрытие по клику на фон и по Esc
           document.addEventListener('click', (e) => {
             if (e.target && e.target.id === 'statsBackdrop') closeStats();
@@ -1076,17 +1091,24 @@
         (function enableStatsSwipe(){
           const panel = document.getElementById('statsPanel');
           if (!panel) return;
-          let sx = 0, sy = 0, dx = 0, dy = 0;
         
-          const start = (t) => { const e = t.touches?.[0] || t; sx = e.clientX; sy = e.clientY; dx = dy = 0; };
-          const move  = (t) => { const e = t.touches?.[0] || t; dx = e.clientX - sx; dy = e.clientY - sy; };
-          const end   = () => { if (Math.abs(dy) > 80 /* вниз/вверх */) closeStats(); };
+          let sx=0, sy=0, dx=0, dy=0;
         
-          const content = panel.querySelector('.sheet__panel');
-          content.addEventListener('touchstart', start, {passive:true});
-          content.addEventListener('touchmove',  move,  {passive:true});
-          content.addEventListener('touchend',   end);
+          panel.addEventListener('touchstart', (e)=>{
+            const t = e.touches[0];
+            sx = t.clientX; sy = t.clientY; dx = dy = 0;
+          }, {passive:true});
+        
+          panel.addEventListener('touchmove', (e)=>{
+            const t = e.touches[0];
+            dx = t.clientX - sx; dy = t.clientY - sy;
+          }, {passive:true});
+        
+          panel.addEventListener('touchend', ()=>{
+            if (Math.abs(dy) > 80 || Math.abs(dx) > 120) closeStats();
+          });
         })();
+
         
         document.addEventListener('DOMContentLoaded', enableStatsSwipe);
 
@@ -1664,6 +1686,7 @@
     </script>
 </body>
 </html>
+
 
 
 
