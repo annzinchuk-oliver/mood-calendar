@@ -233,6 +233,48 @@
 /* высота нижней навигации, чтобы правильно прижать CTA */
 :root { --nav-height: 72px; }
 
+
+
+/* ===== Modal (центр экрана) ===== */
+.modal[hidden] { display: none; }
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+}
+
+.modal__backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.45);
+}
+
+.modal__panel {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(720px, 92vw);
+  max-height: 85vh;
+  overflow: auto;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-4);
+}
+
+.modal__close {
+  position: absolute; top: 8px; right: 10px;
+  background: transparent; border: 0; cursor: pointer;
+  font: 600 var(--fs-lg)/1 var(--font-sans);
+  color: var(--text-muted);
+}
+
+.modal__handle {
+  width: 48px; height: 4px; border-radius: 9999px;
+  background: var(--border);
+  margin: 6px auto 12px;
+}
 /* Кнопка "Записать настроение" как фиксированная панель */
 .calendar-cta{
   position: sticky;                /* ← ключ! */
@@ -243,12 +285,11 @@
   flex-direction: column;
    
 }
-.calendar-cta .btn{
-  width: 100%;
-  pointer-events: auto;
-}
 
-.on-calendar .calendar-cta { display: flex; }
+.calendar-cta .btn { width: 100%; }
+
+.app-container { padding-bottom: 140px; }
+
 /* крупный размер кнопки для CTA */
 .btn--xl { padding: 14px 18px; font-size: var(--fs-md); }
 
