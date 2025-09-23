@@ -877,6 +877,7 @@
         
           const navCalendar  = document.getElementById('navCalendar');
           const navChat      = document.getElementById('navChat');
+          const cta = document.querySelector('.calendar-cta');
         
           // спрятать страницы
           calendarPage.style.display = 'none';
@@ -888,10 +889,12 @@
           if (navChat)     navChat.classList.remove('active');
         
           // показать выбранную
-          if (page === 'calendar') {
-            calendarPage.style.display = 'block';
-            if (navCalendar) navCalendar.classList.add('active');
-          } else if (page === 'chat') {
+            if (page === 'calendar') {
+                cta && (cta.style.display = 'flex');
+              } else {
+                cta && (cta.style.display = 'none');
+              }         
+            else if (page === 'chat') {
             chatPage.classList.add('active');
             if (navChat) navChat.classList.add('active');
             setTimeout(() => document.getElementById('chatInput')?.focus(), 100);
@@ -1050,20 +1053,22 @@
             updateHourlyChart();
             updateOverviewStats();
         }
+        
         function openStats() {
-            const sheet = document.getElementById('statsSheet');
-            if (!sheet) return;
-            sheet.classList.add('open');
-            document.body.classList.add('modal-open');
-            // Перерисуем текущие значения
-            updateStatsPage && updateStatsPage();
-          }
-          function closeStats() {
-            const sheet = document.getElementById('statsSheet');
-            if (!sheet) return;
-            sheet.classList.remove('open');
-            document.body.classList.remove('modal-open');
-          }
+          const modal = document.getElementById('statsModal');
+          if (!modal) return;
+          modal.hidden = false;
+          document.body.style.overflow = 'hidden'; // запрет прокрутки фона
+          updateStatsPage?.(); // если функция есть — обновим данные
+        }
+        
+        function closeStats() {
+          const modal = document.getElementById('statsModal');
+          if (!modal) return;
+          modal.hidden = true;
+          document.body.style.overflow = '';
+        }
+
         
           // Закрытие по клику на фон и по Esc
           document.addEventListener('click', (e) => {
@@ -1074,41 +1079,30 @@
           });
         
           // Свайп-вниз для закрытия листа
-          function enableStatsSwipe() {
-            const panel = document.getElementById('statsPanel');
-            if (!panel) return;
+// Свайп-вниз или влево для закрытия модалки
+        (function enableStatsSwipe(){
+          const panel = document.getElementById('statsPanel');
+          if (!panel) return;
         
-            let startY = null, currentY = null, dragging = false;
-            const THRESHOLD = 60, MAX_PULL = 120;
+          let sx = 0, sy = 0, dx = 0, dy = 0;
         
-            function onStart(ev) {
-              const t = ev.touches ? ev.touches[0] : ev;
-              startY = t.clientY; currentY = startY; dragging = true;
-              panel.style.transition = 'none';
-            }
-            function onMove(ev) {
-              if (!dragging) return;
-              const t = ev.touches ? ev.touches[0] : ev;
-              currentY = t.clientY;
-              const dy = Math.max(0, currentY - startY);
-              panel.style.transform = `translate(-50%, ${Math.min(dy, MAX_PULL)}px)`;
-            }
-            function onEnd() {
-              if (!dragging) return;
-              dragging = false; panel.style.transition = '';
-              const dy = Math.max(0, currentY - startY);
-              if (dy > THRESHOLD) closeStats();
-              else panel.style.transform = ''; // вернуть на место
-            }
+          panel.addEventListener('touchstart', (e) => {
+            const t = e.touches[0];
+            sx = t.clientX; sy = t.clientY; dx = dy = 0;
+          }, {passive:true});
         
-            panel.addEventListener('touchstart', onStart, {passive:true});
-            panel.addEventListener('touchmove',  onMove,  {passive:true});
-            panel.addEventListener('touchend',   onEnd);
-            panel.addEventListener('mousedown',  onStart);
-            panel.addEventListener('mousemove',  onMove);
-            panel.addEventListener('mouseup',    onEnd);
-            panel.addEventListener('mouseleave', onEnd);
-          }
+          panel.addEventListener('touchmove', (e) => {
+            const t = e.touches[0];
+            dx = t.clientX - sx;
+            dy = t.clientY - sy;
+          }, {passive:true});
+        
+          panel.addEventListener('touchend', () => {
+            if (Math.abs(dy) > 60 || Math.abs(dx) > 80) closeStats();
+            sx = sy = dx = dy = 0;
+          });
+        })();
+
           document.addEventListener('DOMContentLoaded', enableStatsSwipe);
         
 
@@ -1686,6 +1680,7 @@
     </script>
 </body>
 </html>
+
 
 
 
