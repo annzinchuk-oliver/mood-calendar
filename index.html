@@ -20,8 +20,6 @@
     <link rel="stylesheet" href="styles/tokens.css?v=__BUILD_ID__">
     <link rel="stylesheet" href="styles/components.css?v=__BUILD_ID__">
     
-    
-    
     <style>
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -669,17 +667,19 @@
         <!-- Fixed action button -->
         <div class="calendar-cta">
           <button class="btn btn--primary" id="addMoodBtn">📝 Записать настроение</button>
-        
-            <button class="btn btn--ghost" id="statsBtn" onclick="openStats()">📊 Статистика</button>
+          <button class="btn btn--primary btn--xl" id="openStatsBtn" onclick="openStats()">📊 Статистика</button>
         </div>
 
         <!-- Bottom sheet: Статистика -->
-        <div id="statsSheet" class="sheet" aria-hidden="true">
-          <div class="sheet__backdrop" id="statsBackdrop"></div>
+        <div id="statsPanel" class="sheet" aria-hidden="true">
+          <div class="sheet__backdrop" onclick="closeStats()"></div>
         
-          <div class="sheet__panel" id="statsPanel" role="dialog" aria-modal="true" aria-labelledby="statsTitle">
-            <div class="sheet__handle"></div>
-            <h3 id="statsTitle" style="margin:0 0 12px;">📈 Статистика</h3>
+          <div class="sheet__panel" role="dialog" aria-modal="true" aria-labelledby="statsTitle">
+            <button class="sheet__close" aria-label="Закрыть" onclick="closeStats()">✕</button>
+        
+            <div class="sheet__handle" aria-hidden="true"></div>
+        
+            <h2 id="statsTitle">📈 Статистика</h2>
         
             <!-- Сюда можно вставить твой существующий HTML статистики -->
             <div id="statsBody" style="display:grid; gap:12px;">
@@ -1054,18 +1054,13 @@
             updateOverviewStats();
         }
         
-        function openStats() {
-          const sheet = document.getElementById('statsSheet');
-          if (!sheet) return;
-          sheet.hidden = false;
-          document.body.style.overflow = 'hidden';
-          updateStatsPage?.();
+        function openStats(){
+          document.getElementById('statsPanel')?.classList.add('open');
+          document.body.classList.add('modal-open'); // прячем фон и CTA
         }
-        function closeStats() {
-          const sheet = document.getElementById('statsSheet');
-          if (!sheet) return;
-          sheet.hidden = true;
-          document.body.style.overflow = '';
+        function closeStats(){
+          document.getElementById('statsPanel')?.classList.remove('open');
+          document.body.classList.remove('modal-open');
         }
 
           // Закрытие по клику на фон и по Esc
@@ -1078,20 +1073,20 @@
         
           // Свайп-вниз для закрытия листа
 // Свайп-вниз или влево для закрытия модалки
-        function enableStatsSwipe(){
+        (function enableStatsSwipe(){
           const panel = document.getElementById('statsPanel');
           if (!panel) return;
-          let sx=0, sy=0, dx=0, dy=0;
-          panel.addEventListener('touchstart', e => {
-            const t = e.touches[0]; sx=t.clientX; sy=t.clientY; dx=dy=0;
-          }, {passive:true});
-          panel.addEventListener('touchmove', e => {
-            const t = e.touches[0]; dx = t.clientX - sx; dy = t.clientY - sy;
-          }, {passive:true});
-          panel.addEventListener('touchend', () => {
-            if (Math.abs(dy) > 60 || Math.abs(dx) > 80) closeStats();
-          });
-        }
+          let sx = 0, sy = 0, dx = 0, dy = 0;
+        
+          const start = (t) => { const e = t.touches?.[0] || t; sx = e.clientX; sy = e.clientY; dx = dy = 0; };
+          const move  = (t) => { const e = t.touches?.[0] || t; dx = e.clientX - sx; dy = e.clientY - sy; };
+          const end   = () => { if (Math.abs(dy) > 80 /* вниз/вверх */) closeStats(); };
+        
+          const content = panel.querySelector('.sheet__panel');
+          content.addEventListener('touchstart', start, {passive:true});
+          content.addEventListener('touchmove',  move,  {passive:true});
+          content.addEventListener('touchend',   end);
+        })();
         
         document.addEventListener('DOMContentLoaded', enableStatsSwipe);
 
@@ -1507,7 +1502,7 @@
             
             updateMoodButtonColors();
             document.getElementById('moodPopup').classList.remove('hidden');
-            document.body.classList.add('popup-open');
+            document.body.classList.add('modal-open'); 
         }
 
         function updateMoodButtonColors() {
@@ -1571,7 +1566,7 @@
 
         function closeMoodPopup() {
           document.getElementById('moodPopup').classList.add('hidden');
-          document.body.classList.remove('popup-open');
+          document.body.classList.remove('modal-open');
         }
 
         /* свайп вниз для закрытия окна настроения */
@@ -1669,6 +1664,7 @@
     </script>
 </body>
 </html>
+
 
 
 
