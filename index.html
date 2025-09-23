@@ -6,20 +6,26 @@
     <meta name="app-version" content="%APP_VERSION%">
     <title>Календарь Настроения</title>
     
+    
     <meta name="theme-color" content="#4F46E5">
     <meta name="description" content="Отслеживайте свое настроение каждый день">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Календарь Настроения">
     
+    
     <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi0JrQsNC70LXQvdC00LDRgNGMINCd0LDRgdGC0YDQvtC10L3QuNGPIiwic2hvcnRfbmFtZSI6ItCa0LDQu9C10L3QtNCw0YDRjCIsImRlc2NyaXB0aW9uIjoi0J7RgtGB0LvQtdC20LjQstCw0LnRgtC1INGB0LLQvtC1INC90LDRgdGC0YDQvtC10L3QuNC1INC60LDQttC00YvQuSDQtNC10L3RjCIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZmZmZmZmIiwidGhlbWVfY29sb3IiOiIjNEY0NkU1IiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0Nzdmcgdmlld0JveD0nMCAwIDEwMCAxMDAnIGZpbGw9JyUyMzRGNDZFNScgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyUzRSUzQ3JlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIHJ4PScxMCcvJTNFJTNDdGV4dCB4PSc1MCcgeT0nNTAnIGZvbnQtc2l6ZT0nNDAnIGZpbGw9J3doaXRlJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBkeT0nLjNlbSclM0Xwn5OBJTNFL3RleHQlM0UlM0Mvc3ZnJTNFIiwic2l6ZXMiOiIxOTJ4MTkyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
+    
     
     <link rel="stylesheet" href="styles/tokens.css?v=__BUILD_ID__">
     <link rel="stylesheet" href="styles/components.css?v=__BUILD_ID__">
     
+    
+    
     <style>
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -546,7 +552,7 @@
 
         
         <div class="header">
-            <h1 id="appTitle">📅 Календарь Настроения</h1>
+            <h1>📅 Календарь Настроения</h1>
             
             <div class="header-actions">
                 <div class="theme-selector">
@@ -562,16 +568,6 @@
                         <button class="palette-option" onclick="setPalette('dark-purple')">💜 Фиолет</button>
                     </div>
                 </div>
-                
-                <div class="lang-selector">
-                  <button id="langToggle" class="btn btn--ghost" aria-expanded="false" aria-controls="langMenu">
-                    <span data-i18n="ui.lang">Язык</span>: <strong id="langLabel">RU</strong>
-                  </button>
-                  <div id="langMenu" hidden>
-                    <button class="palette-option" data-lang="ru">Русский (RU)</button>
-                    <button class="palette-option" data-lang="en">English (EN)</button>
-                  </div>
-                </div>
             </div>
         </div>
 
@@ -584,7 +580,7 @@
             </div>
 
             <div class="calendar">
-                <div class="weekdays" id="weekdayRow"></div>
+                <div class="weekdays">
                     <div class="weekday">Вс</div>
                     <div class="weekday">Пн</div>
                     <div class="weekday">Вт</div>
@@ -647,12 +643,12 @@
         <!-- Chat Page -->
         <div class="chat-page" id="chatPage">
             <div class="chat-header">
-                <h2 id="chatTitle">🤖 ИИ Помощник</h2>
-                <p id="chatSubtitle">Поделитесь своими мыслями и получите поддержку</p>
+                <h2>🤖 ИИ Помощник</h2>
+                <p>Поделитесь своими мыслями и получите поддержку</p>
             </div>
 
             <div class="chat-messages" id="chatMessages">
-                <div class="message system" id="chatWelcome">
+                <div class="message system">
                     Добро пожаловать! Я здесь, чтобы выслушать и поддержать вас. Как дела?
                 </div>
             </div>
@@ -667,7 +663,9 @@
                 <button class="btn btn--primary btn--circle" id="sendButton" onclick="sendMessage()">✈️</button>
             </div>
 
-            <div class="chat-disclaimer" id="chatDisclaimer">  ИИ помощник предоставляет общую поддержку и не заменяет профессиональную медицинскую помощь </div>
+            <div class="chat-disclaimer">
+                ИИ помощник предоставляет общую поддержку и не заменяет профессиональную медицинскую помощь
+            </div>
         </div>
 
         <!-- Fixed action button -->
@@ -695,238 +693,29 @@
     
     <div id="moodPopup" class="mood-popup hidden">
         <div class="mood-popup-content">
-            <h3 id="moodPopupTitle">Как ваше настроение?</h3>
+            <h3>Как ваше настроение?</h3>
             <p id="timeDisplay">Время записать настроение</p>
             
             <div class="mood-buttons">
-                <button class="mood-btn" id="goodMoodBtn"> ... <span id="goodLabel">Хорошее</span></button>
-                <button class="mood-btn" id="neutralMoodBtn"> ... <span id="neutralLabel">Нейтральное</span></button>
-                <button class="mood-btn" id="sadMoodBtn"> ... <span id="sadLabel">Грустное</span></button>
+                <button class="mood-btn" id="goodMoodBtn" onclick="recordMood('good')">
+                    <span class="mood-emoji">😊</span>
+                    <span>Хорошее</span>
+                </button>
+                <button class="mood-btn" id="neutralMoodBtn" onclick="recordMood('neutral')">
+                    <span class="mood-emoji">😐</span>
+                    <span>Нейтральное</span>
+                </button>
+                <button class="mood-btn" id="sadMoodBtn" onclick="recordMood('sad')">
+                    <span class="mood-emoji">😢</span>
+                    <span>Грустное</span>
+                </button>
             </div>
 
-            <button class="skip-btn" id="skipBtn">Пропустить</button>
+            <button class="skip-btn" onclick="closeMoodPopup()">Пропустить</button>
         </div>
     </div>
 
     <script>
-// ===== i18n core =====
-        const i18n = {
-          ru: {
-            'ui.appTitle': '📅 Календарь Настроения',
-            'ui.theme': 'Тема',
-            'ui.lang': 'Язык',
-            'ui.addMood': 'Записать настроение',
-        
-            'nav.calendar': 'Календарь',
-            'nav.stats': 'Статистика',
-            'nav.chat': 'ИИ Чат',
-        
-            'popup.title': 'Как ваше настроение?',
-            'popup.time': '{time} — Время записать настроение',
-            'popup.skip': 'Пропустить',
-        
-            'mood.good': 'Хорошее',
-            'mood.neutral': 'Нейтральное',
-            'mood.sad': 'Грустное',
-        
-            'stats.hourly': '📊 Настроение сегодня по часам',
-            'stats.clickHour': 'Нажмите на час, чтобы увидеть записи',
-            'stats.overview': '📈 Общая статистика ({period})',
-            'stats.good': 'Хорошие записи:',
-            'stats.neutral': 'Нейтральные записи:',
-            'stats.sad': 'Грустные записи:',
-            'stats.total': 'Всего записей: {n}',
-            'stats.avgPerDay': 'Записей в день:',
-            'stats.activeDays': 'Активных дней:',
-        
-            'filter.3days': '3 дня',
-            'filter.week': 'Неделя',
-            'filter.month': 'Месяц',
-            'filter.all': 'Все время',
-        
-            'chat.title': '🤖 ИИ Помощник',
-            'chat.subtitle': 'Поделитесь своими мыслями и получите поддержку',
-            'chat.welcome': 'Добро пожаловать! Я здесь, чтобы выслушать и поддержать вас. Как дела?',
-            'chat.disclaimer': 'ИИ помощник не заменяет профессиональную помощь',
-        
-            'prompt.system': 'Ты доброжелательный поддерживающий собеседник. Говори кратко, эмпатично, без диагнозов. Предлагай простые техники (дыхание 4-7-8, прогулка, запись мыслей). При риске — дай контакты экстренной помощи.',
-            'chat.proactive': 'Я заметил, что последние {days} дн. вам грустно. Нужна поддержка?',
-        
-            'notif.enabled': 'Уведомления включены! Мы будем напоминать записывать настроение.',
-            'notif.morning': 'Утро',
-            'notif.day': 'День',
-            'notif.evening': 'Вечер',
-            'notif.body': 'Как вы себя чувствуете сейчас?'
-          },
-          en: {
-            'ui.appTitle': '📅 Mood Calendar',
-            'ui.theme': 'Theme',
-            'ui.lang': 'Language',
-            'ui.addMood': 'Log mood',
-        
-            'nav.calendar': 'Calendar',
-            'nav.stats': 'Stats',
-            'nav.chat': 'AI Chat',
-        
-            'popup.title': 'How are you feeling?',
-            'popup.time': '{time} — Time to log your mood',
-            'popup.skip': 'Skip',
-        
-            'mood.good': 'Good',
-            'mood.neutral': 'Neutral',
-            'mood.sad': 'Sad',
-        
-            'stats.hourly': '📊 Today’s mood by hour',
-            'stats.clickHour': 'Tap an hour to see entries',
-            'stats.overview': '📈 Overview ({period})',
-            'stats.good': 'Good entries:',
-            'stats.neutral': 'Neutral entries:',
-            'stats.sad': 'Sad entries:',
-            'stats.total': 'Total entries: {n}',
-            'stats.avgPerDay': 'Per day:',
-            'stats.activeDays': 'Active days:',
-        
-            'filter.3days': '3 days',
-            'filter.week': 'Week',
-            'filter.month': 'Month',
-            'filter.all': 'All time',
-        
-            'chat.title': '🤖 AI Assistant',
-            'chat.subtitle': 'Share your thoughts and get support',
-            'chat.welcome': 'Welcome! I’m here to listen and support you. How are you?',
-            'chat.disclaimer': 'The AI assistant does not replace professional care',
-        
-            'prompt.system': 'You are a kind, supportive listener. Be brief, empathetic, avoid diagnoses. Offer simple techniques (4-7-8 breathing, short walk, journaling). If there’s risk, gently suggest emergency contacts.',
-            'chat.proactive': 'I noticed the last {days} day(s) felt sad. Want some support?',
-        
-            'notif.enabled': 'Notifications enabled! We’ll remind you to log your mood.',
-            'notif.morning': 'Morning',
-            'notif.day': 'Day',
-            'notif.evening': 'Evening',
-            'notif.body': 'How are you feeling right now?'
-          }
-        };
-        
-        let currentLang = localStorage.getItem('lang') || 'ru';
-        
-        function t(key, params = {}) {
-          const str = (i18n[currentLang] && i18n[currentLang][key]) || (i18n.en[key]) || key;
-          return str.replace(/\{(\w+)\}/g, (_, k) => (params[k] ?? ''));
-        }
-        
-        function setLang(lang) {
-          currentLang = lang;
-          localStorage.setItem('lang', lang);
-          document.documentElement.lang = lang;
-          document.getElementById('langLabel').textContent = lang.toUpperCase();
-          applyI18n();
-          renderWeekdays();
-          updateCalendar();
-        }
-        
-        function applyI18n() {
-          // простые элементы с id
-          const byId = {
-            appTitle: 'ui.appTitle',
-            chatTitle: 'chat.title',
-            chatSubtitle: 'chat.subtitle',
-            chatDisclaimer: 'chat.disclaimer',
-            moodPopupTitle: 'popup.title',
-            goodLabel: 'mood.good',
-            neutralLabel: 'mood.neutral',
-            sadLabel: 'mood.sad',
-            skipBtn: 'popup.skip'
-          };
-          Object.entries(byId).forEach(([id, key]) => {
-            const el = document.getElementById(id);
-            if (el) el.textContent = t(key);
-          });
-        
-          // заголовки/кнопки
-          const themeBtn = document.getElementById('themeToggle');
-          if (themeBtn) themeBtn.textContent = t('ui.theme');
-        
-          const addMood = document.getElementById('addMoodBtn');
-          if (addMood) addMood.textContent = '📝 ' + t('ui.addMood');
-        
-          // нижняя навигация
-          const navCal  = document.querySelector('#navCalendar div:last-child');
-          const navStat = document.querySelector('#navStats div:last-child');
-          const navChat = document.querySelector('#navChat div:last-child');
-          if (navCal)  navCal.textContent  = t('nav.calendar');
-          if (navStat) navStat.textContent = t('nav.stats');
-          if (navChat) navChat.textContent = t('nav.chat');
-        
-          // фильтры статистики (если есть id)
-          const f3 = document.getElementById('filter3d');
-          const fw = document.getElementById('filterWeek');
-          const fm = document.getElementById('filterMonth');
-          const fa = document.getElementById('filterAll');
-          if (f3) f3.textContent = t('filter.3days');
-          if (fw) fw.textContent = t('filter.week');
-          if (fm) fm.textContent = t('filter.month');
-          if (fa) fa.textContent = t('filter.all');
-        
-          // приветствие в чате (если пусто — заполним)
-          const welcome = document.getElementById('chatWelcome');
-          if (welcome && !welcome.textContent.trim()) {
-            welcome.textContent = t('chat.welcome');
-          }
-        }
-        
-        function renderWeekdays() {
-          const row = document.getElementById('weekdayRow');
-          if (!row) return;
-          row.innerHTML = '';
-          // неделя с воскресенья (как у тебя сейчас)
-          const base = new Date(Date.UTC(2024, 8, 1)); // любое воскресенье
-          for (let i = 0; i < 7; i++) {
-            const d = new Date(base);
-            d.setDate(base.getDate() + i);
-            const label = d.toLocaleDateString(currentLang, { weekday: 'short' });
-            const cell = document.createElement('div');
-            cell.className = 'weekday';
-            cell.textContent = label;
-            row.appendChild(cell);
-          }
-        }
-        
-        // меню языка (поведение как у меню тем)
-        document.addEventListener('click', (e) => {
-          const menu = document.getElementById('langMenu');
-          const btn  = document.getElementById('langToggle');
-          if (!menu || !btn) return;
-        
-          // открыть/закрыть
-          if (e.target === btn) {
-            const willOpen = menu.hasAttribute('hidden');
-            if (willOpen) {
-              menu.removeAttribute('hidden');
-              btn.setAttribute('aria-expanded', 'true');
-            } else {
-              menu.setAttribute('hidden', '');
-              btn.setAttribute('aria-expanded', 'false');
-            }
-            return;
-          }
-        
-          // выбор языка
-          const opt = e.target.closest('[data-lang]');
-          if (opt && menu.contains(opt)) {
-            setLang(opt.getAttribute('data-lang'));
-            menu.setAttribute('hidden', '');
-            btn.setAttribute('aria-expanded', 'false');
-            return;
-          }
-        
-          // клик вне — закрыть
-          if (!e.target.closest('.lang-selector')) {
-            menu.setAttribute('hidden', '');
-            btn.setAttribute('aria-expanded', 'false');
-          }
-        });
-
-        
         // Application state
         let currentDate = new Date();
         let selectedDate = new Date();
@@ -943,16 +732,14 @@
             sad: { name: 'Грустное' }
         };
 
+        const monthNames = [
+            'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+        ];
+
         // Initialize app
         document.addEventListener('DOMContentLoaded', async function() {
-          await runMigrationsIfNeeded(); 
-          // i18n
-          document.documentElement.lang = currentLang;
-          const langLabel = document.getElementById('langLabel');
-          if (langLabel) langLabel.textContent = currentLang.toUpperCase();
-          applyI18n();
-          renderWeekdays();
-          // твой код инициализации:  
+          await runMigrationsIfNeeded();   // ← добавили
           loadData();
           loadTheme();
           updateCalendar();
@@ -1121,7 +908,11 @@
           const summary = getMoodSummary(14);
           const payload = {
             messages: [
-              { role: 'system', content: t('prompt.system') },
+              { role: 'system', content:
+                'Ты доброжелательный поддерживающий собеседник. Говори кратко, эмпатично, без диагнозов. ' +
+                'Предлагай простые техники (дыхание 4-7-8, прогулка, запись мыслей, переоценка). ' +
+                'Если есть риск себе/другим — мягко дай контакты экстренной помощи и предложи обратиться к специалисту.'
+              },
               { role: 'assistant', content:
                 `Краткая сводка последних ${summary.daysConsidered} дней: хорошие=${summary.counts.good}, нейтральные=${summary.counts.neutral}, грустные=${summary.counts.sad}.`
               },
@@ -1617,7 +1408,7 @@
                     // Switch to chat page and add proactive message
                     switchPage('chat');
                     setTimeout(() => {
-                        const intro = t('chat.proactive', { days: streak });
+                        const intro = `Я заметил, что последние ${streak} ${streak === 1 ? 'день' : 'дня'} вам грустно. Хотите немного поддержки или пару простых практик?`;
                         addMessage('ai', intro);
                     }, 500);
                 }
@@ -1710,8 +1501,8 @@
         }
 
         function updateCalendar() {
-            document.getElementById('monthTitle').textContent =
-              selectedDate.toLocaleDateString(currentLang, { month: 'long', year: 'numeric' });
+            document.getElementById('monthTitle').textContent = 
+                `${monthNames[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
 
             const year = selectedDate.getFullYear();
             const month = selectedDate.getMonth();
@@ -1782,8 +1573,6 @@
     </script>
 </body>
 </html>
-
-
 
 
 
