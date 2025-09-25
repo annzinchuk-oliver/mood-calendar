@@ -766,15 +766,12 @@
           const cta = document.querySelector('.calendar-cta');
         
           // спрятать страницы
-          calendarPage.style.display = 'none';
-          chatPage.classList.remove('active');
-        
+        calendarPage && (calendarPage.style.display = 'none');
+        chatPage && chatPage.classList.remove('active');        
           // снять активность с табов
           if (navCalendar) navCalendar.classList.remove('active');
           if (navChat)     navChat.classList.remove('active');
         
-          // показать выбранную
-            // показать выбранную
           if (page === 'calendar') {
             calendarPage.style.display = 'block';
             cta && (cta.style.display = 'flex');
@@ -1559,6 +1556,7 @@
     </script>
 </body>
 </html>
+
 
 
 
