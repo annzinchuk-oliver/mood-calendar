@@ -392,11 +392,15 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             min-height: calc(100vh - 16px);
-            margin-bottom: 140px;
+            margin-bottom: 0;
+            padding-bottom: calc(var(--nav-height) + 24px);    /* запас под нижнюю навигацию */
+            min-height: 100vh; 
             transition: background-color 0.3s ease;
             position: relative; /* добавляем для лучшего позиционирования */
         }
-
+        .bottom-nav{
+          box-shadow: 0 -6px 18px rgba(0,0,0,.06);
+        }
         /* Страница статистики */
 
         .stats-filters {
@@ -1566,6 +1570,7 @@
     </script>
 </body>
 </html>
+
 
 
 
