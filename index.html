@@ -518,6 +518,7 @@
     </style>
 </head>
 <body>
+    
     <div class="app-container">
         
         <div id="installPrompt" class="install-prompt hidden">
@@ -664,15 +665,16 @@
             <div class="card">
               <h3 style="margin-bottom:8px;">Дыхание 4–7–8</h3>
               <p>Вдох 4 сек → задержка 7 сек → выдох 8 сек. Повторить 4–6 кругов.</p>
-              <button class="btn btn--primary" style="margin-top:12px;" onclick="startPractice('478')">Запустить таймер</button>
+                    <button class="btn btn--primary" style="margin-top:12px;" onclick="PracticeEngine.openById('478')">Запустить</button>
             </div>
         
             <div class="card">
               <h3 style="margin-bottom:8px;">Заземление 5-4-3-2-1</h3>
               <p>Назовите: 5 что видите, 4 что ощущаете, 3 звука, 2 запаха, 1 вкус.</p>
-              <button class="btn" style="margin-top:12px;" onclick="startPractice('54321')">Пошагово</button>
+              <button class="btn" style="margin-top:12px; "onclick="PracticeEngine.openById('54321')">Запустить</button>
             </div>
           </div>
+            
         </div>
         
         <!-- ===== Страница ТЕСТЫ ===== -->
@@ -743,6 +745,56 @@
         </div>
     </div>
 
+<!-- ===== Therapy Modal ===== -->
+        <div id="therapyPopup" class="mood-popup hidden">
+          <div class="mood-popup-content" style="max-width:420px">
+            <h3 id="therapyTitle">Терапия</h3>
+            <p id="therapySubtitle">Описание практики</p>
+        
+            <div class="thermo">
+              <div class="ring" id="thermoRing">
+                <div class="ring-inner">
+                  <div id="thermoPhase" class="phase">Готовы?</div>
+                  <div id="thermoTime" class="time">00</div>
+                </div>
+              </div>
+            </div>
+        
+            <div id="therapyHint" class="therapy-hint"></div>
+        
+            <div class="therapy-actions">
+              <button class="btn btn--primary" id="therapyStartBtn">▶ Запустить</button>
+              <button class="btn" id="therapyStopBtn">⏹ Остановить</button>
+            </div>
+        
+            <button class="skip-btn" onclick="closeTherapy()">Закрыть</button>
+          </div>
+        </div>
+
+        <!-- ===== Test Modal ===== -->
+        <div id="testPopup" class="mood-popup hidden">
+          <div class="mood-popup-content" style="max-width:520px">
+            <h3 id="testTitle">Тест</h3>
+            <p id="testDesc">Короткий скрининг</p>
+        
+            <div id="testFormHost" style="display:grid; gap:12px; margin:12px 0;"></div>
+        
+            <div class="therapy-actions" style="margin-top:4px;">
+              <button class="btn btn--primary" id="testSubmitBtn">Готово</button>
+              <button class="btn" id="testCancelBtn">Отмена</button>
+            </div>
+        
+            <button class="skip-btn" onclick="closeTest()">Закрыть</button>
+          </div>
+        </div>
+
+    <script src="scripts/catalog/practices.js"></script>
+    <script src="scripts/engines/practiceEngine.js"></script>
+    
+    <script src="scripts/catalog/tests.js"></script>
+    <script src="scripts/engines/testEngine.js"></script>
+
+    
     <script>
         // Application state
         let currentDate = new Date();
@@ -1682,6 +1734,7 @@
     </script>
 </body>
 </html>
+
 
 
 
