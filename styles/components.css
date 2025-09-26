@@ -275,22 +275,20 @@
   background: var(--border);
   margin: 6px auto 12px;
 }
-/* Кнопка "Записать настроение" как фиксированная панель */
+
 .calendar-cta{
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 88px;                  /* 56px навигация + зазор */
+  position: sticky;
+  bottom: calc(var(--nav-height) + 12px);
+  margin: 16px auto 0;
   width: calc(100% - 32px);
   max-width: 400px;
-  z-index: 1100;
   display: flex;
   flex-direction: column;
-  gap: 12px;       /* кликаются только кнопки внутри */
+  gap: 12px; 
+  pointer-events: none;
 }
-.calendar-cta .btn{
-  width: 100%;
-}
+.calendar-cta .btn{ width: 100%;}
+
 .calendar-cta .btn + .btn{ margin-top: 10px; }
 
 body.modal-open .calendar-cta{ display: none; }
@@ -298,11 +296,10 @@ body.modal-open .calendar-cta{ display: none; }
 /* крупный размер кнопки для CTA */
 .btn--xl { padding: 14px 18px; font-size: var(--fs-md); }
 
-.app-container{ padding-bottom: 120px; }
-/* Прятать CTA, когда открыт поп-ап */
+.app-container{ padding-bottom: calc(var(--nav-height) + 120px); }
+
 .popup-open .calendar-cta { display: none; }
 
-/* Поп-ап: повышаем контраст на тёмной теме */
 .mood-popup { background: rgba(0,0,0,.6); }
 
 .mood-popup-content{
