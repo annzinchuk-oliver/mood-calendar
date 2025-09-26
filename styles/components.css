@@ -384,3 +384,25 @@ body.popup-open{ overflow: hidden; }
   background: inherit;
 }
 .sheet__close { line-height: 1; }
+
+/* Больше контраста для кнопок CTA в светлой теме */
+[data-theme="light"] .calendar-cta {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 12px 16px;         /* если добавишь подложку — оставь */
+  box-shadow: 0 6px 18px rgba(0,0,0,.06);
+}
+
+/* Убедимся, что у primary всегда есть яркий фон и белый текст */
+.calendar-cta .btn--primary {
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  color: #fff;
+}
+
+/* На всякий случай: если где-то попадёт disabled — пусть выглядит полупрозрачно, но не белым блоком */
+.calendar-cta .btn--primary[disabled],
+.calendar-cta .btn--primary[aria-disabled="true"] {
+  opacity: .6;
+}
+
