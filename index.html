@@ -553,6 +553,22 @@
                 <button class="btn btn--ghost btn--icon" onclick="navigateMonth(1)">→</button>
             </div>
 
+        <div class="chat-page" id="chatPage">
+          <div class="chat-header">
+            <h2>ИИ Чат</h2>
+            <p>Спросите совет или поделитесь, как вы сейчас.</p>
+          </div>
+        
+          <div id="chatMessages" class="chat-messages"></div>
+        
+          <div class="chat-input-container">
+            <textarea id="chatInput" class="chat-input" placeholder="Напишите сообщение..." rows="1"></textarea>
+            <button id="sendButton" class="send-button" onclick="sendMessage()" disabled>➤</button>
+          </div>
+        
+          <div class="chat-disclaimer">Это не медицинская помощь. При рисках — звоните в экстренные службы.</div>
+        </div>
+
             <div class="calendar">
                 <div class="weekdays">
                     <div class="weekday">Вс</div>
@@ -565,6 +581,11 @@
                 </div>
                 <div id="calendarDays"></div>
              </div>
+                        <!-- Fixed action buttons (только для календаря) -->
+            <div class="calendar-cta">
+              <button class="btn btn--primary btn--xl" id="addMoodBtn" onclick="triggerMoodCheck()">📝 Записать настроение</button>
+              <button class="btn btn--primary btn--xl" onclick="openStats()">📊 Статистика</button>
+            </div>
         </div>
 
 <!-- Stats: одна корректная модалка -->
@@ -608,11 +629,7 @@
           </div>
         </div>
 
-        <!-- Fixed action buttons (только для календаря) -->
-        <div class="calendar-cta">
-          <button class="btn btn--primary btn--xl" id="addMoodBtn" onclick="triggerMoodCheck()">📝 Записать настроение</button>
-          <button class="btn btn--primary btn--xl" onclick="openStats()">📊 Статистика</button>
-        </div>
+
 
         <!-- Bottom Navigation -->
         <div class="bottom-nav">
@@ -1552,6 +1569,7 @@
     </script>
 </body>
 </html>
+
 
 
 
