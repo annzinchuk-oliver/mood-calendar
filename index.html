@@ -620,6 +620,7 @@
                 <div class="nav-icon">📅</div>
                 <div>Календарь</div>
             </button>
+            
             <button class="nav-item" id="navChat" onclick="switchPage('chat')">
                 <div class="nav-icon">🤖</div>
                 <div>ИИ Чат</div>
@@ -771,11 +772,12 @@
           if (navCalendar) navCalendar.classList.remove('active');
           if (navChat)     navChat.classList.remove('active');
         
-          if (page === 'calendar') {
-            calendarPage.style.display = 'block';
-            cta && (cta.style.display = 'flex');
-            navCalendar && navCalendar.classList.add('active');
-            } else if (page === 'chat') {
+          if (page === 'calendar') { 
+              calendarPage.style.display = 'block'; 
+              cta && (cta.style.display = 'flex');
+              navCalendar && navCalendar.classList.add('active');      
+            } 
+          else if (page === 'chat') {
             chatPage.classList.add('active');
             cta && (cta.style.display = 'none');
             navChat && navChat.classList.add('active');
@@ -1550,6 +1552,7 @@
     </script>
 </body>
 </html>
+
 
 
 
