@@ -276,16 +276,17 @@
   margin: 6px auto 12px;
 }
 
+.calendar { 
+  padding: 20px;
+  margin-bottom: 8px; 
+}
+
 .calendar-cta{
-  position: sticky;
-  bottom: calc(var(--nav-height) + 12px);
-  margin: 16px auto 0;
-  width: calc(100% - 32px);
-  max-width: 400px;
   display: flex;
   flex-direction: column;
   gap: 12px; 
-  pointer-events: none;
+  padding: 0 16px;
+  margin: 16px 0 24px;
 }
 .calendar-cta .btn{ width: 100%;}
 body.modal-open .calendar-cta{ display: none; }
