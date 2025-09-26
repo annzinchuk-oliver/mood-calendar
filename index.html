@@ -631,9 +631,75 @@
           </div>
           <div class="chat-disclaimer">Это не медицинская помощь. При рисках — звоните в экстренные службы.</div>
         </div>
+                <!-- ===== Страница ПОМОЩЬ ===== -->
+        <div class="help-page" id="helpPage" style="display:none;">
+          <div class="chat-header">
+            <h2>Помощь</h2>
+            <p>Выберите раздел:</p>
+          </div>
+        
+          <div class="section-grid">
+            <button class="card section-card" onclick="switchPage('therapy')">
+              <div class="section-emoji">🧘‍♀️</div>
+              <div class="section-title">Терапия</div>
+              <div class="section-sub">Дыхательные и успокаивающие практики</div>
+            </button>
+        
+            <button class="card section-card" onclick="switchPage('tests')">
+              <div class="section-emoji">🧩</div>
+              <div class="section-title">Тесты</div>
+              <div class="section-sub">Оценка настроения, выгорания, личности</div>
+            </button>
+          </div>
+        </div>
+        
+        <!-- ===== Страница ТЕРАПИЯ ===== -->
+        <div class="therapy-page" id="therapyPage" style="display:none;">
+          <div class="chat-header">
+            <h2>Терапевтические практики</h2>
+            <p>Простые техники на каждый день</p>
+          </div>
+        
+          <div class="content-list">
+            <div class="card">
+              <h3 style="margin-bottom:8px;">Дыхание 4–7–8</h3>
+              <p>Вдох 4 сек → задержка 7 сек → выдох 8 сек. Повторить 4–6 кругов.</p>
+              <button class="btn btn--primary" style="margin-top:12px;" onclick="startPractice('478')">Запустить таймер</button>
+            </div>
+        
+            <div class="card">
+              <h3 style="margin-bottom:8px;">Заземление 5-4-3-2-1</h3>
+              <p>Назовите: 5 что видите, 4 что ощущаете, 3 звука, 2 запаха, 1 вкус.</p>
+              <button class="btn" style="margin-top:12px;" onclick="startPractice('54321')">Пошагово</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- ===== Страница ТЕСТЫ ===== -->
+        <div class="tests-page" id="testsPage" style="display:none;">
+          <div class="chat-header">
+            <h2>Психологические тесты</h2>
+            <p>Быстрые скрининги и опросники</p>
+          </div>
+        
+          <div class="content-list">
+            <div class="card">
+              <h3 style="margin-bottom:8px;">PHQ-2 (скрининг депрессии)</h3>
+              <p>2 вопроса, ~30 секунд. Не заменяет диагноз.</p>
+              <button class="btn btn--primary" style="margin-top:12px;" onclick="openTest('phq2')">Пройти</button>
+            </div>
+        
+            <div class="card">
+              <h3 style="margin-bottom:8px;">GAD-2 (скрининг тревоги)</h3>
+              <p>2 вопроса, ~30 секунд. Не заменяет диагноз.</p>
+              <button class="btn btn--primary" style="margin-top:12px;" onclick="openTest('gad2')">Пройти</button>
+            </div>
+          </div>
+        </div>
 
         <!-- Bottom Navigation -->
         <div class="bottom-nav">
+            
             <button class="nav-item active" id="navCalendar" onclick="switchPage('calendar')">
                 <div class="nav-icon">📅</div>
                 <div>Календарь</div>
@@ -643,6 +709,12 @@
                 <div class="nav-icon">🤖</div>
                 <div>ИИ Чат</div>
             </button>
+
+            <button class="nav-item" id="navHelp" onclick="switchPage('help')">
+              <div class="nav-icon">🆘</div>
+              <div>Помощь</div>
+            </button>
+            
         </div>
     </div>
     
@@ -772,40 +844,62 @@
             return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
         }
 
-        // Page navigation
         function switchPage(page) {
           currentPage = page;
         
+          // страницы
           const calendarPage = document.getElementById('calendarPage');
           const chatPage     = document.getElementById('chatPage');
+          const helpPage     = document.getElementById('helpPage');
+          const therapyPage  = document.getElementById('therapyPage');
+          const testsPage    = document.getElementById('testsPage');
         
+          // навигация
           const navCalendar  = document.getElementById('navCalendar');
           const navChat      = document.getElementById('navChat');
+          const navHelp      = document.getElementById('navHelp');
+        
+          // CTA
           const cta = document.querySelector('.calendar-cta');
         
-          // спрятать страницы
-        calendarPage && (calendarPage.style.display = 'none');
-        chatPage && chatPage.classList.remove('active');        
-          // снять активность с табов
-          if (navCalendar) navCalendar.classList.remove('active');
-          if (navChat)     navChat.classList.remove('active');
+          // 1) Скрыть все страницы (и снять спец-класс у чата)
+          [calendarPage, chatPage, helpPage, therapyPage, testsPage].forEach(el => {
+            if (el) el.style.display = 'none';
+          });
+          chatPage?.classList.remove('active');
         
-          if (page === 'calendar') { 
-              calendarPage.style.display = 'block'; 
-              cta && (cta.style.display = 'flex');
-              navCalendar && navCalendar.classList.add('active');      
-            } 
-          else if (page === 'chat') {
-            chatPage.classList.add('active');
+          // 2) Сбросить активность у всех табов
+          [navCalendar, navChat, navHelp].forEach(el => el?.classList.remove('active'));
+        
+          // 3) Показать выбранную страницу + настроить CTA и активный таб
+          if (page === 'calendar') {
+            calendarPage && (calendarPage.style.display = 'block');
+            cta && (cta.style.display = 'flex');
+            navCalendar?.classList.add('active');
+          } else if (page === 'chat') {
+            chatPage && (chatPage.style.display = 'flex');
+            chatPage?.classList.add('active');                 // вернуть класс для твоих CSS
             cta && (cta.style.display = 'none');
-            navChat && navChat.classList.add('active');
+            navChat?.classList.add('active');
             setTimeout(() => document.getElementById('chatInput')?.focus(), 100);
-            }
+          } else if (page === 'help') {
+            helpPage && (helpPage.style.display = 'block');
+            cta && (cta.style.display = 'none');
+            navHelp?.classList.add('active');
+          } else if (page === 'therapy') {
+            therapyPage && (therapyPage.style.display = 'block');
+            cta && (cta.style.display = 'none');
+            navHelp?.classList.add('active');
+          } else if (page === 'tests') {
+            testsPage && (testsPage.style.display = 'block');
+            cta && (cta.style.display = 'none');
+            navHelp?.classList.add('active');
+          }
         
-        // флаг на тело — если используешь в стилях
-        document.body.classList.toggle('on-calendar', page === 'calendar');
-
+          // 4) Флаг на body — если используешь в стилях
+          document.body.classList.toggle('on-calendar', page === 'calendar');
         }
+
 
 
         function autoResize(ta, max = 160) {
@@ -903,6 +997,24 @@
               chatInput.focus();
             });
         }
+        
+        function startPractice(code){
+          if (code === '478') {
+            alert('Дыхание 4–7–8: вдох 4 сек → задержка 7 → выдох 8. Повторите 4–6 раз.');
+          } else if (code === '54321') {
+            alert('Заземление 5-4-3-2-1: 5 вижу, 4 ощущаю, 3 слышу, 2 нюхаю, 1 пробую.');
+          }
+        }
+        
+        function openTest(name){
+          if (name === 'phq2') {
+            // тут потом вставим форму/подсчёт баллов
+            alert('PHQ-2: дальше добавим форму с 2 вопросами и логикой подсчёта.');
+          } else if (name === 'gad2') {
+            alert('GAD-2: дальше добавим форму с 2 вопросами и логикой подсчёта.');
+          }
+        }
+
 
         function addMessage(sender, text) {
             const chatMessages = document.getElementById('chatMessages');
@@ -1570,6 +1682,7 @@
     </script>
 </body>
 </html>
+
 
 
 
