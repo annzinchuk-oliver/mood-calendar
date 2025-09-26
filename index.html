@@ -553,22 +553,6 @@
                 <button class="btn btn--ghost btn--icon" onclick="navigateMonth(1)">→</button>
             </div>
 
-        <div class="chat-page" id="chatPage">
-          <div class="chat-header">
-            <h2>ИИ Чат</h2>
-            <p>Спросите совет или поделитесь, как вы сейчас.</p>
-          </div>
-        
-          <div id="chatMessages" class="chat-messages"></div>
-        
-          <div class="chat-input-container">
-            <textarea id="chatInput" class="chat-input" placeholder="Напишите сообщение..." rows="1"></textarea>
-            <button id="sendButton" class="send-button" onclick="sendMessage()" disabled>➤</button>
-          </div>
-        
-          <div class="chat-disclaimer">Это не медицинская помощь. При рисках — звоните в экстренные службы.</div>
-        </div>
-
             <div class="calendar">
                 <div class="weekdays">
                     <div class="weekday">Вс</div>
@@ -628,8 +612,21 @@
             <button class="btn btn--ghost" style="margin-top:8px; width:100%;" onclick="closeStats()">Закрыть</button>
           </div>
         </div>
-
-
+        
+        <div class="chat-page" id="chatPage">
+          <div class="chat-header">
+            <h2>ИИ Чат</h2>
+            <p>Спросите совет или поделитесь, как вы сейчас.</p>
+          </div>
+        
+          <div id="chatMessages" class="chat-messages"></div>
+        
+          <div class="chat-input-container">
+            <textarea id="chatInput" class="chat-input" placeholder="Напишите сообщение..." rows="1"></textarea>
+            <button id="sendButton" class="send-button" onclick="sendMessage()" disabled>➤</button>
+          </div>
+          <div class="chat-disclaimer">Это не медицинская помощь. При рисках — звоните в экстренные службы.</div>
+        </div>
 
         <!-- Bottom Navigation -->
         <div class="bottom-nav">
@@ -1569,6 +1566,7 @@
     </script>
 </body>
 </html>
+
 
 
 
