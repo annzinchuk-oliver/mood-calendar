@@ -65,7 +65,6 @@
           top: calc(100% + 8px);
           left: 50%;
           right: auto;
-          padding: 10px;
           transform: translateX(-50%);
           z-index: 1100;
           background: var(--surface-2);
@@ -611,7 +610,7 @@
 
         <!-- Fixed action buttons (только для календаря) -->
         <div class="calendar-cta">
-          <button class="btn btn--primary btn--xl" id="addMoodBtn">📝 Записать настроение</button>
+          <button class="btn btn--primary btn--xl" id="addMoodBtn" onclick="triggerMoodCheck()">📝 Записать настроение</button>
           <button class="btn btn--primary btn--xl" onclick="openStats()">📊 Статистика</button>
         </div>
 
@@ -684,10 +683,10 @@
           checkNotificationPermission();
           scheduleNotifications();
           switchPage('calendar');
+          document.getElementById('addMoodBtn')?.addEventListener('click', triggerMoodCheck);
+            
           setupChatInput();
           maybeProactiveChat();
-
-          document.getElementById('addMoodBtn')?.addEventListener('click', triggerMoodCheck);
           enableStatsSwipe();
         });
         
@@ -798,20 +797,15 @@
         function setupChatInput() {
             const chatInput = document.getElementById('chatInput');
             const sendButton = document.getElementById('sendButton');
-
+            if (!chatInput || !sendButton) return;
             autoResize(chatInput);
-            // Auto-resize textarea
-              // Авто-ресайз при вводе + включение/выключение кнопки
             chatInput.addEventListener('input', function () {
-                autoResize(this);                       // ← было две строки с height — заменили на хелпер
+                autoResize(this);                      
                 sendButton.disabled = !this.value.trim();
             });
-            
-            // Send on Enter (but not Shift+Enter)
             chatInput.addEventListener('focus', function () {
                 autoResize(this);
             });
-            
             chatInput.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
@@ -1556,6 +1550,7 @@
     </script>
 </body>
 </html>
+
 
 
 
