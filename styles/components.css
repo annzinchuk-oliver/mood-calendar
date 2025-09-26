@@ -288,12 +288,7 @@
   pointer-events: none;
 }
 .calendar-cta .btn{ width: 100%;}
-
-.calendar-cta .btn + .btn{ margin-top: 10px; }
-
 body.modal-open .calendar-cta{ display: none; }
-
-/* крупный размер кнопки для CTA */
 .btn--xl { padding: 14px 18px; font-size: var(--fs-md); }
 
 .app-container{ padding-bottom: calc(var(--nav-height) + 120px); }
