@@ -850,6 +850,7 @@
         // Кнопки
         byId('therapyStartBtn').onclick = start;
         byId('therapyStopBtn').onclick  = stop;
+        byId('therapyStartBtn').textContent = "Запустить"; 
     
         // Показать модалку
         byId('therapyPopup').classList.remove('hidden');
@@ -872,17 +873,34 @@
         }
       }
     
-      function stop() {
-        if (timer) { clearInterval(timer); timer = null; }
-        if (state) state.running = false;
-    
-        setHint("");
-        setPhase("Пауза");
-        setRing(0);
-    
-        // Для пошаговых — не показываем цифры
-        if (state?.cfg?.type === "steps") setTimeVisible(false);
-      }
+        function stop() {
+          if (timer) { clearInterval(timer); timer = null; }
+          if (!state) return;
+        
+          state.running = false;
+          setHint("");
+          setPhase("Пауза");
+          setRing(0);
+        
+          const startBtn = byId('therapyStartBtn');
+        
+          if (state.cfg.type === "steps") {
+            // Для пошаговых практик — делаем "Продолжить" и возобновляем текущий шаг
+            setTimeVisible(false);
+            startBtn.textContent = "Продолжить";
+            startBtn.onclick = () => {
+              state.running = true;
+              setTimeVisible(false);
+              showStep();     // продолжим с текущего state.step
+            };
+          } else {
+            // Для таймерных — проще запустить заново
+            setTimeVisible(true);
+            startBtn.textContent = "Запустить";
+            startBtn.onclick = start;  // старт с начала
+          }
+        }
+
     
       // ===== timer-практики (фазы × циклы)
       function runTimerCycle() {
@@ -2011,6 +2029,7 @@
     </script>
 </body>
 </html>
+
 
 
 
