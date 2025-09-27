@@ -789,6 +789,7 @@
         </div>
 
        <script>
+           
     window.PRACTICES = [
       {
         id: "478",
@@ -819,6 +820,7 @@
     </script>
 
     <script>
+        
     (function () {
       window.PracticeEngine = {
         openById(id) {
@@ -887,10 +889,16 @@
         const { cfg } = state;
         if (!state.running) return;
         if (state.step >= cfg.steps.length) {
-          setPhase("Готово!"); setTime(""); setHint("Вы молодец ✨"); setRing(360); return;
+          setPhase("Готово!"); 
+          setTime(""); 
+          setHint("Вы молодец ✨"); 
+          setRing(360); 
+          return;
         }
         setPhase(`Шаг ${state.step + 1}/${cfg.steps.length}`);
-        setHint(cfg.steps[state.step]); setTime("—"); setRing(0);
+        setHint(cfg.steps[state.step]); 
+        setTime(""); 
+        setRing(0);
         const startBtn = byId('therapyStartBtn');
         startBtn.textContent = (state.step < cfg.steps.length - 1) ? "Далее" : "Завершить";
         startBtn.onclick = () => { state.step++; showStep(); };
@@ -1942,6 +1950,7 @@
     </script>
 </body>
 </html>
+
 
 
 
