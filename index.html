@@ -788,11 +788,218 @@
           </div>
         </div>
 
-    <script src="./scripts/catalog/practices.js"></script>
-    <script src="./scripts/engines/practiceEngine.js"></script>
+       <script>
+    window.PRACTICES = [
+      {
+        id: "478",
+        title: "Дыхание 4–7–8",
+        subtitle: "Вдох 4 сек → задержка 7 → выдох 8. Повторим 4 круга.",
+        type: "timer",
+        cycles: 4,
+        phases: [
+          { name: "Вдох",     seconds: 4, hint: "Медленный вдох носом" },
+          { name: "Задержка", seconds: 7, hint: "Не дышим, спокойно"   },
+          { name: "Выдох",    seconds: 8, hint: "Длинный выдох ртом"   }
+        ]
+      },
+      {
+        id: "54321",
+        title: "Заземление 5-4-3-2-1",
+        subtitle: "Назовите: 5 вижу, 4 ощущаю, 3 слышу, 2 запаха, 1 вкус.",
+        type: "steps",
+        steps: [
+          "Назовите 5 вещей, которые вы видите.",
+          "Назовите 4 вещи, которые ощущаете телом.",
+          "Назовите 3 звука, которые слышите.",
+          "Назовите 2 запаха.",
+          "Назовите 1 вкус (или сделайте глоток воды)."
+        ]
+      }
+    ];
+    </script>
+
+    <script>
+    (function () {
+      window.PracticeEngine = {
+        openById(id) {
+          const cfg = (window.PRACTICES || []).find(p => p.id === id);
+          if (!cfg) return console.warn("[practice] not found", id);
+          openModal(cfg);
+        }
+      };
     
-    <script src="./scripts/catalog/tests.js"></script>
-    <script src="./scripts/engines/testEngine.js"></script>
+      let timer = null;
+      let state = null;
+    
+      function openModal(cfg) {
+        state = { cfg, running: false, cycle: 0, step: 0 };
+        setText('therapyTitle', cfg.title);
+        setText('therapySubtitle', cfg.subtitle);
+        setPhase("Готовы?"); setTime("00"); setHint(""); setRing(0);
+        byId('therapyStartBtn').onclick = start;
+        byId('therapyStopBtn').onclick  = stop;
+        byId('therapyPopup').classList.remove('hidden');
+        document.body.classList.add('modal-open');
+      }
+    
+      function start() {
+        stop();
+        state.running = true;
+        const { cfg } = state;
+        if (cfg.type === "timer") { state.cycle = 0; runTimerCycle(); }
+        else if (cfg.type === "steps") { state.step = 0; showStep(); }
+      }
+    
+      function stop() {
+        state && (state.running = false);
+        if (timer) { clearInterval(timer); timer = null; }
+        setHint(""); setPhase("Пауза"); setRing(0);
+      }
+    
+      function runTimerCycle() {
+        const { cfg } = state;
+        if (!state.running) return;
+        if (state.cycle >= (cfg.cycles || 1)) {
+          setPhase("Готово!"); setTime(""); setHint("Отлично ✨"); setRing(360);
+          return;
+        }
+        let i = 0;
+        const runPhase = () => {
+          if (!state.running) return;
+          if (i >= cfg.phases.length) { state.cycle++; setTimeout(runTimerCycle, 300); return; }
+          const phase = cfg.phases[i++];
+          setPhase(`${phase.name} (цикл ${state.cycle + 1}/${cfg.cycles || 1})`);
+          setHint(phase.hint || ""); setRing(0);
+          let left = phase.seconds; setTime(left);
+          if (timer) clearInterval(timer);
+          timer = setInterval(() => {
+            if (!state.running) return clearInterval(timer);
+            left--; setTime(Math.max(left,0));
+            const done = (phase.seconds - left) / phase.seconds;
+            setRing(Math.min(360 * done, 360));
+            if (left <= 0) { clearInterval(timer); setRing(360); setTimeout(runPhase, 200); }
+          }, 1000);
+        };
+        runPhase();
+      }
+    
+      function showStep() {
+        const { cfg } = state;
+        if (!state.running) return;
+        if (state.step >= cfg.steps.length) {
+          setPhase("Готово!"); setTime(""); setHint("Вы молодец ✨"); setRing(360); return;
+        }
+        setPhase(`Шаг ${state.step + 1}/${cfg.steps.length}`);
+        setHint(cfg.steps[state.step]); setTime("—"); setRing(0);
+        const startBtn = byId('therapyStartBtn');
+        startBtn.textContent = (state.step < cfg.steps.length - 1) ? "Далее" : "Завершить";
+        startBtn.onclick = () => { state.step++; showStep(); };
+      }
+    
+      function setPhase(t){ setText('thermoPhase', t); }
+      function setTime(v){  setText('thermoTime',  String(v).padStart(2,"0")); }
+      function setHint(t){  setText('therapyHint', t || ""); }
+      function setRing(deg){
+        const ring = byId('thermoRing'); if (!ring) return;
+        const brand = getComputedStyle(document.documentElement).getPropertyValue("--brand").trim();
+        ring.style.background = `conic-gradient(${brand} ${deg}deg, rgba(0,0,0,0.08) 0)`;
+      }
+      function setText(id, txt){ const el = byId(id); if (el) el.textContent = txt; }
+      function byId(id){ return document.getElementById(id); }
+    
+      window.closeTherapy = function(){
+        stop();
+        byId('therapyPopup')?.classList.add('hidden');
+        document.body.classList.remove('modal-open');
+      };
+    })();
+    </script>
+
+    
+    <script>
+    window.TESTS = [
+      {
+        id: "phq2",
+        title: "PHQ-2 (скрининг депрессии)",
+        description: "2 вопроса, ~30 сек. Не заменяет диагноз.",
+        scale: [ "Никогда", "Несколько дней", "Более половины дней", "Почти каждый день" ],
+        questions: [
+          "За последние 2 недели — мало интереса или радости от того, что вы делаете?",
+          "За последние 2 недели — подавленное, угнетённое настроение?"
+        ],
+        scoring: { 0:0, 1:1, 2:2, 3:3 },
+        resultText(score){ return score >= 3 ? "Положительный скрининг (обсудите с врачом)." : "Отрицательный скрининг."; }
+      },
+      {
+        id: "gad2",
+        title: "GAD-2 (скрининг тревоги)",
+        description: "2 вопроса, ~30 сек. Не заменяет диагноз.",
+        scale: [ "Никогда", "Несколько дней", "Более половины дней", "Почти каждый день" ],
+        questions: [
+          "За последние 2 недели — ощущение нервозности, тревоги или напряжённости?",
+          "За последние 2 недели — трудности в остановке или контроле переживаний?"
+        ],
+        scoring: { 0:0, 1:1, 2:2, 3:3 },
+        resultText(score){ return score >= 3 ? "Положительный скрининг (обсудите со специалистом)." : "Отрицательный скрининг."; }
+      }
+    ];
+    </script>
+
+    <script>
+    (function(){
+      window.TestEngine = {
+        openById(id){
+          const cfg = (window.TESTS || []).find(t => t.id === id);
+          if (!cfg) { console.warn('[test] not found', id); return; }
+          render(cfg);
+        }
+      };
+    
+      function render(cfg){
+        setText('testTitle', cfg.title || 'Тест');
+        setText('testDesc',  cfg.description || '');
+        const host = byId('testFormHost'); host.innerHTML = '';
+        cfg.questions.forEach((q, qi) => {
+          const block = document.createElement('div');
+          block.className = 'card test-card';
+          block.innerHTML = `
+            <div class="test-question">${q}</div>
+            <div class="test-options">
+              ${cfg.scale.map((opt, oi) => `
+                <label style="display:flex; gap:8px; align-items:center;">
+                  <input type="radio" name="q${qi}" value="${oi}">
+                  <span>${opt}</span>
+                </label>`).join('')}
+            </div>`;
+          host.appendChild(block);
+        });
+        byId('testSubmitBtn').onclick = () => submit(cfg);
+        byId('testCancelBtn').onclick = closeTest;
+        byId('testPopup').classList.remove('hidden');
+        document.body.classList.add('modal-open');
+      }
+    
+      function submit(cfg){
+        let sum = 0, answered = 0;
+        cfg.questions.forEach((_, qi) => {
+          const v = document.querySelector(`input[name="q${qi}"]:checked`)?.value;
+          if (v != null) { answered++; sum += (cfg.scoring?.[v] ?? 0); }
+        });
+        if (answered < cfg.questions.length) { alert('Ответьте на все вопросы.'); return; }
+        const result = (typeof cfg.resultText === 'function') ? cfg.resultText(sum) : `Ваш результат: ${sum}`;
+        alert(`${cfg.title}\nСумма баллов: ${sum}\n${result}`);
+        closeTest();
+      }
+    
+      function setText(id, txt){ const el = byId(id); if (el) el.textContent = txt; }
+      function byId(id){ return document.getElementById(id); }
+      window.closeTest = function(){
+        byId('testPopup')?.classList.add('hidden');
+        document.body.classList.remove('modal-open');
+      };
+    })();
+    </script>
+
 
 
     
@@ -1735,6 +1942,7 @@
     </script>
 </body>
 </html>
+
 
 
 
