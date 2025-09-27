@@ -470,3 +470,30 @@ body.popup-open{ overflow: hidden; }
 .test-question { font-weight:700; margin-bottom:8px; color: var(--text); }
 .test-options  { display:grid; gap:8px; }
 .test-card     { padding:12px 16px; }
+
+/* --- Better disabled buttons (light/dark) --- */
+.btn:disabled,
+.btn[disabled]{
+  opacity: 1;                          /* не делаем полупрозрачной */
+  color: var(--text-muted);            /* читаемый текст */
+  background: var(--surface);          /* нейтральный фон */
+  border-color: var(--border-strong);  /* контрастная рамка */
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.btn--primary:disabled,
+.btn--primary[disabled]{
+  background: var(--hover);            /* без градиента, не фиолетовый */
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+/* --- Hover не меняет цвет текста кнопки --- */
+.btn:hover { color: inherit; }
+
+/* --- Ссылки/фиолетовый текст: делаем читаемый hover под тему --- */
+a, .link { color: var(--brand); text-decoration: none; }
+:root[data-theme="light"] a:hover,
+[data-theme="light"] .link:hover { color: #4338ca; }     /* на тон темнее для света */
+:root[data-theme^="dark"] a:hover,
+[data-theme^="dark"] .link:hover { color: #a5b4fc; }     /* на тон светлее для тьмы */
