@@ -834,7 +834,15 @@
       let state = null;
     
       function openModal(cfg) {
-        state = { cfg, running: false, cycle: 0, step: 0 };
+        state = {
+          cfg,
+          running: false,
+          paused: false,   // ← флаг паузы
+          cycle: 0,
+          phaseIndex: 0,   // ← индекс текущей фазы (вдох/задержка/выдох)
+          left: 0,         // ← оставшиеся секунды в фазе
+          step: 0
+        };
     
         // Заголовки
         setText('therapyTitle', cfg.title);
@@ -857,102 +865,120 @@
         document.body.classList.add('modal-open');
       }
     
-      function start() {
-        stop(); // safety
-        state.running = true;
-        const { cfg } = state;
+    function start() {
+      // НЕ сбрасываем state, только снимаем паузу
+      state.running = true;
+      state.paused  = false;
     
-        if (cfg.type === "timer") {
-          setTimeVisible(true);     // цифры видимы
+      const { cfg } = state;
+    
+      if (cfg.type === "timer") {
+        setTimeVisible(true);
+        // если есть, продолжаем с текущей фазы и остатка
+        if (state.left > 0) {
+          continueTimerPhase();
+        } else {
+          // запуск с самого начала
           state.cycle = 0;
+          state.phaseIndex = 0;
           runTimerCycle();
-        } else if (cfg.type === "steps") {
-          setTimeVisible(false);    // цифры скрыты
-          state.step = 0;
-          showStep();
         }
-      }
-    
-        function stop() {
-          if (timer) { clearInterval(timer); timer = null; }
-          if (!state) return;
-        
-          state.running = false;
-          setHint("");
-          setPhase("Пауза");
-          setRing(0);
-        
-          const startBtn = byId('therapyStartBtn');
-        
-          if (state.cfg.type === "steps") {
-            // Для пошаговых практик — делаем "Продолжить" и возобновляем текущий шаг
+      } 
+          else if (cfg.type === "steps") {
             setTimeVisible(false);
-            startBtn.textContent = "Продолжить";
-            startBtn.onclick = () => {
-              state.running = true;
-              setTimeVisible(false);
-              showStep();     // продолжим с текущего state.step
-            };
-          } else {
-            // Для таймерных — проще запустить заново
-            setTimeVisible(true);
-            startBtn.textContent = "Запустить";
-            startBtn.onclick = start;  // старт с начала
-          }
-        }
-
-    
-      // ===== timer-практики (фазы × циклы)
-      function runTimerCycle() {
-        const { cfg } = state;
-        if (!state.running) return;
-    
-        if (state.cycle >= (cfg.cycles || 1)) {
-          setPhase("Готово!");
-          setTime("");
-          setHint("Отлично ✨");
-          setRing(360);
-          return;
-        }
-    
-        let i = 0;
-        const runPhase = () => {
-          if (!state.running) return;
-    
-          if (i >= cfg.phases.length) {
-            state.cycle++;
-            setTimeout(runTimerCycle, 300);
-            return;
-          }
-    
-          const phase = cfg.phases[i++];
-          setPhase(`${phase.name} (цикл ${state.cycle + 1}/${cfg.cycles || 1})`);
-          setHint(phase.hint || "");
-          setRing(0);
-    
-          let left = phase.seconds;
-          setTime(left);
-    
-          if (timer) clearInterval(timer);
-          timer = setInterval(() => {
-            if (!state.running) return clearInterval(timer);
-    
-            left--;
-            setTime(Math.max(left, 0));
-    
-            const done = (phase.seconds - left) / phase.seconds;
-            setRing(Math.min(360 * done, 360));
-    
-            if (left <= 0) {
-              clearInterval(timer);
-              setRing(360);
-              setTimeout(runPhase, 200);
-            }
-          }, 1000);
-        };
-    
-        runPhase();
+            // если уже были на шаге — просто продолжим его
+            showStep();
       }
+    }
+
+        function stop() {
+      if (timer) { clearInterval(timer); timer = null; }
+      if (!state) return;
+    
+      state.running = false;
+      state.paused  = true;
+    
+      setPhase("Пауза");
+      setHint("");
+      // кольцо/время оставляем как есть — видно, где остановились
+    
+      const startBtn = byId('therapyStartBtn');
+    
+      if (state.cfg.type === "steps") {
+        setTimeVisible(false);
+        startBtn.textContent = "Продолжить";
+        startBtn.onclick = () => { state.running = true; state.paused = false; showStep(); };
+      } else {
+        // timer
+        setTimeVisible(true);
+        startBtn.textContent = "Продолжить";
+        startBtn.onclick = start; // возобновит с текущих phaseIndex/left
+      }
+    }
+
+      // ===== timer-практики (фазы × циклы)
+    // ЗАМЕНА runTimerCycle целиком
+    function runTimerCycle() {
+      const { cfg } = state;
+      if (!state.running) return;
+    
+      // закончили все циклы
+      if (state.cycle >= (cfg.cycles || 1)) {
+        setPhase("Готово!");
+        setTime("");
+        setHint("Отлично ✨");
+        setRing(360);
+        return;
+      }
+    
+      // если фазы закончились — следующий цикл
+      if (state.phaseIndex >= cfg.phases.length) {
+        state.cycle++;
+        state.phaseIndex = 0;
+      }
+    
+      continueTimerPhase(); // перейти/продолжить текущую фазу
+    }
+    
+    // НОВАЯ функция — вставь сразу после runTimerCycle
+    function continueTimerPhase() {
+      const { cfg } = state;
+      if (!state.running) return;
+    
+      const phase = cfg.phases[state.phaseIndex];
+      if (!phase) { runTimerCycle(); return; }
+    
+      // если запускаем впервые/после перехода — заполняем left
+      if (!state.left || state.left <= 0) {
+        state.left = phase.seconds;
+      }
+    
+      setPhase(`${phase.name} (цикл ${state.cycle + 1}/${cfg.cycles || 1})`);
+      setHint(phase.hint || "");
+      setRing(360 * (1 - state.left / phase.seconds));
+      setTime(state.left);
+    
+      if (timer) clearInterval(timer);
+      timer = setInterval(() => {
+        if (!state.running) { clearInterval(timer); timer = null; return; }
+    
+        state.left--;
+        setTime(Math.max(state.left, 0));
+    
+        const done = (phase.seconds - state.left) / phase.seconds;
+        setRing(Math.min(360 * done, 360));
+    
+        if (state.left <= 0) {
+          clearInterval(timer); timer = null;
+          setRing(360);
+          // переходим к следующей фазе
+          state.phaseIndex++;
+          state.left = 0;
+          setTimeout(runTimerCycle, 180);
+        }
+      }, 1000);
+    }
+
     
       // ===== step-практики (пошаговые подсказки, без таймера)
       function showStep() {
@@ -2029,6 +2055,7 @@
     </script>
 </body>
 </html>
+
 
 
 
