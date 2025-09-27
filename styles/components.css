@@ -368,10 +368,9 @@ body.popup-open{ overflow: hidden; }
 .sheet[hidden] { display: none; }
 
 .sheet {
-  z-index: 1200;
+  z-index: 3000;
   position: fixed;
   inset: 0;
-  z-index: 1200;
   pointer-events: auto;
 }
 
@@ -380,6 +379,7 @@ body.popup-open{ overflow: hidden; }
   inset: 0;
   background: rgba(0,0,0,.45);
   backdrop-filter: blur(2px);
+  z-index: 0;
 }
 
 .sheet__panel {
@@ -387,7 +387,10 @@ body.popup-open{ overflow: hidden; }
   margin: 8vh auto 0;
   width: min(400px, 92vw);
   max-height: 80vh;
-  overflow: auto;
+   
+  overflow: hidden;              
+  background-clip: padding-box;
+  z-index: 1;
 
   background: var(--surface-2);
   border-radius: 16px;
@@ -406,10 +409,22 @@ body.popup-open{ overflow: hidden; }
   justify-content: space-between;
   gap: 8px;
   padding-bottom: 8px;
-  position: sticky; top: 0;
-  background: inherit;
+   
+  position: sticky; 
+  top: 0;
+  z-index: 2;                    
+  background: var(--surface-2); 
 }
 .sheet__close { line-height: 1; }
+
+/* Скролл внутри содержимого статистики (не сдвигает хедер) */
+#statsBody {
+  max-height: calc(80vh - 56px);  /* подгон при другой высоте шапки */
+  overflow: auto;
+}
+
+/* Пока открыт шит, нижняя навигация не «подсвечивает» края */
+body.modal-open .bottom-nav { visibility: hidden; }  /* а CTA у тебя уже скрывается */
 
 /* Убедимся, что у primary всегда есть яркий фон и белый текст */
 .calendar-cta .btn--primary {
