@@ -21,7 +21,9 @@
     border-color var(--dur-2) var(--ease),
     box-shadow var(--dur-2) var(--ease);
 }
-.btn:hover { background: var(--hover); transform: translateY(-1px); }
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
+}
 .btn:active { transform: translateY(0); }
 .btn:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--brand) 40%, transparent);
@@ -240,15 +242,22 @@ body.modal-open {
 }
 /* ===== Modal (центр экрана) ===== */
 .modal[hidden] { display: none; }
-.modal {
+/* базовая подложка — работает везде */
+.modal{
   position: fixed;
   inset: 0;
-  display: none;                  /* по умолчанию скрыта */
+  display: none;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,.45);    /* затемнение фона */
-  backdrop-filter: blur(2px);
+  background: rgba(0,0,0,.45);  /* ← фолбэк всегда есть */
   z-index: 999;
+}
+
+/* улучшение для браузеров с backdrop-filter */
+@supports (backdrop-filter: blur(2px)) {
+  .modal{
+    backdrop-filter: blur(2px);
+  }
 }
 
 .modal.is-open { display: flex; }
@@ -324,9 +333,16 @@ body.modal-open .calendar-cta{ display: none; }
 .calendar-cta .btn--primary{
   background: linear-gradient(135deg, var(--brand), var(--brand-2));
   color: #fff;
-  border-color: color-mix(in srgb, var(--brand) 25%, var(--border));
+  border-color: var(--border);            /* ← фолбэк вместо color-mix */
   box-shadow: var(--shadow-sm);
 }
+
+@supports (color: color-mix(in srgb, black, white)) {
+  .calendar-cta .btn--primary{
+    border-color: color-mix(in srgb, var(--brand) 25%, var(--border));
+  }
+}
+
 .calendar-cta .btn--primary:hover{ filter: brightness(1.05); }
 .calendar-cta .btn--primary[disabled],
 .calendar-cta .btn--primary[aria-disabled="true"]{
@@ -444,18 +460,6 @@ body.popup-open{ overflow: hidden; }
 
 /* Пока открыт шит, нижняя навигация не «подсвечивает» края */
 body.modal-open .bottom-nav { visibility: hidden; }  /* а CTA у тебя уже скрывается */
-
-/* Убедимся, что у primary всегда есть яркий фон и белый текст */
-.calendar-cta .btn--primary {
-  background: linear-gradient(135deg, var(--brand), var(--brand-2));
-  color: #fff;
-}
-
-/* На всякий случай: если где-то попадёт disabled — пусть выглядит полупрозрачно, но не белым блоком */
-.calendar-cta .btn--primary[disabled],
-.calendar-cta .btn--primary[aria-disabled="true"] {
-  opacity: .6;
-}
 
 /* Страница Помощи — сетка разделов */
 .section-grid{
