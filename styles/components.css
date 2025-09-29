@@ -234,14 +234,24 @@
 :root { --nav-height: 72px; }
 
 
-
+body.modal-open {
+  overflow: hidden;
+  touch-action: none;             /* мобильные браузеры: блок фоновых жестов */
+}
 /* ===== Modal (центр экрана) ===== */
 .modal[hidden] { display: none; }
 .modal {
   position: fixed;
   inset: 0;
-  z-index: 2000;
+  display: none;                  /* по умолчанию скрыта */
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.45);    /* затемнение фона */
+  backdrop-filter: blur(2px);
+  z-index: 999;
 }
+
+.modal.is-open { display: flex; }
 
 .modal__backdrop {
   position: absolute; inset: 0;
@@ -249,19 +259,28 @@
 }
 
 .modal__panel {
-  position: absolute;
-  left: 50%; top: 50%;
-  transform: translate(-50%, -50%);
   width: min(720px, 92vw);
-  max-height: 85vh;
-  overflow: auto;
-  background: var(--surface-2);
-  color: var(--text);
+  max-height: min(80vh, 720px);   /* критично: ограничить высоту */
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-2);
-  box-shadow: var(--shadow-lg);
-  padding: var(--space-4);
+  box-shadow: var(--shadow-md);
+  display: grid;
+  grid-template-rows: auto 1fr auto; /* header | scrollable | footer */
 }
+
+.modal__body {
+  overflow: auto;                     /* разрешаем скролл только здесь */
+  overscroll-behavior: contain;       /* не «проталкивать» скролл на фон */
+  -webkit-overflow-scrolling: touch;  /* плавный скролл iOS */
+  padding: 16px;
+}
+
+.modal__header, .modal__footer {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.modal__footer { border-top: 1px solid var(--border); border-bottom: 0; }
 
 .modal__close {
   position: absolute; top: 8px; right: 10px;
