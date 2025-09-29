@@ -407,12 +407,22 @@ body.modal-open .calendar-cta{ display: none; }
   background: var(--hover);
   box-shadow: var(--shadow-sm);
 }
-
+.mood-btn:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--brand) 40%, transparent);
+  outline-offset: 2px;
+}
 
 /* Цветовые акценты рамок */
-#goodMoodBtn    { border-color: color-mix(in srgb, var(--success) 70%, var(--border)); }
-#neutralMoodBtn { border-color: color-mix(in srgb, var(--warning) 70%, var(--border)); }
-#sadMoodBtn     { border-color: color-mix(in srgb, var(--info)    70%, var(--border)); }
+#goodMoodBtn,
+#neutralMoodBtn,
+#sadMoodBtn { border-color: var(--border); }
+
+@supports (color: color-mix(in srgb, black, white)) {
+  #goodMoodBtn    { border-color: color-mix(in srgb, var(--success) 70%, var(--border)); }
+  #neutralMoodBtn { border-color: color-mix(in srgb, var(--warning) 70%, var(--border)); }
+  #sadMoodBtn     { border-color: color-mix(in srgb, var(--info)    70%, var(--border)); }
+}
+
 
 /* Для читаемости подписи времени в поп-апе */
 #timeDisplay { color: var(--text-muted); }
