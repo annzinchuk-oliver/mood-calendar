@@ -30,11 +30,20 @@
   outline-offset: 2px;
 }
 
+/* базовый фолбэк — везде работает */
 .btn--primary {
-  border-color: color-mix(in srgb, var(--brand) 25%, var(--border));
+  border-color: var(--border);
   background: linear-gradient(135deg, var(--brand), var(--brand-2));
   color: #fff;
 }
+
+/* если браузер умеет color-mix — улучшаем */
+@supports (color: color-mix(in srgb, black, white)) {
+  .btn--primary {
+    border-color: color-mix(in srgb, var(--brand) 25%, var(--border));
+  }
+}
+
 .btn--primary:hover { filter: brightness(1.03); }
 
 .btn--ghost { background: transparent; border-color: var(--border); }
@@ -201,7 +210,8 @@
   color: var(--text);
   border: 1px solid var(--border);
 }
-.hour-block.has-data { color: #fff; font-weight: bold; }
+
+.hour-block.has-data { color: var(--text); font-weight: 700; }
 
 /* ---------- Nav & Send button (из чата/календаря) ---------- */
 .nav-btn {
@@ -215,11 +225,15 @@
   display: flex; align-items: center; justify-content: center;
   transition: all .2s ease;
 }
-.nav-btn:hover, .nav-btn:active {
-  background: var(--hover);
-  border-color: var(--border-strong);
-  transform: scale(1.1);
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-btn:hover {
+    background: var(--hover);
+    border-color: var(--border-strong);
+    transform: scale(1.1);
+  }
 }
+.nav-btn:active { transform: scale(1.05); }
 
 .send-button {
   background: var(--success);
@@ -386,7 +400,7 @@ body.modal-open .calendar-cta{ display: none; }
   box-shadow: var(--shadow-sm);
 }
 
-body.popup-open{ overflow: hidden; }
+
 /* Цветовые акценты рамок */
 #goodMoodBtn    { border-color: color-mix(in srgb, var(--success) 70%, var(--border)); }
 #neutralMoodBtn { border-color: color-mix(in srgb, var(--warning) 70%, var(--border)); }
@@ -412,9 +426,12 @@ body.popup-open{ overflow: hidden; }
 .sheet__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,.45);
-  backdrop-filter: blur(2px);
+  background: rgba(0,0,0,.45); /* фолбэк всегда есть */
   z-index: 0;
+}
+
+@supports (backdrop-filter: blur(2px)) {
+  .sheet__backdrop { backdrop-filter: blur(2px); }
 }
 
 .sheet__panel {
@@ -477,10 +494,18 @@ body.modal-open .bottom-nav { visibility: hidden; }  /* а CTA у тебя уж�
   text-align:center;
   cursor:pointer;
 }
+
 .section-card:hover{ transform: translateY(-2px); transition: transform .2s var(--ease); }
 .section-emoji{ font-size:28px; }
 .section-title{ font-weight:700; }
 .section-sub{ font-size:13px; color: var(--text-muted); }
+
+.nav-btn:focus-visible,
+.send-button:focus-visible,
+.section-card:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--brand) 40%, transparent);
+  outline-offset: 2px;
+}
 
 /* Контейнеры списка для терапии/тестов */
 .content-list{
