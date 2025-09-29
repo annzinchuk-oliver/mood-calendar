@@ -2053,21 +2053,11 @@
         // Add event listener for notifications button
         document.getElementById('enableNotifications').addEventListener('click', requestNotificationPermission);
         
-    </script>
-    <!-- self-test -->
-    <script>window.__coreLoaded = false;</script>
-    <script src="./app-core.js"
-            onload="window.__coreLoaded = true; console.log('[core] loaded');"
-            onerror="console.error('[core] load error')"></script>
-    <script>
-      // покажет факт загрузки и текущее значение window.App
-      setTimeout(() => {
-        console.log('[core] probe:', { loaded: window.__coreLoaded, App: window.App });
-      }, 0);
-    </script>
+<script src="./app-core.js"></script>
     
 </body>
 </html>
+
 
 
 
