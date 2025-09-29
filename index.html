@@ -551,7 +551,7 @@
         </div>
 
         
-        <div class="calendar-page" id="calendarPage">
+        <div class="calendar-page" id="calendarPage" data-page="calendar">
             <div class="month-nav">
                 <button class="btn btn--ghost btn--icon" onclick="navigateMonth(-1)">←</button>
                 <div class="month-title" id="monthTitle"></div>
@@ -618,7 +618,7 @@
           </div>
         </div>
         
-        <div class="chat-page" id="chatPage">
+        <div class="chat-page" id="chatPage" data-page="chat">
           <div class="chat-header">
             <h2>ИИ Чат</h2>
             <p>Спросите совет или поделитесь, как вы сейчас.</p>
@@ -633,7 +633,7 @@
           <div class="chat-disclaimer">Это не медицинская помощь. При рисках — звоните в экстренные службы.</div>
         </div>
                 <!-- ===== Страница ПОМОЩЬ ===== -->
-        <div class="help-page" id="helpPage" style="display:none;">
+        <div class="help-page" id="helpPage" data-page="help" style="display:none;">
           <div class="chat-header">
             <h2>Помощь</h2>
             <p>Выберите раздел:</p>
@@ -655,7 +655,7 @@
         </div>
         
         <!-- ===== Страница ТЕРАПИЯ ===== -->
-        <div class="therapy-page" id="therapyPage" style="display:none;">
+        <div class="therapy-page" id="therapyPage" data-page="practices" style="display:none;">
           <div class="chat-header">
             <h2>Терапевтические практики</h2>
             <p>Простые техники на каждый день</p>
@@ -678,7 +678,7 @@
         </div>
         
         <!-- ===== Страница ТЕСТЫ ===== -->
-        <div class="tests-page" id="testsPage" style="display:none;">
+        <div class="tests-page" id="testsPage" data-page="tests" style="display:none;">
           <div class="chat-header">
             <h2>Психологические тесты</h2>
             <p>Быстрые скрининги и опросники</p>
@@ -702,17 +702,17 @@
         <!-- Bottom Navigation -->
         <div class="bottom-nav">
             
-            <button class="nav-item active" id="navCalendar" onclick="switchPage('calendar')">
+            <button class="nav-item active" id="navCalendar" data-nav="calendar" onclick="switchPage('calendar')">
                 <div class="nav-icon">📅</div>
                 <div>Календарь</div>
             </button>
             
-            <button class="nav-item" id="navChat" onclick="switchPage('chat')">
+            <button class="nav-item" id="navChat" data-nav="chat" onclick="switchPage('chat')">
                 <div class="nav-icon">🤖</div>
                 <div>ИИ Чат</div>
             </button>
 
-            <button class="nav-item" id="navHelp" onclick="switchPage('help')">
+            <button class="nav-item" id="navHelp" data-nav="help" onclick="switchPage('help')">
               <div class="nav-icon">🆘</div>
               <div>Помощь</div>
             </button>
@@ -2053,8 +2053,10 @@
         // Add event listener for notifications button
         document.getElementById('enableNotifications').addEventListener('click', requestNotificationPermission);
     </script>
+    <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
