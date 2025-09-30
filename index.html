@@ -572,7 +572,15 @@
              </div>
                         <!-- Fixed action buttons (только для календаря) -->
          <div class="calendar-cta">
-            <button class="btn btn--primary btn--xl" id="addMoodBtn">📝 Записать настроение</button>
+            <!-- Ряд из 5 смайлов для быстрого выбора настроения -->
+            <div class="calendar-mood-buttons">
+              <button id="happyMoodBtn" class="mood-inline-btn" onclick="recordMood('happy')" aria-label="Очень счастлив"><span class="mood-emoji">😄</span></button>
+              <button id="pleasedMoodBtn" class="mood-inline-btn" onclick="recordMood('pleased')" aria-label="Доволен"><span class="mood-emoji">🙂</span></button>
+              <button id="neutralMoodInlineBtn" class="mood-inline-btn" onclick="recordMood('neutral')" aria-label="Нейтрально"><span class="mood-emoji">😐</span></button>
+              <button id="sadMoodInlineBtn" class="mood-inline-btn" onclick="recordMood('sad')" aria-label="Печально"><span class="mood-emoji">🙁</span></button>
+              <button id="sorrowMoodBtn" class="mood-inline-btn" onclick="recordMood('sorrow')" aria-label="Очень грустно"><span class="mood-emoji">😢</span></button>
+            </div>
+            <!-- Кнопка статистики остаётся внизу -->
             <button class="btn btn--primary btn--xl" onclick="openStats()">📊 Статистика</button>
           </div>
         </div>
@@ -1128,9 +1136,14 @@
 
         // Mood types
         const moodTypes = {
-            good: { name: 'Хорошее' },
+            // Старые ключи (для совместимости). good → positive, neutral → neutral, sad → печаль
+            good:    { name: 'Хорошее' },
             neutral: { name: 'Нейтральное' },
-            sad: { name: 'Грустное' }
+            sad:     { name: 'Печальное' },
+            // Новая шкала из 5 настроений
+            happy:   { name: 'Очень хорошее' },
+            pleased: { name: 'Хорошее' },
+            sorrow:  { name: 'Очень грустное' }
         };
 
         const monthNames = [
@@ -1563,18 +1576,24 @@
                 return;
             }
             
-            const goodPercent = Math.round((periodData.moodCounts.good || 0) / periodData.totalEntries * 100);
-            const neutralPercent = Math.round((periodData.moodCounts.neutral || 0) / periodData.totalEntries * 100);
-            const sadPercent = Math.round((periodData.moodCounts.sad || 0) / periodData.totalEntries * 100);
-            
-            statsGoodElement.textContent = `${goodPercent}%`;
-            statsGoodElement.style.color = getCSSVariable('--mood-good');
-            
+            // Суммируем новые шкалы в общие категории: good (happy, pleased, good), neutral, sad (sad, sorrow).
+            const moodCounts = periodData.moodCounts || {};
+            const goodCount    = (moodCounts.good || 0) + (moodCounts.happy || 0) + (moodCounts.pleased || 0);
+            const neutralCount = (moodCounts.neutral || 0);
+            const sadCount     = (moodCounts.sad || 0) + (moodCounts.sorrow || 0);
+
+            const goodPercent    = Math.round(goodCount    / periodData.totalEntries * 100);
+            const neutralPercent = Math.round(neutralCount / periodData.totalEntries * 100);
+            const sadPercent     = Math.round(sadCount     / periodData.totalEntries * 100);
+
+            statsGoodElement.textContent    = `${goodPercent}%`;
+            statsGoodElement.style.color    = getCSSVariable('--mood-good');
+
             statsNeutralElement.textContent = `${neutralPercent}%`;
             statsNeutralElement.style.color = getCSSVariable('--mood-neutral');
-            
-            statsSadElement.textContent = `${sadPercent}%`;
-            statsSadElement.style.color = getCSSVariable('--mood-sad');
+
+            statsSadElement.textContent     = `${sadPercent}%`;
+            statsSadElement.style.color     = getCSSVariable('--mood-sad');
             
             statsTotalElement.textContent = `Всего записей: ${periodData.totalEntries}`;
             avgPerDayElement.textContent = (periodData.totalEntries / Math.max(periodData.days, 1)).toFixed(1);
