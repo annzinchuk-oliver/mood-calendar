@@ -174,11 +174,16 @@
   --mood-happy: var(--palette-good);
   /* «pleased» должен быть ближе к счастливому, но мягче. Смещаем в сторону зелёного
      (больше good, меньше neutral), чтобы избежать грязных оттенков. */
-  --mood-pleased: color-mix(in srgb, var(--palette-good) 75%, var(--palette-neutral) 25%);
+  /* для состояния «pleased» берём одинаковые доли зелёного и жёлтого,
+     чтобы цвет получился более жёлто‑зелёным (chartreuse),
+     а не тёмно‑зелёным. */
+  --mood-pleased: color-mix(in srgb, var(--palette-good) 50%, var(--palette-neutral) 50%);
   --mood-neutral: var(--palette-neutral);
   /* «sad» должен быть заметно светлее, чем sorrow, но всё ещё в холодной гамме.
      Убираем большую часть нейтрального жёлтого и усиливаем синий. */
-  --mood-sad: color-mix(in srgb, var(--palette-neutral) 20%, var(--palette-sad) 80%);
+  /* «sad» теперь ближе к синему: 75% sadness и 25% neutral,
+     чтобы оттенок был светлее и лучше отличался от «sorrow». */
+  --mood-sad: color-mix(in srgb, var(--palette-neutral) 25%, var(--palette-sad) 75%);
   --mood-sorrow: var(--palette-sad);
 
   /* Aliases for backward compatibility */
