@@ -640,7 +640,7 @@
           </div>
         
           <div class="section-grid">
-            <button class="card section-card" onclick="switchPage('therapy')">
+                <button class="card section-card" onclick="switchPage('practices')">
               <div class="section-emoji">🧘‍♀️</div>
               <div class="section-title">Терапия</div>
               <div class="section-sub">Дыхательные и успокаивающие практики</div>
@@ -699,20 +699,64 @@
           </div>
         </div>
 
+        <!-- ===== Страница НАСТРОЙКИ ===== -->
+        <div class="settings-page" id="settingsPage" data-page="settings" style="display:none;">
+          <div class="chat-header">
+            <h2>Настройки</h2>
+            <p>Настройте тему, язык и уведомления</p>
+          </div>
+          <div class="content-list">
+            <p>Раздел настроек в разработке.</p>
+          </div>
+        </div>
+
+        <!-- ===== Страница SOS ===== -->
+        <div class="sos-page" id="sosPage" data-page="sos" style="display:none;">
+          <div class="chat-header">
+            <h2>SOS / Дисклеймеры</h2>
+            <p>Информация о службах поддержки и важные контакты.</p>
+          </div>
+          <div class="content-list">
+            <p>Содержание SOS-страницы будет добавлено позже.</p>
+          </div>
+        </div>
+
+        <!-- ===== Страница ПРОФИЛЬ ===== -->
+        <div class="profile-page" id="profilePage" data-page="profile" style="display:none;">
+          <div class="chat-header">
+            <h2>Профиль пользователя</h2>
+            <p>Сводка вашей активности и персональные данные</p>
+          </div>
+          <div class="content-list">
+            <p>Профиль находится в разработке.</p>
+          </div>
+        </div>
+
+        <!-- ===== Страница СТАТИСТИКА ===== -->
+        <div class="stats-page" id="statsPage" data-page="stats" style="display:none;">
+          <div class="chat-header">
+            <h2>Полная статистика</h2>
+            <p>Подробный анализ ваших настроений</p>
+          </div>
+          <div class="content-list">
+            <p>Раздел статистики находится в разработке.</p>
+          </div>
+        </div>
+
         <!-- Bottom Navigation -->
         <div class="bottom-nav">
             
-            <button class="nav-item active" id="navCalendar" data-nav="calendar" onclick="switchPage('calendar')">
+            <button class="nav-item active" id="navCalendar" onclick="switchPage('calendar')">
                 <div class="nav-icon">📅</div>
                 <div>Календарь</div>
             </button>
             
-            <button class="nav-item" id="navChat" data-nav="chat" onclick="switchPage('chat')">
+            <button class="nav-item" id="navChat" onclick="switchPage('chat')">
                 <div class="nav-icon">🤖</div>
                 <div>ИИ Чат</div>
             </button>
 
-            <button class="nav-item" id="navHelp" data-nav="help" onclick="switchPage('help')">
+            <button class="nav-item" id="navHelp" onclick="switchPage('help')">
               <div class="nav-icon">🆘</div>
               <div>Помощь</div>
             </button>
@@ -1226,6 +1270,10 @@
           const helpPage     = document.getElementById('helpPage');
           const therapyPage  = document.getElementById('therapyPage');
           const testsPage    = document.getElementById('testsPage');
+          const settingsPage = document.getElementById('settingsPage');
+          const sosPage      = document.getElementById('sosPage');
+          const profilePage  = document.getElementById('profilePage');
+          const statsPage    = document.getElementById('statsPage');
         
           // навигация
           const navCalendar  = document.getElementById('navCalendar');
@@ -1236,7 +1284,7 @@
           const cta = document.querySelector('.calendar-cta');
         
           // 1) Скрыть все страницы (и снять спец-класс у чата)
-          [calendarPage, chatPage, helpPage, therapyPage, testsPage].forEach(el => {
+          [calendarPage, chatPage, helpPage, therapyPage, testsPage, settingsPage, sosPage, profilePage, statsPage].forEach(el => {
             if (el) el.style.display = 'none';
           });
           chatPage?.classList.remove('active');
@@ -1259,12 +1307,28 @@
             helpPage && (helpPage.style.display = 'block');
             cta && (cta.style.display = 'none');
             navHelp?.classList.add('active');
-          } else if (page === 'therapy') {
+          } else if (page === 'practices' || page === 'therapy') {
             therapyPage && (therapyPage.style.display = 'block');
             cta && (cta.style.display = 'none');
             navHelp?.classList.add('active');
           } else if (page === 'tests') {
             testsPage && (testsPage.style.display = 'block');
+            cta && (cta.style.display = 'none');
+            navHelp?.classList.add('active');
+          } else if (page === 'settings') {
+            settingsPage && (settingsPage.style.display = 'block');
+            cta && (cta.style.display = 'none');
+            navHelp?.classList.add('active');
+          } else if (page === 'sos') {
+            sosPage && (sosPage.style.display = 'block');
+            cta && (cta.style.display = 'none');
+            navHelp?.classList.add('active');
+          } else if (page === 'profile') {
+            profilePage && (profilePage.style.display = 'block');
+            cta && (cta.style.display = 'none');
+            navHelp?.classList.add('active');
+          } else if (page === 'stats') {
+            statsPage && (statsPage.style.display = 'block');
             cta && (cta.style.display = 'none');
             navHelp?.classList.add('active');
           }
@@ -2052,58 +2116,9 @@
 
         // Add event listener for notifications button
         document.getElementById('enableNotifications').addEventListener('click', requestNotificationPermission);
-        
     </script>
-    
-<script src="./app-core.js"></script>
-    
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
