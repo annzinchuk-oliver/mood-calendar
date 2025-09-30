@@ -62,12 +62,6 @@
   --palette-good: #22c55e;    /* зеленый */
   --palette-neutral: #eab308; /* жёлтый */
   --palette-sad: #3b82f6;     /* синий */
-
-  --calendar-fill-good:    color-mix(in srgb, var(--palette-good) 65%, white);
-  --calendar-fill-neutral: color-mix(in srgb, var(--palette-neutral) 60%, white);
-  --calendar-fill-sad:     color-mix(in srgb, var(--palette-sad) 60%, white);
-
-  --calendar-fill-text: var(--text); /* читаемый текст на плашке */
 }
 
 [data-theme="dark"] {
@@ -85,11 +79,22 @@
   --palette-good:    #10b981;
   --palette-neutral: #f59e0b;
   --palette-sad:     #3b82f6;
-
-  --calendar-fill-good:    color-mix(in srgb, var(--palette-good) 45%, white);
-  --calendar-fill-neutral: color-mix(in srgb, var(--palette-neutral) 42%, white);
-  --calendar-fill-sad:     color-mix(in srgb, var(--palette-sad) 42%, white);
 }
+
+--palette-happy:   #16a34a; /* бодро-зелёный */
+--palette-pleased: #22c55e; /* твой текущий good */
+--palette-neutral: #eab308;
+--palette-sad:     #3b82f6;
+--palette-sorrow:  #2563eb; /* чуть глубже синего */
+
+:root {
+  --calendar-fill-happy:   color-mix(in srgb, var(--palette-surface) 72%, var(--palette-happy) 28%);
+  --calendar-fill-pleased: color-mix(in srgb, var(--palette-surface) 72%, var(--palette-pleased) 28%);
+  --calendar-fill-neutral: color-mix(in srgb, var(--palette-surface) 76%, var(--palette-neutral) 24%);
+  --calendar-fill-sad:     color-mix(in srgb, var(--palette-surface) 76%, var(--palette-sad) 24%);
+  --calendar-fill-sorrow:  color-mix(in srgb, var(--palette-surface) 76%, var(--palette-sorow) 24%);
+}
+
 
 /* Доп. палитры (опционально) */
 [data-theme="light-nature"] {
