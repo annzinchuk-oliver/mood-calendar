@@ -21,29 +21,25 @@
     border-color var(--dur-2) var(--ease),
     box-shadow var(--dur-2) var(--ease);
 }
-@media (hover: hover) and (pointer: fine) {
-  .btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
-}
+.btn:hover { background: var(--hover); transform: translateY(-1px); }
 .btn:active { transform: translateY(0); }
 .btn:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--brand) 40%, transparent);
   outline-offset: 2px;
 }
 
-/* базовый фолбэк — везде работает */
+/* Primary-кнопки: задаём нейтральную границу по умолчанию, а насыщенную через color-mix, если поддерживается */
 .btn--primary {
-  border-color: var(--border);
+  border-color: var(--border); /* фолбэк */
   background: linear-gradient(135deg, var(--brand), var(--brand-2));
-  color: #fff;
+  color: var(--on-brand);
 }
 
-/* если браузер умеет color-mix — улучшаем */
 @supports (color: color-mix(in srgb, black, white)) {
   .btn--primary {
     border-color: color-mix(in srgb, var(--brand) 25%, var(--border));
   }
 }
-
 .btn--primary:hover { filter: brightness(1.03); }
 
 .btn--ghost { background: transparent; border-color: var(--border); }
@@ -74,28 +70,27 @@
 .filter-btn:hover { background: var(--hover); }
 .filter-btn.active {
   background: linear-gradient(135deg, var(--brand), var(--brand-2));
-  border-color: transparent; color: #fff;
-}
-.filter-btn:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--brand) 40%, transparent);
-  outline-offset: 2px;
+  border-color: transparent; color: var(--on-brand);
 }
 
 /* Кнопка в установочном баннере */
+/* Кнопка установки PWA: граница имеет фолбэк, а цвет рамки усиливается при поддержке color-mix */
 .install-btn {
   display:inline-flex; align-items:center; justify-content:center; gap: var(--space-2);
   padding: 10px 16px;
   border-radius: var(--radius-pill);
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--border); /* фолбэк */
   background: linear-gradient(135deg, var(--brand), var(--brand-2));
-  color:#fff;
+  color: var(--on-brand);
   font: 600 var(--fs-sm)/1 var(--font-sans);
   box-shadow: var(--shadow-sm);
   cursor:pointer;
 }
 
 @supports (color: color-mix(in srgb, black, white)) {
-  .install-btn { border-color: color-mix(in srgb, var(--brand) 25%, var(--border)); }
+  .install-btn {
+    border-color: color-mix(in srgb, var(--brand) 25%, var(--border));
+  }
 }
 
 /* ---------- Cards ---------- */
@@ -156,7 +151,7 @@
 .message.user {
   align-self: flex-end;
   background: var(--success);
-  color: #fff;
+  color: var(--on-brand);
   border-bottom-right-radius: 6px;
 }
 .message.ai {
@@ -218,8 +213,12 @@
   color: var(--text);
   border: 1px solid var(--border);
 }
-
-.hour-block.has-data { color: var(--text); font-weight: 700; }
+.hour-block.has-data {
+  /* В разноцветных темах используем основной текстовый цвет,
+     чтобы текст не «проваливался» на светлой теме. */
+  color: var(--text);
+  font-weight: 700;
+}
 
 /* ---------- Nav & Send button (из чата/календаря) ---------- */
 .nav-btn {
@@ -233,7 +232,7 @@
   display: flex; align-items: center; justify-content: center;
   transition: all .2s ease;
 }
-
+/* Hover-эффект для навигационных кнопок — применяем только при наличии мыши */
 @media (hover: hover) and (pointer: fine) {
   .nav-btn:hover {
     background: var(--hover);
@@ -241,50 +240,34 @@
     transform: scale(1.1);
   }
 }
-.nav-btn:active { transform: scale(1.05); }
+/* Активное состояние — слегка уменьшаем масштаб, без изменений фона */
+.nav-btn:active {
+  transform: scale(1.05);
+}
 
 .send-button {
   background: var(--success);
   border: none; border-radius: 50%;
   width: 44px; height: 44px;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; color: #fff; font-size: 18px;
+  cursor: pointer; color: var(--on-brand); font-size: 18px;
   transition: all .2s ease;
 }
-@media (hover: hover) and (pointer: fine) {
-  .send-button:hover:not(:disabled) { filter: brightness(1.05); transform: scale(1.05); }
-}
+.send-button:hover:not(:disabled) { filter: brightness(1.05); transform: scale(1.05); }
 .send-button:disabled { background: var(--text-muted); cursor: not-allowed; opacity: .5; }
 
 /* высота нижней навигации, чтобы правильно прижать CTA */
 :root { --nav-height: 72px; }
 
 
-body.modal-open {
-  overflow: hidden;
-  touch-action: none;             /* мобильные браузеры: блок фоновых жестов */
-}
+
 /* ===== Modal (центр экрана) ===== */
 .modal[hidden] { display: none; }
-/* базовая подложка — работает везде */
-.modal{
+.modal {
   position: fixed;
   inset: 0;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,.45);  /* ← фолбэк всегда есть */
-  z-index: 999;
+  z-index: 2000;
 }
-
-/* улучшение для браузеров с backdrop-filter */
-@supports (backdrop-filter: blur(2px)) {
-  .modal{
-    backdrop-filter: blur(2px);
-  }
-}
-
-.modal.is-open { display: flex; }
 
 .modal__backdrop {
   position: absolute; inset: 0;
@@ -292,28 +275,19 @@ body.modal-open {
 }
 
 .modal__panel {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
   width: min(720px, 92vw);
-  max-height: min(80vh, 720px);   /* критично: ограничить высоту */
-  background: var(--card);
+  max-height: 85vh;
+  overflow: auto;
+  background: var(--surface-2);
+  color: var(--text);
   border: 1px solid var(--border);
   border-radius: var(--radius-2);
-  box-shadow: var(--shadow-md);
-  display: grid;
-  grid-template-rows: auto 1fr auto; /* header | scrollable | footer */
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-4);
 }
-
-.modal__body {
-  overflow: auto;                     /* разрешаем скролл только здесь */
-  overscroll-behavior: contain;       /* не «проталкивать» скролл на фон */
-  -webkit-overflow-scrolling: touch;  /* плавный скролл iOS */
-  padding: 16px;
-}
-
-.modal__header, .modal__footer {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
-}
-.modal__footer { border-top: 1px solid var(--border); border-bottom: 0; }
 
 .modal__close {
   position: absolute; top: 8px; right: 10px;
@@ -355,10 +329,13 @@ body.modal-open .calendar-cta{ display: none; }
 
 /* Единый вид primary-кнопок (цвета — из токенов темы) */
 .calendar-cta .btn--primary{
+  /* Градиент и цвет текста остаются неизменными */
   background: linear-gradient(135deg, var(--brand), var(--brand-2));
-  color: #fff;
-  border-color: var(--border);            /* ← фолбэк вместо color-mix */
+  color: var(--on-brand);
   box-shadow: var(--shadow-sm);
+
+  /* Базовая рамка для всех браузеров; насыщенную цветом рамку задаём через @supports */
+  border-color: var(--border);
 }
 
 @supports (color: color-mix(in srgb, black, white)) {
@@ -366,7 +343,6 @@ body.modal-open .calendar-cta{ display: none; }
     border-color: color-mix(in srgb, var(--brand) 25%, var(--border));
   }
 }
-
 .calendar-cta .btn--primary:hover{ filter: brightness(1.05); }
 .calendar-cta .btn--primary[disabled],
 .calendar-cta .btn--primary[aria-disabled="true"]{
@@ -379,6 +355,8 @@ body.modal-open .calendar-cta{ display: none; }
   min-height: 100vh;
 }
 
+.popup-open .calendar-cta { display: none; }
+
 .mood-popup { background: rgba(0,0,0,.6); }
 
 .mood-popup-content{
@@ -387,11 +365,7 @@ body.modal-open .calendar-cta{ display: none; }
   border: 1px solid var(--border);
 }
 
-.mood-btn{
-  background: var(--surface);
-  color: var(--text);
-  border-color: var(--border);
-}
+/* Удаляем дублирование: базовый стиль mood-btn описан ниже */
 
 .mood-popup h3{ color: var(--text); }
 .mood-popup p { color: var(--text-muted); }
@@ -407,22 +381,28 @@ body.modal-open .calendar-cta{ display: none; }
   background: var(--hover);
   box-shadow: var(--shadow-sm);
 }
+
+/* Контур фокуса для доступности — виден при навигации по клавиатуре */
 .mood-btn:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--brand) 40%, transparent);
   outline-offset: 2px;
 }
 
-/* Цветовые акценты рамок */
+body.popup-open{ overflow: hidden; }
+/* Цветовые акценты рамок
+   Для браузеров без поддержки color-mix даём фолбэк — обычную рамку. */
 #goodMoodBtn,
 #neutralMoodBtn,
-#sadMoodBtn { border-color: var(--border); }
+#sadMoodBtn {
+  border-color: var(--border);
+}
 
 @supports (color: color-mix(in srgb, black, white)) {
+  /* Если браузер умеет color-mix, задаём яркую рамку настроения */
   #goodMoodBtn    { border-color: color-mix(in srgb, var(--success) 70%, var(--border)); }
   #neutralMoodBtn { border-color: color-mix(in srgb, var(--warning) 70%, var(--border)); }
   #sadMoodBtn     { border-color: color-mix(in srgb, var(--info)    70%, var(--border)); }
 }
-
 
 /* Для читаемости подписи времени в поп-апе */
 #timeDisplay { color: var(--text-muted); }
@@ -444,12 +424,9 @@ body.modal-open .calendar-cta{ display: none; }
 .sheet__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,.45); /* фолбэк всегда есть */
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(2px);
   z-index: 0;
-}
-
-@supports (backdrop-filter: blur(2px)) {
-  .sheet__backdrop { backdrop-filter: blur(2px); }
 }
 
 .sheet__panel {
@@ -496,6 +473,7 @@ body.modal-open .calendar-cta{ display: none; }
 /* Пока открыт шит, нижняя навигация не «подсвечивает» края */
 body.modal-open .bottom-nav { visibility: hidden; }  /* а CTA у тебя уже скрывается */
 
+
 /* Страница Помощи — сетка разделов */
 .section-grid{
   display: grid;
@@ -512,18 +490,10 @@ body.modal-open .bottom-nav { visibility: hidden; }  /* а CTA у тебя уж�
   text-align:center;
   cursor:pointer;
 }
-
 .section-card:hover{ transform: translateY(-2px); transition: transform .2s var(--ease); }
 .section-emoji{ font-size:28px; }
 .section-title{ font-weight:700; }
 .section-sub{ font-size:13px; color: var(--text-muted); }
-
-.nav-btn:focus-visible,
-.send-button:focus-visible,
-.section-card:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--brand) 40%, transparent);
-  outline-offset: 2px;
-}
 
 /* Контейнеры списка для терапии/тестов */
 .content-list{
