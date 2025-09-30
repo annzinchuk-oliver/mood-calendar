@@ -62,6 +62,12 @@
   --palette-good: #22c55e;    /* зеленый */
   --palette-neutral: #eab308; /* жёлтый */
   --palette-sad: #3b82f6;     /* синий */
+
+  --calendar-fill-good:    color-mix(in srgb, var(--palette-good) 65%, white);
+  --calendar-fill-neutral: color-mix(in srgb, var(--palette-neutral) 60%, white);
+  --calendar-fill-sad:     color-mix(in srgb, var(--palette-sad) 60%, white);
+
+  --calendar-fill-text: var(--text); /* читаемый текст на плашке */
 }
 
 [data-theme="dark"] {
@@ -79,6 +85,10 @@
   --palette-good:    #10b981;
   --palette-neutral: #f59e0b;
   --palette-sad:     #3b82f6;
+
+  --calendar-fill-good:    color-mix(in srgb, var(--palette-good) 45%, white);
+  --calendar-fill-neutral: color-mix(in srgb, var(--palette-neutral) 42%, white);
+  --calendar-fill-sad:     color-mix(in srgb, var(--palette-sad) 42%, white);
 }
 
 /* Доп. палитры (опционально) */
