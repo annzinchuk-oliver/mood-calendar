@@ -88,11 +88,11 @@
 --palette-sorrow:  #2563eb; /* чуть глубже синего */
 
 :root {
-  --calendar-fill-happy:   color-mix(in srgb, var(--palette-surface) 72%, var(--palette-happy) 28%);
-  --calendar-fill-pleased: color-mix(in srgb, var(--palette-surface) 72%, var(--palette-pleased) 28%);
-  --calendar-fill-neutral: color-mix(in srgb, var(--palette-surface) 76%, var(--palette-neutral) 24%);
-  --calendar-fill-sad:     color-mix(in srgb, var(--palette-surface) 76%, var(--palette-sad) 24%);
-  --calendar-fill-sorrow:  color-mix(in srgb, var(--palette-surface) 76%, var(--palette-sorow) 24%);
+   --calendar-fill-happy:   color-mix(in srgb, var(--palette-surface) 72%, var(--mood-happy) 28%);
+   --calendar-fill-pleased: color-mix(in srgb, var(--palette-surface) 72%, var(--mood-pleased) 28%);
+   --calendar-fill-neutral: color-mix(in srgb, var(--palette-surface) 76%, var(--mood-neutral) 24%);
+   --calendar-fill-sad:     color-mix(in srgb, var(--palette-surface) 76%, var(--mood-sad) 24%);
+   --calendar-fill-sorrow:  color-mix(in srgb, var(--palette-surface) 76%, var(--mood-sorrow) 24%);
 }
 
 
@@ -176,30 +176,15 @@
   --info: var(--palette-sad);
 
   /* Графики / диаграммы */
-  --chart-good: var(--success);
-  --chart-neutral: var(--warning);
-  --chart-sad: var(--info);
+--mood-good: var(--mood-happy);
+--mood-sad-old: var(--mood-sorrow);
 
-  /*
-   * Расширенная шкала настроений (5 уровней).
-   * Для смешанных оттенков используем color-mix: счастливое на основе good,
-   * довольное — смесь good и neutral, грустное — смесь neutral и sad,
-   * печальное (sorrow) — исходный sad.
-   */
-  --mood-happy: var(--palette-good);
-  /* «pleased» должен быть ближе к счастливому, но мягче. Смещаем в сторону зелёного
-     (больше good, меньше neutral), чтобы избежать грязных оттенков. */
-  /* для состояния «pleased» берём одинаковые доли зелёного и жёлтого,
-     чтобы цвет получился более жёлто‑зелёным (chartreuse),
-     а не тёмно‑зелёным. */
-  --mood-pleased: color-mix(in srgb, var(--palette-good) 50%, var(--palette-neutral) 50%);
-  --mood-neutral: var(--palette-neutral);
-  /* «sad» должен быть заметно светлее, чем sorrow, но всё ещё в холодной гамме.
-     Убираем большую часть нейтрального жёлтого и усиливаем синий. */
-  /* «sad» теперь ближе к синему: 75% sadness и 25% neutral,
-     чтобы оттенок был светлее и лучше отличался от «sorrow». */
-  --mood-sad: color-mix(in srgb, var(--palette-neutral) 25%, var(--palette-sad) 75%);
-  --mood-sorrow: var(--palette-sad);
+/* расширенная шкала настроений (5 уровней) */
+--mood-happy:   #22c55e;    /* зелёный */
+--mood-pleased: #86efac;    /* светло‑зелёный */
+--mood-neutral: #eab308;    /* жёлтый */
+--mood-sad:     #93c5fd;    /* светло‑синий */
+--mood-sorrow:  #2563eb;    /* насыщенный синий */
 
   /* Aliases for backward compatibility */
   --mood-good: var(--mood-happy);
