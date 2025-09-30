@@ -551,7 +551,7 @@
         </div>
 
         
-        <div class="calendar-page" id="calendarPage" data-page="calendar">
+        <div class="calendar-page" id="calendarPage">
             <div class="month-nav">
                 <button class="btn btn--ghost btn--icon" onclick="navigateMonth(-1)">←</button>
                 <div class="month-title" id="monthTitle"></div>
@@ -618,7 +618,7 @@
           </div>
         </div>
         
-        <div class="chat-page" id="chatPage" data-page="chat">
+        <div class="chat-page" id="chatPage">
           <div class="chat-header">
             <h2>ИИ Чат</h2>
             <p>Спросите совет или поделитесь, как вы сейчас.</p>
@@ -633,14 +633,14 @@
           <div class="chat-disclaimer">Это не медицинская помощь. При рисках — звоните в экстренные службы.</div>
         </div>
                 <!-- ===== Страница ПОМОЩЬ ===== -->
-        <div class="help-page" id="helpPage" data-page="help" style="display:none;">
+        <div class="help-page" id="helpPage" style="display:none;">
           <div class="chat-header">
             <h2>Помощь</h2>
             <p>Выберите раздел:</p>
           </div>
         
           <div class="section-grid">
-                <button class="card section-card" onclick="switchPage('practices')">
+            <button class="card section-card" onclick="switchPage('therapy')">
               <div class="section-emoji">🧘‍♀️</div>
               <div class="section-title">Терапия</div>
               <div class="section-sub">Дыхательные и успокаивающие практики</div>
@@ -655,7 +655,7 @@
         </div>
         
         <!-- ===== Страница ТЕРАПИЯ ===== -->
-        <div class="therapy-page" id="therapyPage" data-page="practices" style="display:none;">
+        <div class="therapy-page" id="therapyPage" style="display:none;">
           <div class="chat-header">
             <h2>Терапевтические практики</h2>
             <p>Простые техники на каждый день</p>
@@ -678,7 +678,7 @@
         </div>
         
         <!-- ===== Страница ТЕСТЫ ===== -->
-        <div class="tests-page" id="testsPage" data-page="tests" style="display:none;">
+        <div class="tests-page" id="testsPage" style="display:none;">
           <div class="chat-header">
             <h2>Психологические тесты</h2>
             <p>Быстрые скрининги и опросники</p>
@@ -696,50 +696,6 @@
               <p>2 вопроса, ~30 секунд. Не заменяет диагноз.</p>
               <button class="btn btn--primary" style="margin-top:12px;" onclick="openTest('gad2')">Пройти</button>
             </div>
-          </div>
-        </div>
-
-        <!-- ===== Страница НАСТРОЙКИ ===== -->
-        <div class="settings-page" id="settingsPage" data-page="settings" style="display:none;">
-          <div class="chat-header">
-            <h2>Настройки</h2>
-            <p>Настройте тему, язык и уведомления</p>
-          </div>
-          <div class="content-list">
-            <p>Раздел настроек в разработке.</p>
-          </div>
-        </div>
-
-        <!-- ===== Страница SOS ===== -->
-        <div class="sos-page" id="sosPage" data-page="sos" style="display:none;">
-          <div class="chat-header">
-            <h2>SOS / Дисклеймеры</h2>
-            <p>Информация о службах поддержки и важные контакты.</p>
-          </div>
-          <div class="content-list">
-            <p>Содержание SOS-страницы будет добавлено позже.</p>
-          </div>
-        </div>
-
-        <!-- ===== Страница ПРОФИЛЬ ===== -->
-        <div class="profile-page" id="profilePage" data-page="profile" style="display:none;">
-          <div class="chat-header">
-            <h2>Профиль пользователя</h2>
-            <p>Сводка вашей активности и персональные данные</p>
-          </div>
-          <div class="content-list">
-            <p>Профиль находится в разработке.</p>
-          </div>
-        </div>
-
-        <!-- ===== Страница СТАТИСТИКА ===== -->
-        <div class="stats-page" id="statsPage" data-page="stats" style="display:none;">
-          <div class="chat-header">
-            <h2>Полная статистика</h2>
-            <p>Подробный анализ ваших настроений</p>
-          </div>
-          <div class="content-list">
-            <p>Раздел статистики находится в разработке.</p>
           </div>
         </div>
 
@@ -1270,10 +1226,6 @@
           const helpPage     = document.getElementById('helpPage');
           const therapyPage  = document.getElementById('therapyPage');
           const testsPage    = document.getElementById('testsPage');
-          const settingsPage = document.getElementById('settingsPage');
-          const sosPage      = document.getElementById('sosPage');
-          const profilePage  = document.getElementById('profilePage');
-          const statsPage    = document.getElementById('statsPage');
         
           // навигация
           const navCalendar  = document.getElementById('navCalendar');
@@ -1284,7 +1236,7 @@
           const cta = document.querySelector('.calendar-cta');
         
           // 1) Скрыть все страницы (и снять спец-класс у чата)
-          [calendarPage, chatPage, helpPage, therapyPage, testsPage, settingsPage, sosPage, profilePage, statsPage].forEach(el => {
+          [calendarPage, chatPage, helpPage, therapyPage, testsPage].forEach(el => {
             if (el) el.style.display = 'none';
           });
           chatPage?.classList.remove('active');
@@ -1307,28 +1259,12 @@
             helpPage && (helpPage.style.display = 'block');
             cta && (cta.style.display = 'none');
             navHelp?.classList.add('active');
-          } else if (page === 'practices' || page === 'therapy') {
+          } else if (page === 'therapy') {
             therapyPage && (therapyPage.style.display = 'block');
             cta && (cta.style.display = 'none');
             navHelp?.classList.add('active');
           } else if (page === 'tests') {
             testsPage && (testsPage.style.display = 'block');
-            cta && (cta.style.display = 'none');
-            navHelp?.classList.add('active');
-          } else if (page === 'settings') {
-            settingsPage && (settingsPage.style.display = 'block');
-            cta && (cta.style.display = 'none');
-            navHelp?.classList.add('active');
-          } else if (page === 'sos') {
-            sosPage && (sosPage.style.display = 'block');
-            cta && (cta.style.display = 'none');
-            navHelp?.classList.add('active');
-          } else if (page === 'profile') {
-            profilePage && (profilePage.style.display = 'block');
-            cta && (cta.style.display = 'none');
-            navHelp?.classList.add('active');
-          } else if (page === 'stats') {
-            statsPage && (statsPage.style.display = 'block');
             cta && (cta.style.display = 'none');
             navHelp?.classList.add('active');
           }
@@ -2117,11 +2053,7 @@
         // Add event listener for notifications button
         document.getElementById('enableNotifications').addEventListener('click', requestNotificationPermission);
     </script>
+    <!-- Load core module which defines the global App object with store, bus and navigation helpers -->
+    <script src="./app-core.js"></script>
 </body>
 </html>
-
-
-
-
-
-
