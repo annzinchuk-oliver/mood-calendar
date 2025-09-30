@@ -321,10 +321,13 @@ body.modal-open .calendar-cta{ display: none; }
   display: flex;
   gap: 8px;
   width: 100%;
+  justify-content: center; /* центрируем ряд кнопок */
 }
 
 .calendar-mood-buttons .mood-inline-btn {
-  flex: 1 1 0;
+  /* фиксированная квадратная форма для кнопок, чтобы походить на клетки календаря */
+  flex: none;
+  width: 44px;
   height: 44px;
   display: flex;
   align-items: center;
@@ -332,8 +335,9 @@ body.modal-open .calendar-cta{ display: none; }
   font-size: 24px;
   background: var(--surface);
   color: var(--text);
-  border: 2px solid var(--border);
-  border-radius: 12px;
+  /* слегка увеличиваем толщину рамки для лучшего восприятия на мобильных */
+  border: 4px solid var(--border);
+  border-radius: var(--radius-2);
   transition: background var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
 }
 .calendar-mood-buttons .mood-inline-btn:hover {
@@ -352,11 +356,12 @@ body.modal-open .calendar-cta{ display: none; }
 }
 
 @supports (color: color-mix(in srgb, var(--mood-happy) 50%, var(--border))) {
-  #happyMoodBtn { border-color: color-mix(in srgb, var(--mood-happy) 70%, var(--border)); }
-  #pleasedMoodBtn { border-color: color-mix(in srgb, var(--mood-pleased) 70%, var(--border)); }
-  #neutralMoodInlineBtn { border-color: color-mix(in srgb, var(--mood-neutral) 70%, var(--border)); }
-  #sadMoodInlineBtn { border-color: color-mix(in srgb, var(--mood-sad) 70%, var(--border)); }
-  #sorrowMoodBtn { border-color: color-mix(in srgb, var(--mood-sorrow) 70%, var(--border)); }
+  /* усиливаем цвет рамки: 80% цвета настроения + 20% основного бордера */
+  #happyMoodBtn { border-color: color-mix(in srgb, var(--mood-happy) 80%, var(--border)); }
+  #pleasedMoodBtn { border-color: color-mix(in srgb, var(--mood-pleased) 80%, var(--border)); }
+  #neutralMoodInlineBtn { border-color: color-mix(in srgb, var(--mood-neutral) 80%, var(--border)); }
+  #sadMoodInlineBtn { border-color: color-mix(in srgb, var(--mood-sad) 80%, var(--border)); }
+  #sorrowMoodBtn { border-color: color-mix(in srgb, var(--mood-sorrow) 80%, var(--border)); }
 }
 
 
@@ -405,9 +410,10 @@ body.popup-open{ overflow: hidden; }
 #sadMoodBtn { border-color: var(--border); }
 
 @supports (color: color-mix(in srgb, var(--mood-happy) 50%, var(--border))) {
-  #goodMoodBtn { border-color: color-mix(in srgb, var(--mood-happy) 70%, var(--border)); }
-  #neutralMoodBtn { border-color: color-mix(in srgb, var(--mood-neutral) 70%, var(--border)); }
-  #sadMoodBtn { border-color: color-mix(in srgb, var(--mood-sorrow) 70%, var(--border)); }
+  /* усиливаем цвет рамки у кнопок настроения в поп‑апе до 80% */
+  #goodMoodBtn { border-color: color-mix(in srgb, var(--mood-happy) 80%, var(--border)); }
+  #neutralMoodBtn { border-color: color-mix(in srgb, var(--mood-neutral) 80%, var(--border)); }
+  #sadMoodBtn { border-color: color-mix(in srgb, var(--mood-sorrow) 80%, var(--border)); }
 }
 
 /* Для читаемости подписи времени в поп-апе */
