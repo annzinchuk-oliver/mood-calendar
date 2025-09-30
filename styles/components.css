@@ -28,19 +28,23 @@
   outline-offset: 2px;
 }
 
-/* Primary-кнопки: задаём нейтральную границу по умолчанию, а насыщенную через color-mix, если поддерживается */
+/* Primary button styling uses semantic tokens.
+   We set a safe fallback for the border colour and use the
+   --on-brand token for text to adapt across themes.  When the
+   browser supports `color-mix`, we enhance the border colour. */
 .btn--primary {
-  border-color: var(--border); /* фолбэк */
+  /* Fallback border uses the generic border token */
+  border-color: var(--border);
   background: linear-gradient(135deg, var(--brand), var(--brand-2));
   color: var(--on-brand);
 }
+.btn--primary:hover { filter: brightness(1.03); }
 
 @supports (color: color-mix(in srgb, black, white)) {
   .btn--primary {
     border-color: color-mix(in srgb, var(--brand) 25%, var(--border));
   }
 }
-.btn--primary:hover { filter: brightness(1.03); }
 
 .btn--ghost { background: transparent; border-color: var(--border); }
 
@@ -70,27 +74,20 @@
 .filter-btn:hover { background: var(--hover); }
 .filter-btn.active {
   background: linear-gradient(135deg, var(--brand), var(--brand-2));
-  border-color: transparent; color: var(--on-brand);
+  border-color: transparent; color: #fff;
 }
 
 /* Кнопка в установочном баннере */
-/* Кнопка установки PWA: граница имеет фолбэк, а цвет рамки усиливается при поддержке color-mix */
 .install-btn {
   display:inline-flex; align-items:center; justify-content:center; gap: var(--space-2);
   padding: 10px 16px;
   border-radius: var(--radius-pill);
-  border: 1.5px solid var(--border); /* фолбэк */
+  border: 1.5px solid color-mix(in srgb, var(--brand) 25%, var(--border));
   background: linear-gradient(135deg, var(--brand), var(--brand-2));
-  color: var(--on-brand);
+  color:#fff;
   font: 600 var(--fs-sm)/1 var(--font-sans);
   box-shadow: var(--shadow-sm);
   cursor:pointer;
-}
-
-@supports (color: color-mix(in srgb, black, white)) {
-  .install-btn {
-    border-color: color-mix(in srgb, var(--brand) 25%, var(--border));
-  }
 }
 
 /* ---------- Cards ---------- */
@@ -151,7 +148,7 @@
 .message.user {
   align-self: flex-end;
   background: var(--success);
-  color: var(--on-brand);
+  color: #fff;
   border-bottom-right-radius: 6px;
 }
 .message.ai {
@@ -213,12 +210,7 @@
   color: var(--text);
   border: 1px solid var(--border);
 }
-.hour-block.has-data {
-  /* В разноцветных темах используем основной текстовый цвет,
-     чтобы текст не «проваливался» на светлой теме. */
-  color: var(--text);
-  font-weight: 700;
-}
+.hour-block.has-data { color: var(--text); font-weight: bold; }
 
 /* ---------- Nav & Send button (из чата/календаря) ---------- */
 .nav-btn {
@@ -232,17 +224,10 @@
   display: flex; align-items: center; justify-content: center;
   transition: all .2s ease;
 }
-/* Hover-эффект для навигационных кнопок — применяем только при наличии мыши */
-@media (hover: hover) and (pointer: fine) {
-  .nav-btn:hover {
-    background: var(--hover);
-    border-color: var(--border-strong);
-    transform: scale(1.1);
-  }
-}
-/* Активное состояние — слегка уменьшаем масштаб, без изменений фона */
-.nav-btn:active {
-  transform: scale(1.05);
+.nav-btn:hover, .nav-btn:active {
+  background: var(--hover);
+  border-color: var(--border-strong);
+  transform: scale(1.1);
 }
 
 .send-button {
@@ -250,7 +235,7 @@
   border: none; border-radius: 50%;
   width: 44px; height: 44px;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; color: var(--on-brand); font-size: 18px;
+  cursor: pointer; color: #fff; font-size: 18px;
   transition: all .2s ease;
 }
 .send-button:hover:not(:disabled) { filter: brightness(1.05); transform: scale(1.05); }
@@ -327,27 +312,53 @@
 body.modal-open .calendar-cta{ display: none; }
 .btn--xl { padding: 14px 18px; font-size: var(--fs-md); }
 
-/* Единый вид primary-кнопок (цвета — из токенов темы) */
-.calendar-cta .btn--primary{
-  /* Градиент и цвет текста остаются неизменными */
-  background: linear-gradient(135deg, var(--brand), var(--brand-2));
-  color: var(--on-brand);
-  box-shadow: var(--shadow-sm);
+/* === Calendar mood inline buttons === */
+/* Новый ряд из пяти кнопок для записи настроения. Заполняет ширину контейнера.
+   Каждая кнопка адаптируется под ширину: flex: 1 1 0;
+   Цветовая рамка указывает на соответствующий уровень настроения.
+*/
+.calendar-mood-buttons {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
 
-  /* Базовая рамка для всех браузеров; насыщенную цветом рамку задаём через @supports */
+.calendar-mood-buttons .mood-inline-btn {
+  flex: 1 1 0;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  background: var(--surface);
+  color: var(--text);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  transition: background var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
+}
+.calendar-mood-buttons .mood-inline-btn:hover {
+  background: var(--hover);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Цветовая индикация: сначала задаём безопасную базовую рамку,
+   затем улучшаем, если браузер поддерживает color-mix. */
+#happyMoodBtn,
+#pleasedMoodBtn,
+#neutralMoodInlineBtn,
+#sadMoodInlineBtn,
+#sorrowMoodBtn {
   border-color: var(--border);
 }
 
-@supports (color: color-mix(in srgb, black, white)) {
-  .calendar-cta .btn--primary{
-    border-color: color-mix(in srgb, var(--brand) 25%, var(--border));
-  }
+@supports (color: color-mix(in srgb, var(--mood-happy) 50%, var(--border))) {
+  #happyMoodBtn { border-color: color-mix(in srgb, var(--mood-happy) 70%, var(--border)); }
+  #pleasedMoodBtn { border-color: color-mix(in srgb, var(--mood-pleased) 70%, var(--border)); }
+  #neutralMoodInlineBtn { border-color: color-mix(in srgb, var(--mood-neutral) 70%, var(--border)); }
+  #sadMoodInlineBtn { border-color: color-mix(in srgb, var(--mood-sad) 70%, var(--border)); }
+  #sorrowMoodBtn { border-color: color-mix(in srgb, var(--mood-sorrow) 70%, var(--border)); }
 }
-.calendar-cta .btn--primary:hover{ filter: brightness(1.05); }
-.calendar-cta .btn--primary[disabled],
-.calendar-cta .btn--primary[aria-disabled="true"]{
-  opacity: .6; box-shadow: none;
-}
+
 
 .app-container{
   margin-bottom: 0;                                   /* убираем белый зазор */
@@ -365,7 +376,11 @@ body.modal-open .calendar-cta{ display: none; }
   border: 1px solid var(--border);
 }
 
-/* Удаляем дублирование: базовый стиль mood-btn описан ниже */
+.mood-btn{
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
 
 .mood-popup h3{ color: var(--text); }
 .mood-popup p { color: var(--text-muted); }
@@ -382,26 +397,17 @@ body.modal-open .calendar-cta{ display: none; }
   box-shadow: var(--shadow-sm);
 }
 
-/* Контур фокуса для доступности — виден при навигации по клавиатуре */
-.mood-btn:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--brand) 40%, transparent);
-  outline-offset: 2px;
-}
-
 body.popup-open{ overflow: hidden; }
-/* Цветовые акценты рамок
-   Для браузеров без поддержки color-mix даём фолбэк — обычную рамку. */
+/* Цветовые акценты рамок */
+/* Индикаторы для кнопок в pop-up записей настроения */
 #goodMoodBtn,
 #neutralMoodBtn,
-#sadMoodBtn {
-  border-color: var(--border);
-}
+#sadMoodBtn { border-color: var(--border); }
 
-@supports (color: color-mix(in srgb, black, white)) {
-  /* Если браузер умеет color-mix, задаём яркую рамку настроения */
-  #goodMoodBtn    { border-color: color-mix(in srgb, var(--success) 70%, var(--border)); }
-  #neutralMoodBtn { border-color: color-mix(in srgb, var(--warning) 70%, var(--border)); }
-  #sadMoodBtn     { border-color: color-mix(in srgb, var(--info)    70%, var(--border)); }
+@supports (color: color-mix(in srgb, var(--mood-happy) 50%, var(--border))) {
+  #goodMoodBtn { border-color: color-mix(in srgb, var(--mood-happy) 70%, var(--border)); }
+  #neutralMoodBtn { border-color: color-mix(in srgb, var(--mood-neutral) 70%, var(--border)); }
+  #sadMoodBtn { border-color: color-mix(in srgb, var(--mood-sorrow) 70%, var(--border)); }
 }
 
 /* Для читаемости подписи времени в поп-апе */
