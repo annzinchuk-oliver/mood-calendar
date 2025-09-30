@@ -1,19 +1,32 @@
 /**
- * app-core.js
- * Core: EventBus, Store (persist + versioning), Hash Router.
- * Vanilla JS, без зависимостей.
+ * Core logic for Mood Calendar: event bus, state management and simple router.
+ *
+ * The purpose of this module is to expose a global `App` object with a
+ * persistent store and a basic pub/sub system. It also provides simple
+ * navigation helpers which update the UI by toggling visibility of elements
+ * annotated with `data-page` attributes.
+ *
+ * Usage:
+ *   App.store.update('ui.theme', 'dark');
+ *   const state = App.store.getState();
+ *   App.bus.emit('event:name', payload);
+ *   App.bus.on('event:name', handler);
+ *   App.navigateTo('pageId');
  */
 
 (function (window, document) {
   'use strict';
 
-  // ===== Versioning =====
+  // Current version of the persisted store. Bump this when you change the
+  // structure of the initial state to force a reset of localStorage.
   const STORE_VERSION = 1;
   const STORE_KEY = 'appStore_v' + STORE_VERSION;
 
-  // ===== Event Bus (pub/sub) =====
-  const createEventBus = () => {
-    const listeners = new Map(); // event -> Set(callback)
+  /**
+   * Very small event bus. Allows you to subscribe to and emit events.
+   */
+  function createEventBus() {
+    const listeners = new Map();
     return {
       on(event, cb) {
         if (!listeners.has(event)) listeners.set(event, new Set());
@@ -27,46 +40,48 @@
       emit(event, payload) {
         if (!listeners.has(event)) return;
         for (const cb of listeners.get(event)) {
-          try { cb(payload); } catch (e) { console.error('EventBus listener error', e); }
+          try { cb(payload); } catch (err) { console.error(err); }
         }
       }
     };
-  };
+  }
 
-  // ===== Store with persist & selectors =====
-  const createStore = (initial) => {
-    // load persisted
-    let state = (() => {
-      try {
-        const raw = localStorage.getItem(STORE_KEY);
-        if (raw) return JSON.parse(raw);
-      } catch (_) {}
-      return JSON.parse(JSON.stringify(initial));
-    })();
-
+  /**
+   * Create a store with a persistent state. The store will merge patches
+   * into its internal state and notify subscribers when changes occur.
+   */
+  function createStore(initialState) {
+    // Attempt to load persisted state; fall back to initialState clone if none.
+    let state;
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      state = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(initialState));
+    } catch (err) {
+      state = JSON.parse(JSON.stringify(initialState));
+    }
     const subscribers = new Set();
 
-    const notify = () => {
-      for (const fn of subscribers) {
-        try { fn(state); } catch (e) { console.error('subscriber error', e); }
+    function persist() {
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify(state));
+      } catch (err) {
+        console.warn('Failed to persist state', err);
       }
-    };
+    }
 
-    const persist = () => {
-      try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
-      catch (e) { console.warn('Persist failed', e); }
-    };
+    function notify() {
+      subscribers.forEach((fn) => {
+        try { fn(state); } catch (err) { console.error(err); }
+      });
+    }
 
     return {
       getState() { return state; },
-      setState(patchOrFn, { silent = false } = {}) {
-        const next = typeof patchOrFn === 'function' ? patchOrFn(state) : { ...state, ...patchOrFn };
-        state = next;
-        persist();
-        if (!silent) notify();
-      },
+      /**
+       * Update a deep key in the state. Accepts a dot-separated path.
+       * Optionally suppress notifications (silent) to batch updates.
+       */
       update(path, value, { silent = false } = {}) {
-        // update('profile.theme', 'dark')
         const parts = path.split('.');
         const next = structuredClone(state);
         let node = next;
@@ -85,36 +100,39 @@
         return () => subscribers.delete(fn);
       }
     };
-  };
+  }
 
-  // ===== Initial State =====
+  // Baseline initial state for the application. You can extend this as the
+  // application grows; bump STORE_VERSION when you make incompatible changes.
   const initialState = {
     version: STORE_VERSION,
     ui: {
-      page: 'chat',   // 'chat' | 'practices' | 'tests' | 'settings' | 'sos' | 'profile' | 'stats' | 'calendar' | 'help'
-      theme: 'auto'   // 'auto' | 'light' | 'dark' | 'brand'
+      page: 'calendar',
+      theme: 'auto'
     },
     profile: {
       language: 'ru',
       soundOn: true,
-      averages: {},    // computed
-      triggers: {},    // computed
-      helps: []        // e.g. practices that helped
+      averages: {},
+      triggers: {},
+      helps: []
     },
-    journal: [],       // {id, dateISO, text, mood?, tags?: string[], source?: 'chat'|'quick'|'practice'}
+    journal: [],
     testsResults: {
-      phq2: []         // {dateISO, score, answers}
+      phq2: []
     },
     catalog: {
-      tests: [],       // from JSON later
-      practices: []    // from JSON later
+      tests: [],
+      practices: []
     },
     settings: {
-      reminders: []    // {id, type: 'daily'|'weekly', hour, minute, dow?: number[]}
+      reminders: []
     }
   };
 
-  // ===== Theme helper =====
+  /**
+   * Apply a theme by setting the `data-theme` attribute on the root element.
+   */
   function applyTheme(theme) {
     const root = document.documentElement;
     if (theme === 'auto') {
@@ -124,61 +142,74 @@
     }
   }
 
-  // ===== Router (hash-based) =====
+  /**
+   * Show only the page matching the given identifier. Pages should be marked
+   * with a `data-page` attribute whose value matches the id.
+   */
   function showPage(id) {
     const pages = document.querySelectorAll('[data-page]');
-    pages.forEach(p => {
-      p.style.display = p.getAttribute('data-page') === id ? '' : 'none';
+    pages.forEach((el) => {
+      if (el.getAttribute('data-page') === id) {
+        el.style.display = '';
+      } else {
+        el.style.display = 'none';
+      }
     });
   }
 
+  /**
+   * Navigate to a page id. Updates the hash and persists page in store.
+   */
   function navigateTo(id) {
-    if (!id) id = 'chat';
+    // default fallback
+    if (!id) id = 'calendar';
     if (location.hash !== '#' + id) {
       location.hash = id;
     }
     showPage(id);
-    window.App.store.update('ui.page', id, { silent: true });
-    window.App.bus.emit('route:change', id);
+    store.update('ui.page', id, { silent: true });
+    bus.emit('route:change', id);
   }
 
   function handleHashChange() {
-    const id = (location.hash || '#chat').slice(1);
+    const id = (location.hash || '#calendar').slice(1);
     navigateTo(id);
   }
 
-  // ===== Boot =====
-  function boot() {
-    const bus = createEventBus();
-    const store = createStore(initialState);
+  // Create bus and store at module initialisation time so they are ready
+  const bus = createEventBus();
+  const store = createStore(initialState);
 
-    window.App = Object.freeze({ bus, store, navigateTo });
+  // Expose the App object globally. Use Object.freeze to prevent tampering.
+  window.App = Object.freeze({ bus, store, navigateTo });
 
-    // Theme watch
-    applyTheme(store.getState().ui.theme);
-    store.subscribe((s) => applyTheme(s.ui.theme));
+  // Apply the persisted or initial theme immediately.
+  applyTheme(store.getState().ui.theme);
+  // Subscribe to store updates and apply theme changes automatically.
+  store.subscribe((state) => applyTheme(state.ui.theme));
 
-    // Router
+  // Boot the router when DOM is ready.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      window.addEventListener('hashchange', handleHashChange);
+      handleHashChange();
+      bus.emit('app:ready');
+    });
+  } else {
     window.addEventListener('hashchange', handleHashChange);
-    handleHashChange(); // initial
+    handleHashChange();
+    bus.emit('app:ready');
+  }
 
-    // Nav helpers: любой элемент с [data-nav="pageId"]
-    document.addEventListener('click', (e) => {
-      const el = e.target.closest('[data-nav]');
-      if (!el) return;
-      const id = el.getAttribute('data-nav');
+  // Allow navigation via elements with data-nav attributes.
+  document.addEventListener('click', (e) => {
+    const nav = e.target.closest('[data-nav]');
+    if (!nav) return;
+    const id = nav.getAttribute('data-nav');
+    if (id) {
       e.preventDefault();
       navigateTo(id);
-    });
-
-    bus.emit('app:ready', null);
-  }
-
-  // DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
-  } else {
-    boot();
-  }
+    }
+  });
 
 })(window, document);
