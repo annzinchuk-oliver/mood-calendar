@@ -560,3 +560,15 @@ a, .link { color: var(--brand); text-decoration: none; }
 [data-theme="light"] .link:hover { color: #4338ca; }     /* на тон темнее для света */
 :root[data-theme^="dark"] a:hover,
 [data-theme^="dark"] .link:hover { color: #a5b4fc; }     /* на тон светлее для тьмы */
+
+.day--happy   { background: var(--calendar-fill-happy);   color: var(--palette-text); }
+.day--pleased { background: var(--calendar-fill-pleased); color: var(--palette-text); }
+.day--neutral { background: var(--calendar-fill-neutral); color: var(--palette-text); }
+.day--sad     { background: var(--calendar-fill-sad);     color: var(--palette-text); }
+.day--sorrow  { background: var(--calendar-fill-sorrow);  color: var(--palette-text); }
+
+/* тонкая внутренняя окантовка для читабельности */
+.day--happy, .day--pleased, .day--neutral, .day--sad, .day--sorrow {
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--palette-border) 50%, transparent);
+}
+
