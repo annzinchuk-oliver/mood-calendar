@@ -165,6 +165,23 @@
   --chart-neutral: var(--warning);
   --chart-sad: var(--info);
 
+  /*
+   * Расширенная шкала настроений (5 уровней).
+   * Для смешанных оттенков используем color-mix: счастливое на основе good,
+   * довольное — смесь good и neutral, грустное — смесь neutral и sad,
+   * печальное (sorrow) — исходный sad.
+   */
+  --mood-happy: var(--palette-good);
+  --mood-pleased: color-mix(in srgb, var(--palette-good) 60%, var(--palette-neutral) 40%);
+  --mood-neutral: var(--palette-neutral);
+  --mood-sad: color-mix(in srgb, var(--palette-neutral) 40%, var(--palette-sad) 60%);
+  --mood-sorrow: var(--palette-sad);
+
+  /* Aliases for backward compatibility */
+  --mood-good: var(--mood-happy);
+  --mood-sad-old: var(--mood-sorrow);
+  --mood-sad: var(--mood-sorrow);
+
   /* Текст/фон для инвертированных элементов */
   --on-brand: #ffffff;
 }
@@ -184,8 +201,11 @@
   /* hover для дней календаря */
   --day-hover: var(--hover);
 
-  /* настроения */
-  --mood-good: var(--success);
-  --mood-neutral: var(--warning);
-  --mood-sad: var(--info);
+  /* настроения
+   * Для трёхстарого API оставляем алиасы на новую палитру.
+   * good → happy, neutral → neutral, sad → sorrow
+   */
+  --mood-good: var(--mood-happy);
+  --mood-neutral: var(--mood-neutral);
+  --mood-sad: var(--mood-sorrow);
 }
