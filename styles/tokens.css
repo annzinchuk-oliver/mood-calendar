@@ -114,6 +114,26 @@
   --bucket-neg50: #1d4ed8; /* насыщенно-синий 100% */
 }
 
+[data-theme="dark"] {
+  /* Тёмная тема: приглушаем оттенки, чтобы не слепили */
+  /* +сторона (зелёные) — меньше светлоты */
+  --bucket-pos50: #1fa857;  /* было #16a34a */
+  --bucket-pos40: color-mix(in srgb, #1fa857 78%, #111827 22%);
+  --bucket-pos30: color-mix(in srgb, #1fa857 62%, #111827 38%);
+  --bucket-pos20: color-mix(in srgb, #1fa857 48%, #111827 52%);
+  --bucket-pos10: color-mix(in srgb, #1fa857 34%, #111827 66%);
+
+  /* 0 — более спокойный жёлтый */
+  --bucket-zero:  #f2cc47; /* вместо #fde047 */
+
+  /* −сторона (синие) — темнее и насыщеннее */
+  --bucket-neg10: color-mix(in srgb, #3558d6 42%, #0b1220 58%);
+  --bucket-neg20: color-mix(in srgb, #2b4fd1 55%, #0b1220 45%);
+  --bucket-neg30: color-mix(in srgb, #2446c9 68%, #0b1220 32%);
+  --bucket-neg40: color-mix(in srgb, #1f3fbd 80%, #0b1220 20%);
+  --bucket-neg50: #1e3a8a; /* вместо #1d4ed8 – меньше «синего прожектора» */
+}
+
 :root {
    --calendar-fill-happy:   color-mix(in srgb, var(--palette-surface) 72%, var(--mood-happy) 28%);
    --calendar-fill-pleased: color-mix(in srgb, var(--palette-surface) 72%, var(--mood-pleased) 28%);
