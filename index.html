@@ -765,12 +765,13 @@
           </div>
         </div>
 
-        <div id="moodSliderPopup" class="mood-popup hidden">
+       <div id="moodSliderPopup" class="mood-popup hidden">
           <div class="mood-popup-content">
             <h3>Как вы себя чувствуете?</h3>
 
             <div class="mood-range-row">
-              <span class="mood-emoji" aria-hidden="true" title="Хорошо">😄</span>
+              <!-- СЛЕВА — грустный -->
+              <span class="mood-emoji" aria-hidden="true" title="Плохо">😢</span>
 
               <input
                 id="moodSlider"
@@ -779,7 +780,8 @@
                 class="mood-range"
                 aria-label="Ползунок настроения от −5 до +5">
 
-              <span class="mood-emoji" aria-hidden="true" title="Плохо">😢</span>
+              <!-- СПРАВА — счастливый -->
+              <span class="mood-emoji" aria-hidden="true" title="Хорошо">😄</span>
             </div>
 
             <div class="mood-actions">
@@ -2116,23 +2118,19 @@
         }
 
         function updateSliderGlow() {
-          const slider = document.getElementById('moodSlider');
-          if (!slider) return;
+          const el = document.getElementById('moodSlider');
+          if (!el) return;
+          const val = parseInt(el.value, 10) || 0;      // -5..+5
+          const ratio = Math.min(Math.abs(val) / 5, 1); // 0..1
+          const sizePx = 3 + Math.round(7 * ratio);     // 3..10
 
-          const value = parseInt(slider.value, 10) || 0;
-          const ratio = Math.min(Math.abs(value) / 5, 1);
-          const sizePx = 3 + Math.round(7 * ratio);
-
+          // теперь: слева (val < 0) — СИНИЙ, справа (val > 0) — ЗЕЛЁНЫЙ
           let color = 'rgba(0,0,0,0)';
-          const rootStyles = getComputedStyle(document.documentElement);
-          if (value > 0) {
-            color = rootStyles.getPropertyValue('--thumb-pos').trim() || 'rgba(22,163,74,.45)';
-          } else if (value < 0) {
-            color = rootStyles.getPropertyValue('--thumb-neg').trim() || 'rgba(29,78,216,.45)';
-          }
+          if (val < 0) color = getComputedStyle(document.documentElement).getPropertyValue('--thumb-neg').trim() || 'rgba(29,78,216,.45)';
+          if (val > 0) color = getComputedStyle(document.documentElement).getPropertyValue('--thumb-pos').trim() || 'rgba(22,163,74,.45)';
 
-          slider.style.setProperty('--thumb-glow', color);
-          slider.style.setProperty('--glow-size', sizePx + 'px');
+          el.style.setProperty('--thumb-glow', color);
+          el.style.setProperty('--glow-size', sizePx + 'px');
         }
 
         function pingSliderThumbOnce() {
@@ -2169,9 +2167,9 @@
         function confirmMoodScore() {
           const slider = document.getElementById('moodSlider');
           const raw = slider ? parseInt(slider.value, 10) : 0;
-          const delta = -(raw || 0);
+          const delta = raw;               // ПЛЮС справа, МИНУС слева
           recordScore(delta);
-          pingSliderThumbOnce();
+          pingSliderThumbOnce && pingSliderThumbOnce();
           closeMoodSlider();
         }
         
@@ -2236,6 +2234,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
