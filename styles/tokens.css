@@ -86,20 +86,21 @@ LIGHT THEME — базовые токены (по умолчанию)
 /* ==========================================================
    DARK THEME — оверрайды для data-theme="dark"
    ========================================================== */
+
 [data-theme="dark"] {
 
-  --palette-surface: #0b121a;
-  --palette-surface-variant: #111827;
-  --text-primary: #e5e7eb;
-  --text-muted: #9aa3b2;
+  --palette-surface: #151a23;
+  --palette-surface-variant: #1a202b;
+  --text-primary: #e8edf4;
+  --text-muted: #aeb6c3;
 
   --brand: #7c4dff;
   --brand-2: color-mix(in srgb, #7c4dff 72%, #433196 28%);
   --on-brand: #ffffff;
 
-  --palette-border: #1f2937;
-  --palette-border-strong: #334155;
-  --palette-hover: #182030;
+  --palette-border: #202838;
+  --palette-border-strong: #2f3a4d;
+  --palette-hover: #20293a;
 
   --palette-bg: var(--palette-surface-variant);
   --palette-text: var(--text-primary);
@@ -186,16 +187,16 @@ LIGHT THEME — базовые токены (по умолчанию)
 /* Авто-тёмная, если не указан data-theme явно */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-    --palette-surface: #0b121a;
-    --palette-surface-variant: #111827;
-    --text-primary: #e5e7eb;
-    --text-muted: #9aa3b2;
+    --palette-surface: #151a23;
+    --palette-surface-variant: #1a202b;
+    --text-primary: #e8edf4;
+    --text-muted: #aeb6c3;
     --brand: #7c4dff;
     --brand-2: color-mix(in srgb, #7c4dff 72%, #433196 28%);
     --on-brand: #ffffff;
-    --palette-border: #1f2937;
-    --palette-border-strong: #334155;
-    --palette-hover: #182030;
+    --palette-border: #202838;
+    --palette-border-strong: #2f3a4d;
+    --palette-hover: #20293a;
     --palette-bg: var(--palette-surface-variant);
     --palette-text: var(--text-primary);
     --palette-text-muted: var(--text-muted);
