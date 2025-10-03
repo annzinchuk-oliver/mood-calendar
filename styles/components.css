@@ -667,9 +667,9 @@ a, .link { color: var(--brand); text-decoration: none; }
   height: 14px;
   border-radius: 999px;
   background: linear-gradient(90deg,
-              var(--slider-green) 0%,
+              var(--slider-blue) 0%,
               var(--slider-mid) 50%,
-              var(--slider-blue) 100%);
+              var(--slider-green) 100%);
   outline: none;
   border: 1px solid rgba(0,0,0,.12);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
