@@ -170,9 +170,9 @@
         }
 
         .day.today {
-            border-color: var(--mood-sad);
-            border-width: 3px;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-color: var(--score-zero);
+            border-width: 3px;␊
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);␊
         }
 
         .day.has-mood {
@@ -724,30 +724,6 @@
         </div>
     </div>
     
-    
-    <div id="moodPopup" class="mood-popup hidden">
-        <div class="mood-popup-content">
-            <h3>Как ваше настроение?</h3>
-            <p id="timeDisplay">Время записать настроение</p>
-            
-            <div class="mood-buttons">
-                <button class="mood-btn" id="goodMoodBtn" onclick="recordMood('good')">
-                    <span class="mood-emoji">😊</span>
-                    <span>Хорошее</span>
-                </button>
-                <button class="mood-btn" id="neutralMoodBtn" onclick="recordMood('neutral')">
-                    <span class="mood-emoji">😐</span>
-                    <span>Нейтральное</span>
-                </button>
-                <button class="mood-btn" id="sadMoodBtn" onclick="recordMood('sad')">
-                    <span class="mood-emoji">😢</span>
-                    <span>Грустное</span>
-                </button>
-            </div>
-
-            <button class="skip-btn" onclick="closeMoodPopup()">Пропустить</button>
-        </div>
-    </div>
 
 <!-- ===== Therapy Modal ===== -->
         <div id="therapyPopup" class="mood-popup hidden">
@@ -1161,15 +1137,15 @@
         ];
 
         // Initialize app
-        document.addEventListener('DOMContentLoaded', async function() {
-          await runMigrationsIfNeeded();   // ← добавили
+         document.addEventListener('DOMContentLoaded', async function() {
+          await runMigrationsIfNeeded();   // ← добавили␊
           loadData();
           loadTheme();
           updateCalendar();
           checkNotificationPermission();
           scheduleNotifications();
           switchPage('calendar');
-          document.getElementById('addMoodBtn')?.addEventListener('click', triggerMoodCheck);
+          document.getElementById('addMoodBtn')?.addEventListener('click', openMoodSlider);
             
           setupChatInput();
           maybeProactiveChat();
@@ -1710,7 +1686,7 @@
                     
                     notification.onclick = function() {
                         window.focus();
-                        triggerMoodCheck();
+                        openMoodSlider();
                         notification.close();
                     };
                 }
@@ -1912,100 +1888,7 @@
                 console.log('Error in proactive chat:', e);
             }
         }
-
-        // Mood recording
-        function triggerMoodCheck() {
-          const now = new Date();
-          const hours = now.getHours().toString().padStart(2, '0');
-          const minutes = now.getMinutes().toString().padStart(2, '0');
-          document.getElementById('timeDisplay').textContent =
-            `${hours}:${minutes} - Время записать настроение`;
-            
-            updateMoodButtonColors();
-            document.getElementById('moodPopup').classList.remove('hidden');
-            document.body.classList.add('modal-open'); 
-        }
-
-        function updateMoodButtonColors() {
-          const good    = getCSSVariable('--mood-good');
-          const neutral = getCSSVariable('--mood-neutral');
-          const sad     = getCSSVariable('--mood-sad');
-        
-          const g = document.getElementById('goodMoodBtn');
-          const n = document.getElementById('neutralMoodBtn');
-          const s = document.getElementById('sadMoodBtn');
-        
-          if (g) g.style.borderColor = good;
-          if (n) n.style.borderColor = neutral;
-          if (s) s.style.borderColor = sad;
-        }
-
-        function recordMood(mood) {
-            const now = new Date();
-            const dateKey = getDateKey(now);
-            const hour = now.getHours();
-            const minute = now.getMinutes();
-            const timestamp = now.getTime();
-            
-            const moodEntry = {
-                hour: hour,
-                minute: minute,
-                mood: mood,
-                timestamp: timestamp
-            };
-            
-            if (!moodData[dateKey]) {
-                moodData[dateKey] = [];
-            }
-            
-            moodData[dateKey].push(moodEntry);
-            calculateDayMood(dateKey);
-            saveData();
-            updateCalendar();
-            closeMoodPopup();
-            maybeProactiveChat();
-            
-            console.log(`Записано настроение: ${mood} в ${hour}:${minute.toString().padStart(2, '0')}`);
-        }
-
-        function calculateDayMood(dateKey) {
-            const dayEntries = moodData[dateKey] || [];
-            
-            if (dayEntries.length === 0) return;
-
-            const moodCounts = dayEntries.reduce((acc, entry) => {
-                acc[entry.mood] = (acc[entry.mood] || 0) + 1;
-                return acc;
-            }, {});
-
-            const dominantMood = Object.keys(moodCounts).reduce((a, b) => 
-                moodCounts[a] > moodCounts[b] ? a : b
-            );
-
-            dailyMoods[dateKey] = dominantMood;
-        }
-
-        function closeMoodPopup() {
-          document.getElementById('moodPopup').classList.add('hidden');
-          document.body.classList.remove('modal-open');
-        }
-
-        /* свайп вниз для закрытия окна настроения */
-        (function enableMoodSwipe(){
-          const panel = document.querySelector('#moodPopup .mood-popup-content');
-          if (!panel) return;
-          let sy=0, dy=0;
-          panel.addEventListener('touchstart',e=>{ sy = e.touches[0].clientY; dy=0; });
-          panel.addEventListener('touchmove',e=>{
-            dy = e.touches[0].clientY - sy;
-            if (dy>0){ panel.style.transform = `translateY(${dy}px)`; }
-          }, {passive:true});
-          panel.addEventListener('touchend',()=>{
-            if (dy>80) closeMoodPopup();
-            panel.style.transform = '';
-          });
-        })();
-        
+       
         // Calendar functions
         function navigateMonth(direction) {
             selectedDate.setMonth(selectedDate.getMonth() + direction);
@@ -2156,4 +2039,5 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
