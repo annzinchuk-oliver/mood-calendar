@@ -1929,26 +1929,27 @@
               if (isToday) dayDiv.classList.add('today');
         
               // задаём фон на основе среднего балла
-              const avgScore = dailyScores[dateKey];
-              if (typeof avgScore === 'number') {
-                dayDiv.classList.add('has-mood');
-                let varName;
-                if (avgScore >= 2.5)      varName = '--score-pos3';
-                else if (avgScore >= 1.5) varName = '--score-pos2';
-                else if (avgScore >= 0.5) varName = '--score-pos1';
-                else if (avgScore > -0.5) varName = '--score-zero';
-                else if (avgScore > -1.5) varName = '--score-neg1';
-                else if (avgScore > -2.5) varName = '--score-neg2';
-                else                      varName = '--score-neg3';
-                const base = getCSSVariable(varName);
-                dayDiv.style.background = base;
-                dayDiv.style.background = `linear-gradient(135deg, ${base}, ${darker})`;
-              } else if (isToday) {
-                // подсветить сегодняшний день, если ещё нет оценки
-                const base = getCSSVariable('--score-zero');
-                dayDiv.style.background = base;
-                dayDiv.style.background = `linear-gradient(135deg, ${base}, ${darker})`;
-              }
+             const avgScore = dailyScores[dateKey];
+
+            if (typeof avgScore === 'number') {
+              dayDiv.classList.add('has-mood');
+            
+              let varName;
+              if (avgScore >= 2.5)      varName = '--score-pos3';
+              else if (avgScore >= 1.5) varName = '--score-pos2';
+              else if (avgScore >= 0.5) varName = '--score-pos1';
+              else if (avgScore > -0.5) varName = '--score-zero';
+              else if (avgScore > -1.5) varName = '--score-neg1';
+              else if (avgScore > -2.5) varName = '--score-neg2';
+              else                      varName = '--score-neg3';
+            
+              const base = getCSSVariable(varName) || getCSSVariable('--score-zero');
+              // ЧИСТЫЙ цвет, без градиента:
+              dayDiv.style.background = base;
+            } else if (isToday) {
+              const base = getCSSVariable('--score-zero');
+              dayDiv.style.background = base;
+            }
         
               dayDiv.textContent = current.getDate();
               weekDiv.appendChild(dayDiv);
@@ -2039,6 +2040,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
