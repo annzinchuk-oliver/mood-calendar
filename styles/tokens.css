@@ -98,13 +98,20 @@
   --score-neg3:  #2563eb;
 
   /* заливки для календаря */
-  --calendar-fill-pos3:  color-mix(in srgb, var(--palette-surface) 70%, var(--score-pos3) 30%);
-  --calendar-fill-pos2:  color-mix(in srgb, var(--palette-surface) 72%, var(--score-pos2) 28%);
-  --calendar-fill-pos1:  color-mix(in srgb, var(--palette-surface) 74%, var(--score-pos1) 26%);
-  --calendar-fill-zero:  color-mix(in srgb, var(--palette-surface) 76%, var(--score-zero) 24%);
-  --calendar-fill-neg1:  color-mix(in srgb, var(--palette-surface) 74%, var(--score-neg1) 26%);
-  --calendar-fill-neg2:  color-mix(in srgb, var(--palette-surface) 72%, var(--score-neg2) 28%);
-  --calendar-fill-neg3:  color-mix(in srgb, var(--palette-surface) 70%, var(--score-neg3) 30%);
+ /* Бакеты суммы (-50..+50) */
+  --bucket-pos50: #16a34a; /* зелёный 100% */
+  --bucket-pos40: color-mix(in srgb, #16a34a 80%, #ffffff 20%);
+  --bucket-pos30: color-mix(in srgb, #16a34a 65%, #ffffff 35%);
+  --bucket-pos20: color-mix(in srgb, #16a34a 50%, #ffffff 50%);
+  --bucket-pos10: color-mix(in srgb, #16a34a 35%, #ffffff 65%);
+
+  --bucket-zero:  #fde047; /* бледно-жёлтый (база) */
+
+  --bucket-neg10: color-mix(in srgb, #1d4ed8 35%, #ffffff 65%); /* светло-синий */
+  --bucket-neg20: color-mix(in srgb, #1d4ed8 50%, #ffffff 50%);
+  --bucket-neg30: color-mix(in srgb, #1d4ed8 65%, #ffffff 35%);
+  --bucket-neg40: color-mix(in srgb, #1d4ed8 80%, #ffffff 20%);
+  --bucket-neg50: #1d4ed8; /* насыщенно-синий 100% */
 }
 
 :root {
