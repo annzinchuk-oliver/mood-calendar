@@ -765,24 +765,27 @@
           </div>
         </div>
 
- <div id="moodSliderPopup" class="mood-popup hidden">
+        <div id="moodSliderPopup" class="mood-popup hidden">
           <div class="mood-popup-content">
             <h3>Как вы себя чувствуете?</h3>
-            <div style="display:flex;align-items:center;gap:8px;margin:16px 0;">
-              <span style="font-size:28px;">😢</span>
+
+            <div class="mood-range-row">
+              <span class="mood-emoji" aria-hidden="true" title="Хорошо">😄</span>
+
               <input
                 id="moodSlider"
                 type="range"
-                min="-5"
-                max="5"
-                step="1"
-                value="0"
-                aria-label="Ползунок настроения от −5 до +5"
-                style="flex:1;">
-              <span style="font-size:28px;">😄</span>
+                min="-5" max="5" step="1" value="0"
+                class="mood-range"
+                aria-label="Ползунок настроения от −5 до +5">
+
+              <span class="mood-emoji" aria-hidden="true" title="Плохо">😢</span>
             </div>
-            <button class="btn btn--primary" onclick="confirmMoodScore()">Подтвердить</button>
-            <div class="skip-btn" onclick="closeMoodSlider()">Закрыть</div>
+
+            <div class="mood-actions">
+              <button class="btn btn--primary" onclick="confirmMoodScore()">Подтвердить</button>
+              <button class="link-btn" onclick="closeMoodSlider()">Закрыть</button>
+            </div>
           </div>
         </div>
 
@@ -2112,23 +2115,63 @@
           alert(text);
         }
 
+        function updateSliderGlow() {
+          const slider = document.getElementById('moodSlider');
+          if (!slider) return;
+
+          const value = parseInt(slider.value, 10) || 0;
+          const ratio = Math.min(Math.abs(value) / 5, 1);
+          const sizePx = 3 + Math.round(7 * ratio);
+
+          let color = 'rgba(0,0,0,0)';
+          const rootStyles = getComputedStyle(document.documentElement);
+          if (value > 0) {
+            color = rootStyles.getPropertyValue('--thumb-pos').trim() || 'rgba(22,163,74,.45)';
+          } else if (value < 0) {
+            color = rootStyles.getPropertyValue('--thumb-neg').trim() || 'rgba(29,78,216,.45)';
+          }
+
+          slider.style.setProperty('--thumb-glow', color);
+          slider.style.setProperty('--glow-size', sizePx + 'px');
+        }
+
+        function pingSliderThumbOnce() {
+          const slider = document.getElementById('moodSlider');
+          if (!slider) return;
+
+          slider.animate([
+            { transform: 'scale(1)' },
+            { transform: 'scale(1.05)' },
+            { transform: 'scale(1)' }
+          ], { duration: 180, easing: 'ease-out' });
+        }
+
         // открыть модальное окно со слайдером
         function openMoodSlider() {
-          document.getElementById('moodSlider').value = 0;
+          const slider = document.getElementById('moodSlider');
+          if (slider) {
+            slider.value = 0;
+            slider.removeEventListener('input', updateSliderGlow);
+            slider.addEventListener('input', updateSliderGlow);
+            updateSliderGlow();
+          }
           document.getElementById('moodSliderPopup').classList.remove('hidden');
           document.body.classList.add('modal-open');
         }
-        
+
         // закрыть модальное окно со слайдером
         function closeMoodSlider() {
           document.getElementById('moodSliderPopup').classList.add('hidden');
           document.body.classList.remove('modal-open');
         }
-        
+
         // считать значение слайдера и записать настроение
         function confirmMoodScore() {
-          const score = parseInt(document.getElementById('moodSlider').value, 10);
-          recordScore(score);
+          const slider = document.getElementById('moodSlider');
+          const raw = slider ? parseInt(slider.value, 10) : 0;
+          const delta = -(raw || 0);
+          recordScore(delta);
+          pingSliderThumbOnce();
           closeMoodSlider();
         }
         
@@ -2193,6 +2236,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
