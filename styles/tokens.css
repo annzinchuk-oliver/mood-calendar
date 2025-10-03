@@ -89,10 +89,11 @@ LIGHT THEME — базовые токены (по умолчанию)
 
 [data-theme="dark"] {
 
-  --palette-surface: #151a23;
-  --palette-surface-variant: #1a202b;
-  --text-primary: #e8edf4;
-  --text-muted: #aeb6c3;
+  /* тёмная тема — мягче и читабельнее */
+  --palette-surface: #1b2431;
+  --palette-surface-variant: #232d3c;
+  --text-primary: #eef3f8;
+  --text-muted: #b7c0cd;
 
   --brand: #7c4dff;
   --brand-2: color-mix(in srgb, #7c4dff 72%, #433196 28%);
