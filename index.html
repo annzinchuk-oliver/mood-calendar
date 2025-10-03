@@ -37,36 +37,34 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-          .header {
+         .app-header {
           background: linear-gradient(135deg, var(--brand), var(--brand-2));
-          padding: 20px;
+          padding: 16px 20px;
           color: #fff;
-          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          border-radius: 16px;
+          box-shadow: 0 10px 26px rgba(79, 70, 229, 0.2);
+        }
+
+        .header-left {
           display: flex;
           flex-direction: column;
+          gap: 8px;
+        }
+
+        .app-title {
+          font-size: 22px;
+          font-weight: 700;
+          margin: 0;
+        }
+
+        .header-right {
+          display: flex;
           align-items: center;
           gap: 12px;
-          text-align: center;
-        }
-
-        .today-score-badge {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          padding: 6px 14px;
-          border-radius: 999px;
-          font-size: 14px;
-          font-weight: 600;
-          background-color: var(--today-color, #fde047);
-          color: #1f2937;
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-          transition: background-color 0.2s ease, color 0.2s ease;
-        }
-
-        .header h1 {
-          font-size: 22px;
-          font-weight: bold;
-          margin: 0;
         }
 
         .month-nav {
@@ -128,8 +126,8 @@
         }
 
         [data-theme="dark"] .theme-toggle__knob {
-          background: #111827;
-          color: #e5e7eb;
+          background: var(--palette-surface);
+          color: var(--text-primary);
           border-color: rgba(255,255,255,.08);
         }
 
@@ -150,12 +148,11 @@
             padding: 20px;
         }
 
-        .today-score{
-          --today-color: var(--score-zero);
+        .today-score {
+          --today-color: var(--bucket-zero);
           display: inline-flex;
           align-items: center;
           gap: .5rem;
-          margin: 8px 0 12px;
           padding: 6px 12px;
           border-radius: 999px;
           border: 2px solid var(--today-color);
@@ -164,6 +161,14 @@
           font-weight: 700;
         }
         .today-score.hidden{ display:none; }
+
+        .week { gap: 6px; }
+
+        .day {
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.05),
+            0 0 0 1px rgba(0,0,0,0.40);
+        }
 
        .weekdays {
             display: grid;
@@ -531,29 +536,32 @@
             <button id="enableNotifications" class="btn btn--ghost">🔔 Включить уведомления</button>
         </div>
 
-        
-        <div class="header">
-            <h1>📅 Календарь Настроения</h1>
+        <header class="app-header">
+          <div class="header-left">
+            <h1 class="app-title">📅 Календарь Настроения</h1>
+          </div>
 
-            <div id="todayScoreBadge" class="today-score-badge hidden"></div>
-        </div>
+          <div class="header-right">
+            <div id="todayScoreBadge" class="today-score hidden" aria-live="polite"></div>
+
+            <div class="theme-toggle" role="group" aria-label="Переключить тему">
+              <button id="themeToggle" class="theme-toggle__knob" type="button" aria-pressed="false" title="Сменить тему">
+                <span class="theme-toggle__icon theme-toggle__icon--moon" aria-hidden="true">🌙</span>
+                <span class="theme-toggle__label">Тема</span>
+                <span class="theme-toggle__icon theme-toggle__icon--sun" aria-hidden="true">☀️</span>
+              </button>
+            </div>
+          </div>
+        </header>
         
         <div class="calendar-page" id="calendarPage">
           <div class="month-nav">
                 <button class="btn btn--ghost btn--icon" onclick="navigateMonth(-1)">←</button>
                 <div class="month-nav__title-group">
                     <div class="month-title" id="monthTitle"></div>
-                    <div class="theme-toggle" role="group" aria-label="Переключить тему">
-                      <button id="themeToggle" class="theme-toggle__knob" type="button" aria-pressed="false"
-                              title="Сменить тему">
-                        <span class="theme-toggle__icon theme-toggle__icon--moon" aria-hidden="true">🌙</span>
-                        <span class="theme-toggle__label">Тема</span>
-                        <span class="theme-toggle__icon theme-toggle__icon--sun" aria-hidden="true">☀️</span>
-                      </button>
-                    </div>
                 </div>
                 <button class="btn btn--ghost btn--icon" onclick="navigateMonth(1)">→</button>
-            </div>
+          </div>
 
             <div class="calendar">
                  <div class="weekdays">
@@ -567,9 +575,7 @@
                 </div>
                 <div id="calendarDays"></div>
              </div>
-             <!-- Бейдж со счётом за сегодня -->
-             <div id="todayScoreBadge" class="today-score hidden" aria-live="polite"></div>
-                        <!-- Fixed action buttons (только для календаря) -->
+
          <div class="calendar-cta">
             <!-- Ряд из 5 смайлов для быстрого выбора настроения -->
             <button id="recordMoodBtn" class="btn btn--primary btn--xl" onclick="openMoodSlider()">
@@ -2053,7 +2059,7 @@
                 dayDiv.style.color = isNeg ? '#ffffff' : '#0b121a';
 
                 dayDiv.style.boxShadow =
-                  'inset 0 1px 0 rgba(255,255,255,0.06), 0 0 0 1px rgba(0,0,0,0.45)';
+                  'inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(0,0,0,0.40)';
                 dayDiv.style.borderColor = 'transparent';
               } else if (isToday) {
                 const bg = getCSSVariable('--bucket-zero');
@@ -2061,7 +2067,7 @@
                 dayDiv.style.backgroundImage = 'none';
                 dayDiv.style.color = '#0b121a';
                 dayDiv.style.boxShadow =
-                  'inset 0 1px 0 rgba(255,255,255,0.06), 0 0 0 1px rgba(0,0,0,0.45)';
+                  'inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(0,0,0,0.40)';
               }
 
               dayDiv.textContent = current.getDate();
@@ -2189,6 +2195,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
