@@ -561,6 +561,22 @@ a, .link { color: var(--brand); text-decoration: none; }
 :root[data-theme^="dark"] a:hover,
 [data-theme^="dark"] .link:hover { color: #a5b4fc; }     /* на тон светлее для тьмы */
 
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.day {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
 .day--happy   { background: var(--calendar-fill-happy);   color: var(--palette-text); }
 .day--pleased { background: var(--calendar-fill-pleased); color: var(--palette-text); }
 .day--neutral { background: var(--calendar-fill-neutral); color: var(--palette-text); }
