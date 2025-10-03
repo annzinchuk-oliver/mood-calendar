@@ -49,7 +49,7 @@
           text-align: center;
         }
             
-        .header-actions {
+         .header-actions {
           display: flex;
           justify-content: center;
           align-items: center;
@@ -58,7 +58,21 @@
           margin-top: 4px;
         }
 
-        .theme-selector { position: relative; }       
+        .today-score-badge {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 6px 14px;
+          border-radius: 999px;
+          font-size: 14px;
+          font-weight: 600;
+          background-color: var(--today-color, #fde047);
+          color: #1f2937;
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+          transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .theme-selector { position: relative; }      
 
         .palette-selector {
           position: absolute;
@@ -120,12 +134,26 @@
             padding: 20px;
         }
 
+        .today-score{
+          --today-color: var(--score-zero);
+          display: inline-flex;
+          align-items: center;
+          gap: .5rem;
+          margin: 8px 0 12px;
+          padding: 6px 12px;
+          border-radius: 999px;
+          border: 2px solid var(--today-color);
+          color: var(--today-color);
+          background: transparent;
+          font-weight: 700;
+        }
+        .today-score.hidden{ display:none; }
+
         .weekdays {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 8px;
             margin-bottom: 12px;
-        }
 
         .weekday {
             text-align: center;
@@ -532,7 +560,7 @@
         
         <div class="header">
             <h1>📅 Календарь Настроения</h1>
-            
+
             <div class="header-actions">
                 <div class="theme-selector">
                     <button id="themeToggle" class="btn btn--ghost"
@@ -548,6 +576,8 @@
                     </div>
                 </div>
             </div>
+
+            <div id="todayScoreBadge" class="today-score-badge hidden"></div>
         </div>
 
         
@@ -559,7 +589,7 @@
             </div>
 
             <div class="calendar">
-                <div class="weekdays">
+                 <div class="weekdays">
                     <div class="weekday">Вс</div>
                     <div class="weekday">Пн</div>
                     <div class="weekday">Вт</div>
@@ -570,6 +600,8 @@
                 </div>
                 <div id="calendarDays"></div>
              </div>
+             <!-- Бейдж со счётом за сегодня -->
+             <div id="todayScoreBadge" class="today-score hidden" aria-live="polite"></div>
                         <!-- Fixed action buttons (только для календаря) -->
          <div class="calendar-cta">
             <!-- Ряд из 5 смайлов для быстрого выбора настроения -->
@@ -1118,6 +1150,9 @@
         let currentPage = 'calendar';
         let currentStatsFilter = '3days';
         let dailyScores = {};
+        let dailyTotals = {};
+        const DAILY_MIN = -50;
+        const DAILY_MAX = 50;
 
         // Mood types
         const moodTypes = {
@@ -1138,10 +1173,11 @@
 
         // Initialize app
          document.addEventListener('DOMContentLoaded', async function() {
-          await runMigrationsIfNeeded();   // ← добавили␊
+         await runMigrationsIfNeeded();   // ← добавили␊
           loadData();
           loadTheme();
           updateCalendar();
+          renderTodayScore();
           checkNotificationPermission();
           scheduleNotifications();
           switchPage('calendar');
@@ -1215,9 +1251,72 @@
             return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
         }
 
+        function renderTodayScore() {
+          const el = document.getElementById('todayScoreBadge');
+          if (!el) return;
+
+          const today = new Date(); today.setHours(0,0,0,0);
+          const key = getDateKey(today);
+          const avg = dailyScores?.[key];
+
+          let varName = '--score-zero';
+          if (typeof avg === 'number') {
+            if (avg >= 2.5)      varName = '--score-pos3';
+            else if (avg >= 1.5) varName = '--score-pos2';
+            else if (avg >= 0.5) varName = '--score-pos1';
+            else if (avg > -0.5) varName = '--score-zero';
+            else if (avg > -1.5) varName = '--score-neg1';
+            else if (avg > -2.5) varName = '--score-neg2';
+            else                 varName = '--score-neg3';
+          }
+
+          const col = getCSSVariable(varName) || '#eab308';
+          el.style.setProperty('--today-color', col);
+
+          const show = typeof avg === 'number'
+            ? ((avg>0?'+':'') + (Math.round(avg*10)/10))
+            : '+0';
+
+          el.textContent = `Сегодня: ${show}`;
+          el.classList.remove('hidden');
+        }
+        function getCSSVariable(variableName) {
+            return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
+        }
+
+        function renderTodayScore() {
+          const el = document.getElementById('todayScoreBadge');
+          if (!el) return;
+
+          const today = new Date(); today.setHours(0,0,0,0);
+          const key = getDateKey(today);
+          const avg = dailyScores?.[key];
+
+          let varName = '--score-zero';
+          if (typeof avg === 'number') {
+            if (avg >= 2.5)      varName = '--score-pos3';
+            else if (avg >= 1.5) varName = '--score-pos2';
+            else if (avg >= 0.5) varName = '--score-pos1';
+            else if (avg > -0.5) varName = '--score-zero';
+            else if (avg > -1.5) varName = '--score-neg1';
+            else if (avg > -2.5) varName = '--score-neg2';
+            else                 varName = '--score-neg3';
+          }
+
+          const col = getCSSVariable(varName) || '#eab308';
+          el.style.setProperty('--today-color', col);
+
+          const show = typeof avg === 'number'
+            ? ((avg>0?'+':'') + (Math.round(avg*10)/10))
+            : '+0';
+
+          el.textContent = `Сегодня: ${show}`;
+          el.classList.remove('hidden');
+        }
+
         function switchPage(page) {
           currentPage = page;
-        
+
           // страницы
           const calendarPage = document.getElementById('calendarPage');
           const chatPage     = document.getElementById('chatPage');
@@ -1798,16 +1897,49 @@
           }
         }
        
-        function loadData() {
+       function loadData() {
           try {
             moodData   = getJson('moodData', {}) || {};
             dailyMoods = getJson('dailyMoods', {}) || {};
             dailyScores = getJson('dailyScores', {}) || {};
-          } 
+            dailyTotals = getJson('dailyTotals', {}) || {};
+
+            if (!dailyTotals || typeof dailyTotals !== 'object') {
+              dailyTotals = {};
+            }
+
+            const clampTotal = (value) => Math.max(DAILY_MIN, Math.min(DAILY_MAX, value));
+            const ensureScore = (entry) => {
+              if (typeof entry?.score === 'number') return entry.score;
+              switch (entry?.mood) {
+                case 'happy': return 3;
+                case 'pleased': return 2;
+                case 'neutral': return 0;
+                case 'sad': return -2;
+                case 'sorrow': return -3;
+                default: return 0;
+              }
+            };
+
+            Object.keys(moodData || {}).forEach((key) => {
+              const entries = Array.isArray(moodData[key]) ? moodData[key] : [];
+              if (!entries.length) return;
+
+              const computedSum = entries.reduce((sum, entry) => sum + ensureScore(entry), 0);
+              if (typeof dailyTotals[key] !== 'number') {
+                dailyTotals[key] = clampTotal(computedSum);
+              } else {
+                dailyTotals[key] = clampTotal(dailyTotals[key]);
+              }
+
+              dailyScores[key] = entries.length ? computedSum / entries.length : 0;
+            });
+          }
           catch (e) {
             console.log('Error loading data:', e);
             moodData = {};
             dailyMoods = {};
+            dailyTotals = {};
           }
         }
 
@@ -1816,6 +1948,7 @@
                 localStorage.setItem('moodData', JSON.stringify(moodData));
                 localStorage.setItem('dailyMoods', JSON.stringify(dailyMoods));
                 localStorage.setItem('dailyScores', JSON.stringify(dailyScores));
+                localStorage.setItem('dailyTotals', JSON.stringify(dailyTotals));
             } catch (e) {
                 console.log('Error saving data:', e);
             }
@@ -1836,7 +1969,8 @@
                 const d = new Date(today);
                 d.setDate(today.getDate() - i);
                 const key = getDateKey(d);
-                if (dailyMoods[key] === 'sad') streak++;
+                const mood = dailyMoods[key];
+                if (mood === 'sad' || mood === 'sorrow') streak++;
                 else break;
             }
             return streak;
@@ -1890,9 +2024,25 @@
         }
        
         // Calendar functions
-        function navigateMonth(direction) {
+       function navigateMonth(direction) {
             selectedDate.setMonth(selectedDate.getMonth() + direction);
             updateCalendar();
+        }
+
+        function bucketVarForTotal(total) {
+          if (total >= 50) return '--bucket-pos50';
+          if (total >= 40) return '--bucket-pos40';
+          if (total >= 30) return '--bucket-pos30';
+          if (total >= 20) return '--bucket-pos20';
+          if (total >= 10) return '--bucket-pos10';
+          if (total >= 1)  return '--bucket-zero';
+          if (total === 0) return '--bucket-zero';
+          if (total <= -50) return '--bucket-neg50';
+          if (total <= -40) return '--bucket-neg40';
+          if (total <= -30) return '--bucket-neg30';
+          if (total <= -20) return '--bucket-neg20';
+          if (total <= -10) return '--bucket-neg10';
+          return '--bucket-zero';
         }
 
         function updateCalendar() {
@@ -1929,45 +2079,65 @@
               if (isToday) dayDiv.classList.add('today');
         
               // задаём фон на основе среднего балла
-             const avgScore = dailyScores[dateKey];
+              // задаём фон на основе накопленной суммы
+              const total = dailyTotals[dateKey];
 
-            if (typeof avgScore === 'number') {
-              dayDiv.classList.add('has-mood');
-            
-              let varName;
-              if (avgScore >= 2.5)      varName = '--score-pos3';
-              else if (avgScore >= 1.5) varName = '--score-pos2';
-              else if (avgScore >= 0.5) varName = '--score-pos1';
-              else if (avgScore > -0.5) varName = '--score-zero';
-              else if (avgScore > -1.5) varName = '--score-neg1';
-              else if (avgScore > -2.5) varName = '--score-neg2';
-              else                      varName = '--score-neg3';
-            
-              const base = getCSSVariable(varName) || getCSSVariable('--score-zero');
-              // ЧИСТЫЙ цвет, без градиента:
-              dayDiv.style.background = base;
-            } else if (isToday) {
-              const base = getCSSVariable('--score-zero');
-              dayDiv.style.background = base;
-            }
-        
+              if (typeof total === 'number') {
+                dayDiv.classList.add('has-mood');
+                const varName = bucketVarForTotal(total);
+                const base = getCSSVariable(varName) || getCSSVariable('--bucket-zero') || getCSSVariable('--score-zero');
+                dayDiv.style.backgroundColor = base;
+                dayDiv.style.backgroundImage = 'none';
+              } else if (isToday) {
+                const base = getCSSVariable('--bucket-zero') || getCSSVariable('--score-zero');
+                dayDiv.style.backgroundColor = base;
+                dayDiv.style.backgroundImage = 'none';
+              }
+
               dayDiv.textContent = current.getDate();
               weekDiv.appendChild(dayDiv);
             }
             calendarDays.appendChild(weekDiv);
           }
+
+          renderTodayScore();
         }
 
-        function adjustBrightness(hex, percent) {
-            const num = parseInt(hex.replace("#", ""), 16);
-            const amt = Math.round(2.55 * percent);
-            const R = (num >> 16) + amt;
-            const G = (num >> 8 & 0x00FF) + amt;
-            const B = (num & 0x0000FF) + amt;
-            return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
-                (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
-                (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+        function renderTodayScore() {
+          const el = document.getElementById('todayScoreBadge');
+          if (!el) return;
+
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const key = getDateKey(today);
+          const total = dailyTotals?.[key] ?? 0;
+
+          const varName = bucketVarForTotal(total);
+          const col = getCSSVariable(varName) || '#fde047';
+          el.style.setProperty('--today-color', col);
+
+          const useLightText = Math.abs(total) >= 20;
+          el.style.color = useLightText ? '#f8fafc' : '#1f2937';
+
+          const sign = total > 0 ? '+' : '';
+          el.textContent = `Сегодня: ${sign}${total} / 50`;
+          el.classList.remove('hidden');
         }
+
+        function pingTodayBadge() {
+          const el = document.getElementById('todayScoreBadge');
+          if (!el) return;
+          el.animate([
+            { transform: 'scale(1)' },
+            { transform: 'scale(1.06)' },
+            { transform: 'scale(1)' }
+          ], { duration: 220, easing: 'ease-out' });
+        }
+
+        function showInfo(text) {
+          alert(text);
+        }
+
         // открыть модальное окно со слайдером
         function openMoodSlider() {
           document.getElementById('moodSlider').value = 0;
@@ -1991,43 +2161,52 @@
         /**
          * Сохраняем запись со score, пересчитываем средний балл за день,
          */
-        function recordScore(score) {
+       function recordScore(delta) {
           const now = new Date();
           const dateKey = getDateKey(now);
           const hour = now.getHours();
           const minute = now.getMinutes();
           const timestamp = now.getTime();
-        
-          // определяем mood-строку для старой логики
-          const mood = score >= 2 ? 'happy'
-                     : score >= 1 ? 'pleased'
-                     : score <= -2 ? 'sorrow'
-                     : score <= -1 ? 'sad'
+
+          const mood = delta >= 2 ? 'happy'
+                     : delta >= 1 ? 'pleased'
+                     : delta <= -2 ? 'sorrow'
+                     : delta <= -1 ? 'sad'
                      : 'neutral';
-        
-          // записываем новую запись
           if (!moodData[dateKey]) moodData[dateKey] = [];
-          moodData[dateKey].push({ hour, minute, mood, score, timestamp });
-        
-          // вычисляем средний score для этой даты
-          const entries = moodData[dateKey];
-          const total = entries.reduce((sum, e) => {
-            // если нет свойства score (старые записи), переводим mood в score
-            if (typeof e.score === 'number') return sum + e.score;
-            if (e.mood === 'happy') return sum + 3;
-            if (e.mood === 'pleased') return sum + 2;
-            if (e.mood === 'neutral') return sum + 0;
-            if (e.mood === 'sad') return sum - 2;
-            return sum - 3; // sorrow или любое другое негативное
+          moodData[dateKey].push({ hour, minute, mood, score: delta, timestamp });
+
+          const current = typeof dailyTotals[dateKey] === 'number' ? dailyTotals[dateKey] : 0;
+          const next = current + delta;
+
+          if (next > DAILY_MAX) {
+            showInfo('Максимум за день: +50. Больше очков не начисляется.');
+            dailyTotals[dateKey] = DAILY_MAX;
+          } else if (next < DAILY_MIN) {
+            showInfo('Минимум за день: −50. Меньше очков не начисляется.');
+            dailyTotals[dateKey] = DAILY_MIN;
+          } else {
+            dailyTotals[dateKey] = next;
+          }
+
+          dailyMoods[dateKey] =
+              dailyTotals[dateKey] >= 10 ? 'happy' :
+              dailyTotals[dateKey] >= 1  ? 'pleased' :
+              dailyTotals[dateKey] <= -10 ? 'sorrow' :
+              dailyTotals[dateKey] <= -1 ? 'sad' :
+              'neutral';
+
+          const entries = moodData[dateKey] || [];
+          const totalForAverage = entries.reduce((sum, entry) => {
+            if (typeof entry.score === 'number') return sum + entry.score;
+            return sum;
           }, 0);
-          dailyScores[dateKey] = total / entries.length;
-        
-          // для совместимости заполняем dailyMoods
-          dailyMoods[dateKey] = mood;
-        
-          // сохраняем в localStorage
+          dailyScores[dateKey] = entries.length ? totalForAverage / entries.length : 0;
+
           saveData();
           updateCalendar();
+          renderTodayScore();
+          pingTodayBadge();
           maybeProactiveChat();
         }
         
@@ -2040,6 +2219,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
