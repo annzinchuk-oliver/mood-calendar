@@ -91,9 +91,10 @@
           align-items: center;
           justify-content: center;
           padding: 4px;
-          background: var(--palette-surface-variant);
           border-radius: 999px;
+          background: var(--palette-surface-variant);
           border: 1px solid rgba(0,0,0,.08);
+          margin-right: 8px;
         }
 
         .theme-toggle__knob {
@@ -105,8 +106,8 @@
           border: 1px solid rgba(0,0,0,.12);
           background: var(--palette-surface);
           color: var(--text-primary);
-          cursor: pointer;
           font-weight: 600;
+          cursor: pointer;
           transition: transform .12s ease, box-shadow .12s ease;
         }
 
@@ -116,13 +117,10 @@
         }
 
         [data-theme="dark"] .theme-toggle {
-          border-color: rgba(255,255,255,.08);
-          background: var(--palette-surface-variant);
+          border-color: rgba(255,255,255,.06);
         }
 
         [data-theme="dark"] .theme-toggle__knob {
-          background: var(--palette-surface);
-          color: var(--text-primary);
           border-color: rgba(255,255,255,.08);
         }
 
@@ -136,6 +134,7 @@
         }
 
         .theme-toggle__label {
+          display: inline;
           font-size: 14px;
         }
 
@@ -2049,16 +2048,22 @@
                 dayDiv.style.backgroundImage = 'none';
 
                 const isNeg = total <= -10;
-                dayDiv.style.color = isNeg ? '#ffffff' : '#0b121a';
+                const isDark =
+                  document.documentElement.getAttribute('data-theme') === 'dark';
+                const textColor = isDark ? '#ffffff' : (isNeg ? '#ffffff' : '#0b121a');
+
+                dayDiv.style.color = textColor;
 
                 dayDiv.style.boxShadow =
                   'inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(0,0,0,0.40)';
                 dayDiv.style.borderColor = 'transparent';
-              } else if (isToday) {
+                } else if (isToday) {
                 const bg = getCSSVariable('--bucket-zero');
                 dayDiv.style.backgroundColor = bg;
                 dayDiv.style.backgroundImage = 'none';
-                dayDiv.style.color = '#0b121a';
+                const isDark =
+                  document.documentElement.getAttribute('data-theme') === 'dark';
+                dayDiv.style.color = isDark ? '#0b121a' : '#0b121a';
                 dayDiv.style.boxShadow =
                   'inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(0,0,0,0.40)';
               }
@@ -2188,6 +2193,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
