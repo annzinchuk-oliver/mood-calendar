@@ -573,13 +573,9 @@
                         <!-- Fixed action buttons (только для календаря) -->
          <div class="calendar-cta">
             <!-- Ряд из 5 смайлов для быстрого выбора настроения -->
-            <div class="calendar-mood-buttons">
-              <button id="happyMoodBtn" class="mood-inline-btn" onclick="recordMood('happy')" aria-label="Очень счастлив"><span class="mood-emoji">😄</span></button>
-              <button id="pleasedMoodBtn" class="mood-inline-btn" onclick="recordMood('pleased')" aria-label="Доволен"><span class="mood-emoji">🙂</span></button>
-              <button id="neutralMoodInlineBtn" class="mood-inline-btn" onclick="recordMood('neutral')" aria-label="Нейтрально"><span class="mood-emoji">😐</span></button>
-              <button id="sadMoodInlineBtn" class="mood-inline-btn" onclick="recordMood('sad')" aria-label="Печально"><span class="mood-emoji">🙁</span></button>
-              <button id="sorrowMoodBtn" class="mood-inline-btn" onclick="recordMood('sorrow')" aria-label="Очень грустно"><span class="mood-emoji">😢</span></button>
-            </div>
+            <button id="recordMoodBtn" class="btn btn--primary btn--xl" onclick="openMoodSlider()">
+                Записать настроение
+            </button>
             <!-- Кнопка статистики остаётся внизу -->
             <button class="btn btn--primary btn--xl" onclick="openStats()">📊 Статистика</button>
           </div>
@@ -795,6 +791,21 @@
             <button class="skip-btn" onclick="closeTest()">Закрыть</button>
           </div>
         </div>
+
+        <div id="moodSliderPopup" class="mood-popup hidden">
+          <div class="mood-popup-content">
+            <h3>Как вы себя чувствуете?</h3>
+            <p>Выберите настроение на шкале от -3 до +3</p>
+            <div style="display:flex;align-items:center;gap:8px;margin:16px 0;">
+              <span style="font-size:28px;">😢</span>
+              <input id="moodSlider" type="range" min="-3" max="3" value="0" step="1" style="flex:1;">
+              <span style="font-size:28px;">😄</span>
+            </div>
+            <button class="btn btn--primary" onclick="confirmMoodScore()">Подтвердить</button>
+            <div class="skip-btn" onclick="closeMoodSlider()">Закрыть</div>
+          </div>
+        </div>
+
 
        <script>
            
@@ -1121,9 +1132,6 @@
     })();
     </script>
 
-
-
-    
     <script>
         // Application state
         let currentDate = new Date();
@@ -1133,6 +1141,7 @@
         let currentTheme = 'light';
         let currentPage = 'calendar';
         let currentStatsFilter = '3days';
+        let dailyScores = {};
 
         // Mood types
         const moodTypes = {
@@ -1817,6 +1826,7 @@
           try {
             moodData   = getJson('moodData', {}) || {};
             dailyMoods = getJson('dailyMoods', {}) || {};
+            dailyScores = getJson('dailyScores', {}) || {};
           } 
           catch (e) {
             console.log('Error loading data:', e);
@@ -1829,6 +1839,7 @@
             try {
                 localStorage.setItem('moodData', JSON.stringify(moodData));
                 localStorage.setItem('dailyMoods', JSON.stringify(dailyMoods));
+                localStorage.setItem('dailyScores', JSON.stringify(dailyScores));
             } catch (e) {
                 console.log('Error saving data:', e);
             }
@@ -2002,59 +2013,65 @@
         }
 
         function updateCalendar() {
-            document.getElementById('monthTitle').textContent = 
-                `${monthNames[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
-
-            const year = selectedDate.getFullYear();
-            const month = selectedDate.getMonth();
-            const firstDay = new Date(year, month, 1);
-            const startDate = new Date(firstDay);
-            startDate.setDate(startDate.getDate() - firstDay.getDay());
-
-            const calendarDays = document.getElementById('calendarDays');
-            calendarDays.innerHTML = '';
-
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const todayKey = getDateKey(today);
-            
-            for (let week = 0; week < 6; week++) {
-                const weekDiv = document.createElement('div');
-                weekDiv.className = 'week';
-                
-                for (let day = 0; day < 7; day++) {
-                    const current = new Date(startDate);
-                    current.setDate(startDate.getDate() + (week * 7 + day));
-                    
-                    const dateKey = getDateKey(current);
-                    const dayMood = dailyMoods[dateKey];
-                    const isCurrentMonth = current.getMonth() === month;
-                    const isToday = dateKey === todayKey;
-                    
-                    const dayDiv = document.createElement('div');
-                    dayDiv.className = 'day';
-                    
-                    if (!isCurrentMonth) {
-                        dayDiv.classList.add('other-month');
-                    }
-                    
-                    if (isToday) {
-                        dayDiv.classList.add('today');
-                    }
-                    
-                    if (dayMood) {
-                        dayDiv.classList.add('has-mood');
-                        const moodColor = getCSSVariable(`--mood-${dayMood}`);
-                        const darkerColor = adjustBrightness(moodColor, -20);
-                        dayDiv.style.background = `linear-gradient(135deg, ${moodColor}, ${darkerColor})`;
-                    }
-                    
-                    dayDiv.textContent = current.getDate();
-                    weekDiv.appendChild(dayDiv);
-                }
-                
-                calendarDays.appendChild(weekDiv);
+          document.getElementById('monthTitle').textContent =
+            `${monthNames[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
+        
+          const year = selectedDate.getFullYear();
+          const month = selectedDate.getMonth();
+          const firstDay = new Date(year, month, 1);
+          const startDate = new Date(firstDay);
+          startDate.setDate(startDate.getDate() - firstDay.getDay());
+        
+          const calendarDays = document.getElementById('calendarDays');
+          calendarDays.innerHTML = '';
+        
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const todayKey = getDateKey(today);
+        
+          for (let week = 0; week < 6; week++) {
+            const weekDiv = document.createElement('div');
+            weekDiv.className = 'week';
+        
+            for (let day = 0; day < 7; day++) {
+              const current = new Date(startDate);
+              current.setDate(startDate.getDate() + (week * 7 + day));
+              const dateKey = getDateKey(current);
+              const isCurrentMonth = current.getMonth() === month;
+              const isToday = dateKey === todayKey;
+        
+              const dayDiv = document.createElement('div');
+              dayDiv.className = 'day';
+              if (!isCurrentMonth) dayDiv.classList.add('other-month');
+              if (isToday) dayDiv.classList.add('today');
+        
+              // задаём фон на основе среднего балла
+              const avgScore = dailyScores[dateKey];
+              if (typeof avgScore === 'number') {
+                dayDiv.classList.add('has-mood');
+                let varName;
+                if (avgScore >= 2.5)      varName = '--score-pos3';
+                else if (avgScore >= 1.5) varName = '--score-pos2';
+                else if (avgScore >= 0.5) varName = '--score-pos1';
+                else if (avgScore > -0.5) varName = '--score-zero';
+                else if (avgScore > -1.5) varName = '--score-neg1';
+                else if (avgScore > -2.5) varName = '--score-neg2';
+                else                      varName = '--score-neg3';
+                const base = getCSSVariable(varName);
+                const darker = adjustBrightness(base, -20);
+                dayDiv.style.background = `linear-gradient(135deg, ${base}, ${darker})`;
+              } else if (isToday) {
+                // подсветить сегодняшний день, если ещё нет оценки
+                const base = getCSSVariable('--score-zero');
+                const darker = adjustBrightness(base, -10);
+                dayDiv.style.background = `linear-gradient(135deg, ${base}, ${darker})`;
+              }
+        
+              dayDiv.textContent = current.getDate();
+              weekDiv.appendChild(dayDiv);
             }
+            calendarDays.appendChild(weekDiv);
+          }
         }
 
         function adjustBrightness(hex, percent) {
@@ -2067,6 +2084,69 @@
                 (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
                 (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
         }
+        // открыть модальное окно со слайдером
+        function openMoodSlider() {
+          document.getElementById('moodSlider').value = 0;
+          document.getElementById('moodSliderPopup').classList.remove('hidden');
+          document.body.classList.add('modal-open');
+        }
+        
+        // закрыть модальное окно со слайдером
+        function closeMoodSlider() {
+          document.getElementById('moodSliderPopup').classList.add('hidden');
+          document.body.classList.remove('modal-open');
+        }
+        
+        // считать значение слайдера и записать настроение
+        function confirmMoodScore() {
+          const score = parseInt(document.getElementById('moodSlider').value, 10);
+          recordScore(score);
+          closeMoodSlider();
+        }
+        
+        /**
+         * Сохраняем запись со score, пересчитываем средний балл за день,
+         */
+        function recordScore(score) {
+          const now = new Date();
+          const dateKey = getDateKey(now);
+          const hour = now.getHours();
+          const minute = now.getMinutes();
+          const timestamp = now.getTime();
+        
+          // определяем mood-строку для старой логики
+          const mood = score >= 2 ? 'happy'
+                     : score >= 1 ? 'pleased'
+                     : score <= -2 ? 'sorrow'
+                     : score <= -1 ? 'sad'
+                     : 'neutral';
+        
+          // записываем новую запись
+          if (!moodData[dateKey]) moodData[dateKey] = [];
+          moodData[dateKey].push({ hour, minute, mood, score, timestamp });
+        
+          // вычисляем средний score для этой даты
+          const entries = moodData[dateKey];
+          const total = entries.reduce((sum, e) => {
+            // если нет свойства score (старые записи), переводим mood в score
+            if (typeof e.score === 'number') return sum + e.score;
+            if (e.mood === 'happy') return sum + 3;
+            if (e.mood === 'pleased') return sum + 2;
+            if (e.mood === 'neutral') return sum + 0;
+            if (e.mood === 'sad') return sum - 2;
+            return sum - 3; // sorrow или любое другое негативное
+          }, 0);
+          dailyScores[dateKey] = total / entries.length;
+        
+          // для совместимости заполняем dailyMoods
+          dailyMoods[dateKey] = mood;
+        
+          // сохраняем в localStorage
+          saveData();
+          updateCalendar();
+          maybeProactiveChat();
+        }
+        
 
 
         // Add event listener for notifications button
@@ -2076,3 +2156,4 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
