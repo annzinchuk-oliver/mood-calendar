@@ -90,8 +90,8 @@ LIGHT THEME — базовые токены (по умолчанию)
 [data-theme="dark"] {
 
   /* тёмная тема — мягче и читабельнее */
-  --palette-surface: #1b2431;
-  --palette-surface-variant: #232d3c;
+  --palette-surface: #1e2836;
+  --palette-surface-variant: #273244;
   --text-primary: #eef3f8;
   --text-muted: #b7c0cd;
 
