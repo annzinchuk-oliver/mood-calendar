@@ -41,53 +41,119 @@
 }
 
 /* ==========================================================
-   THEME PALETTES (только «краски»; семантика ниже)
-   По умолчанию считаем светлую тему. Если атрибут data-theme
-   не задан, применится :root. Ниже добавлен авто-переключатель
-   на тёмную через prefers-color-scheme.
+LIGHT THEME — базовые токены (по умолчанию)
    ========================================================== */
-[data-theme="light"], :root {
-  --palette-bg: #f9fafb;
+:root {
+  /* фон/текст */
   --palette-surface: #ffffff;
-  --palette-text: #1f2937;
-  --palette-text-muted: #6b7280;
-  --palette-border: #e5e7eb;
-  --palette-border-strong: #d1d5db;
-  --palette-hover: #f3f4f6;
+  --palette-surface-variant: #f5f7fb;
+  --text-primary: #0b121a;
+  --text-muted: #5b6675;
 
-  --palette-brand: #4f46e5;   /* индиго */
-  --palette-brand-2: #7c3aed; /* фиолет */
+    /* акцент (брендовый) */
+  --brand: #7c4dff;
+  --brand-2: color-mix(in srgb, #7c4dff 82%, #4b2bbd 18%);
+  --on-brand: #ffffff;
 
-  /* moods */
-  --palette-good: #22c55e;    /* зеленый */
-  --palette-neutral: #eab308; /* жёлтый */
-  --palette-sad: #3b82f6;     /* синий */
-}
+  /* системные цвета */
+  --palette-border: #d9dfeb;
+  --palette-border-strong: #c3c9d4;
+  --palette-hover: #eef1f7;
 
-[data-theme="dark"] {
-  --palette-bg:            #0f172a; /* ок */
-  --palette-surface:       #1b2436; /* было #1e293b → чуть светлее */
-  --palette-text:          #e8edf5; /* было #f1f5f9, можно оставить, но этот мягче */
-  --palette-text-muted:    #b8c2d1; /* было #cbd5e1 → чуть темнее, чтобы не сливаться */
-  --palette-border:        #3a4a63; /* было #475569 */
-  --palette-border-strong: #586a86; /* было #64748b */
-  --palette-hover:         #263142; /* было #334155 */
+  --palette-bg: var(--palette-surface-variant);
+  --palette-text: var(--text-primary);
+  --palette-text-muted: var(--text-muted);
 
-  --palette-brand:   #6366f1;
-  --palette-brand-2: #8b5cf6;
-
-  --palette-good:    #10b981;
-  --palette-neutral: #f59e0b;
-  --palette-sad:     #3b82f6;
-}
-
-:root, [data-theme] {
-  --palette-happy:   #16a34a; /* бодро-зелёный */
-  --palette-pleased: #22c55e; /* твой текущий good */
+  --palette-good:    #22c55e;
   --palette-neutral: #eab308;
   --palette-sad:     #3b82f6;
-  --palette-sorrow:  #2563eb; /* чуть глубже синего */
 
+  /* бакеты календаря */
+  --bucket-pos50: #016e29;
+  --bucket-pos40: color-mix(in srgb, #016e29 80%, #ffffff 20%);
+  --bucket-pos30: color-mix(in srgb, #016e29 65%, #ffffff 35%);
+  --bucket-pos20: color-mix(in srgb, #016e29 50%, #ffffff 50%);
+  --bucket-pos10: color-mix(in srgb, #016e29 35%, #ffffff 65%);
+
+  --bucket-zero:  #fae370;
+   
+  --bucket-neg10: color-mix(in srgb, #1d4ed8 35%, #ffffff 65%);
+  --bucket-neg20: color-mix(in srgb, #1d4ed8 50%, #ffffff 50%);
+  --bucket-neg30: color-mix(in srgb, #1d4ed8 65%, #ffffff 35%);
+  --bucket-neg40: color-mix(in srgb, #1d4ed8 80%, #ffffff 20%);
+  --bucket-neg50: #1d4ed8; 
+}
+/* ==========================================================
+   DARK THEME — оверрайды для data-theme="dark"
+   ========================================================== */
+[data-theme="dark"] {
+
+  --palette-surface: #0b121a;
+  --palette-surface-variant: #111827;
+  --text-primary: #e5e7eb;
+  --text-muted: #9aa3b2;
+
+  --brand: #7c4dff;
+  --brand-2: color-mix(in srgb, #7c4dff 72%, #433196 28%);
+  --on-brand: #ffffff;
+
+  --palette-border: #1f2937;
+  --palette-border-strong: #334155;
+  --palette-hover: #182030;
+
+  --palette-bg: var(--palette-surface-variant);
+  --palette-text: var(--text-primary);
+  --palette-text-muted: var(--text-muted);
+
+  --palette-good: #1fa857;
+  --palette-neutral: #f2cc47;
+  --palette-sad: #3558d6;
+
+  --bucket-pos50: #1fa857;
+  --bucket-pos40: color-mix(in srgb, #1fa857 78%, #111827 22%);
+  --bucket-pos30: color-mix(in srgb, #1fa857 62%, #111827 38%);
+  --bucket-pos20: color-mix(in srgb, #1fa857 48%, #111827 52%);
+  --bucket-pos10: color-mix(in srgb, #1fa857 34%, #111827 66%);
+
+  --bucket-zero:  #f2cc47; 
+  --bucket-neg10: color-mix(in srgb, #3558d6 42%, #0b1220 58%);
+  --bucket-neg20: color-mix(in srgb, #2b4fd1 55%, #0b1220 45%);
+  --bucket-neg30: color-mix(in srgb, #2446c9 68%, #0b1220 32%);
+  --bucket-neg40: color-mix(in srgb, #1f3fbd 80%, #0b1220 20%);
+   
+  --bucket-neg50: #1e3a8a;
+}
+
+/* ==========================================================
+   SEMANTIC TOKENS (мост между палитрой и компонентами)
+   ========================================================== */
+:root, [data-theme] {
+
+  --surface: var(--palette-bg);
+  --surface-2: var(--palette-surface);
+  --text: var(--text-primary);
+  --text-muted: var(--text-muted);
+
+  --border: var(--palette-border);
+  --border-strong: var(--palette-border-strong);
+  --hover: var(--palette-hover);
+
+  --success: var(--palette-good);
+  --warning: var(--palette-neutral);
+  --info: var(--palette-sad);
+
+    /* расширенная шкала настроений (5 уровней) */
+  --mood-happy:   #22c55e;    /* зелёный */
+  --mood-pleased: #86efac;    /* светло‑зелёный */
+  --mood-neutral: #eab308;    /* жёлтый */
+  --mood-sad:     #93c5fd;    /* светло‑синий */
+  --mood-sorrow:  #2563eb;    /* насыщенный синий */
+
+  /* алиасы для обратной совместимости */
+  --mood-good: var(--mood-happy);
+  --mood-sad-old: var(--mood-sorrow);
+
+   
   /* шкала для слайдера (-3..+3) */
   --score-pos3:  #22c55e;
   --score-pos2:  color-mix(in srgb, #22c55e 75%, #ffffff 25%);
@@ -97,171 +163,55 @@
   --score-neg2:  color-mix(in srgb, #2563eb 75%, #ffffff 25%);
   --score-neg3:  #2563eb;
 
-  /* заливки для календаря */
- /* Бакеты суммы (-50..+50) */
-  --bucket-pos50: #16a34a; /* зелёный 100% */
-  --bucket-pos40: color-mix(in srgb, #16a34a 80%, #ffffff 20%);
-  --bucket-pos30: color-mix(in srgb, #16a34a 65%, #ffffff 35%);
-  --bucket-pos20: color-mix(in srgb, #16a34a 50%, #ffffff 50%);
-  --bucket-pos10: color-mix(in srgb, #16a34a 35%, #ffffff 65%);
+  /* заливки для календаря по шкале настроений */
+  --calendar-fill-happy:   color-mix(in srgb, var(--palette-surface) 72%, var(--mood-happy) 28%);
+  --calendar-fill-pleased: color-mix(in srgb, var(--palette-surface) 72%, var(--mood-pleased) 28%);
+  --calendar-fill-neutral: color-mix(in srgb, var(--palette-surface) 76%, var(--mood-neutral) 24%);
+  --calendar-fill-sad:     color-mix(in srgb, var(--palette-surface) 76%, var(--mood-sad) 24%);
+  --calendar-fill-sorrow:  color-mix(in srgb, var(--palette-surface) 76%, var(--mood-sorrow) 24%);
+   
+  /* Текст/фон для инвертированных элементов */
+  --on-brand: #ffffff;
 
-  --bucket-zero:  #fde047; /* бледно-жёлтый (база) */
-
-  --bucket-neg10: color-mix(in srgb, #1d4ed8 35%, #ffffff 65%); /* светло-синий */
-  --bucket-neg20: color-mix(in srgb, #1d4ed8 50%, #ffffff 50%);
-  --bucket-neg30: color-mix(in srgb, #1d4ed8 65%, #ffffff 35%);
-  --bucket-neg40: color-mix(in srgb, #1d4ed8 80%, #ffffff 20%);
-  --bucket-neg50: #1d4ed8; /* насыщенно-синий 100% */
-}
-
-[data-theme="dark"] {
-  /* Тёмная тема: приглушаем оттенки, чтобы не слепили */
-  /* +сторона (зелёные) — меньше светлоты */
-  --bucket-pos50: #1fa857;  /* было #16a34a */
-  --bucket-pos40: color-mix(in srgb, #1fa857 78%, #111827 22%);
-  --bucket-pos30: color-mix(in srgb, #1fa857 62%, #111827 38%);
-  --bucket-pos20: color-mix(in srgb, #1fa857 48%, #111827 52%);
-  --bucket-pos10: color-mix(in srgb, #1fa857 34%, #111827 66%);
-
-  /* 0 — более спокойный жёлтый */
-  --bucket-zero:  #f2cc47; /* вместо #fde047 */
-
-  /* −сторона (синие) — темнее и насыщеннее */
-  --bucket-neg10: color-mix(in srgb, #3558d6 42%, #0b1220 58%);
-  --bucket-neg20: color-mix(in srgb, #2b4fd1 55%, #0b1220 45%);
-  --bucket-neg30: color-mix(in srgb, #2446c9 68%, #0b1220 32%);
-  --bucket-neg40: color-mix(in srgb, #1f3fbd 80%, #0b1220 20%);
-  --bucket-neg50: #1e3a8a; /* вместо #1d4ed8 – меньше «синего прожектора» */
-}
-
-:root {
-   --calendar-fill-happy:   color-mix(in srgb, var(--palette-surface) 72%, var(--mood-happy) 28%);
-   --calendar-fill-pleased: color-mix(in srgb, var(--palette-surface) 72%, var(--mood-pleased) 28%);
-   --calendar-fill-neutral: color-mix(in srgb, var(--palette-surface) 76%, var(--mood-neutral) 24%);
-   --calendar-fill-sad:     color-mix(in srgb, var(--palette-surface) 76%, var(--mood-sad) 24%);
-   --calendar-fill-sorrow:  color-mix(in srgb, var(--palette-surface) 76%, var(--mood-sorrow) 24%);
-}
-
-
-/* Доп. палитры (опционально) */
-[data-theme="light-nature"] {
-  --palette-bg:#f0fdf4; --palette-surface:#ffffff;
-  --palette-text:#1f2937; --palette-text-muted:#64748b;
-  --palette-border:#dcfce7; --palette-border-strong:#86efac;
-  --palette-hover:#ecfdf5;
-  --palette-brand:#059669; --palette-brand-2:#047857;
-  --palette-good:#16a34a; --palette-neutral:#ca8a04; --palette-sad:#0369a1;
-}
-
-[data-theme="light-ocean"] {
-  --palette-bg:#f0f9ff; --palette-surface:#ffffff;
-  --palette-text:#1f2937; --palette-text-muted:#64748b;
-  --palette-border:#e0f2fe; --palette-border-strong:#93c5fd;
-  --palette-hover:#eff6ff;
-  --palette-brand:#0ea5e9; --palette-brand-2:#0284c7;
-  --palette-good:#059669; --palette-neutral:#d97706; --palette-sad:#2563eb;
-}
-
-[data-theme="dark-space"] {
-  --palette-bg:#0c0a09; --palette-surface:#1c1917;
-  --palette-text:#fafaf9; --palette-text-muted:#d6d3d1;
-  --palette-border:#292524; --palette-border-strong:#44403c;
-  --palette-hover:#23201c;
-  --palette-brand:#7c2d12; --palette-brand-2:#92400e;
-  --palette-good:#10b981; --palette-neutral:#d97706; --palette-sad:#0ea5e9;
-}
-
-[data-theme="dark-purple"] {
-  --palette-bg:#0f0a19; --palette-surface:#1e1b31;
-  --palette-text:#f5f3ff; --palette-text-muted:#d8b4fe;
-  --palette-border:#2e1065; --palette-border-strong:#581c87;
-  --palette-hover:#2b2642;
-  --palette-brand:#6366f1; --palette-brand-2:#8b5cf6;
-  --palette-good:#22c55e; --palette-neutral:#fbbf24; --palette-sad:#60a5fa;
+  --bg-primary: var(--surface);
+  --bg-elevated: var(--surface-2);
+  --bg-secondary: var(--surface-2);      
+  --text-primary: var(--text);
+  --text-secondary: var(--text-muted);
+  --border-color: var(--border);
+  --border-hover: var(--border-strong);
+  --day-hover: var(--hover);
 }
 
 /* Авто-тёмная, если не указан data-theme явно */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-    --palette-bg: #0f172a;
-    --palette-surface: #111827;
-    --palette-text: #e5e7eb;
-    --palette-text-muted: #9ca3af;
+    --palette-surface: #0b121a;
+    --palette-surface-variant: #111827;
+    --text-primary: #e5e7eb;
+    --text-muted: #9aa3b2;
+    --brand: #7c4dff;
+    --brand-2: color-mix(in srgb, #7c4dff 72%, #433196 28%);
+    --on-brand: #ffffff;
     --palette-border: #1f2937;
-    --palette-border-strong: #374151;
-    --palette-hover: #1b2435;
-
-    --palette-brand: #6366f1;
-    --palette-brand-2: #8b5cf6;
-
-    --palette-good: #34d399;
-    --palette-neutral: #f59e0b;
-    --palette-sad: #60a5fa;
+    --palette-border-strong: #334155;
+    --palette-hover: #182030;
+    --palette-bg: var(--palette-surface-variant);
+    --palette-text: var(--text-primary);
+    --palette-text-muted: var(--text-muted);
+    --palette-good: #1fa857;
+    --palette-neutral: #f2cc47;
+    --palette-sad: #3558d6;
+    --bucket-pos50: #1fa857;
+    --bucket-pos40: color-mix(in srgb, #1fa857 78%, #111827 22%);
+    --bucket-pos30: color-mix(in srgb, #1fa857 62%, #111827 38%);
+    --bucket-pos20: color-mix(in srgb, #1fa857 48%, #111827 52%);
+    --bucket-pos10: color-mix(in srgb, #1fa857 34%, #111827 66%);
+    --bucket-zero:  #f2cc47;
+    --bucket-neg10: color-mix(in srgb, #3558d6 42%, #0b1220 58%);
+    --bucket-neg20: color-mix(in srgb, #2b4fd1 55%, #0b1220 45%);
+    --bucket-neg30: color-mix(in srgb, #2446c9 68%, #0b1220 32%);
+    --bucket-neg40: color-mix(in srgb, #1f3fbd 80%, #0b1220 20%);
+    --bucket-neg50: #1e3a8a;
   }
-}
-
-/* ==========================================================
-   SEMANTIC TOKENS (мост между палитрами и компонентами)
-   ========================================================== */
-:root, [data-theme] {
-  /* Базовые поверхности и текст */
-  --surface: var(--palette-bg);
-  --surface-2: var(--palette-surface);
-  --text: var(--palette-text);
-  --text-muted: var(--palette-text-muted);
-
-  /* Границы и состояния наведения */
-  --border: var(--palette-border);
-  --border-strong: var(--palette-border-strong);
-  --hover: var(--palette-hover);
-
-  /* Бренд и статусы */
-  --brand: var(--palette-brand);
-  --brand-2: var(--palette-brand-2);
-  --success: var(--palette-good);
-  --warning: var(--palette-neutral);
-  --info: var(--palette-sad);
-
-  /* Графики / диаграммы */
---mood-good: var(--mood-happy);
---mood-sad-old: var(--mood-sorrow);
-
-/* расширенная шкала настроений (5 уровней) */
---mood-happy:   #22c55e;    /* зелёный */
---mood-pleased: #86efac;    /* светло‑зелёный */
---mood-neutral: #eab308;    /* жёлтый */
---mood-sad:     #93c5fd;    /* светло‑синий */
---mood-sorrow:  #2563eb;    /* насыщенный синий */
-
-  /* Aliases for backward compatibility */
-  --mood-good: var(--mood-happy);
-  --mood-sad-old: var(--mood-sorrow);
-  --mood-sad: var(--mood-sorrow);
-
-  /* Текст/фон для инвертированных элементов */
-  --on-brand: #ffffff;
-}
-
-/* ==========================================================
-   BACKWARD COMPAT (чтобы не ломать существующие стили)
-   ========================================================== */
-:root, [data-theme] {
-  --bg-primary: var(--surface);
-  --bg-elevated: var(--surface-2);
-  --bg-secondary: var(--surface-2);       /* если где-то используется */
-  --text-primary: var(--text);
-  --text-secondary: var(--text-muted);
-  --border-color: var(--border);
-  --border-hover: var(--border-strong);
-
-  /* hover для дней календаря */
-  --day-hover: var(--hover);
-
-  /* настроения
-   * Для трёхстарого API оставляем алиасы на новую палитру.
-   * good → happy, neutral → neutral, sad → sorrow
-   */
-  --mood-good: var(--mood-happy);
-  --mood-neutral: var(--mood-neutral);
-  --mood-sad: var(--mood-sorrow);
 }
