@@ -87,6 +87,24 @@
 --palette-sad:     #3b82f6;
 --palette-sorrow:  #2563eb; /* чуть глубже синего */
 
+/* Шкала для слайдера (-3..+3) */
+--score-pos3:  #22c55e;
+--score-pos2:  color-mix(in srgb, #22c55e 75%, #ffffff 25%);
+--score-pos1:  color-mix(in srgb, #22c55e 50%, #ffffff 50%);
+--score-zero:  #eab308;
+--score-neg1:  color-mix(in srgb, #2563eb 50%, #ffffff 50%);
+--score-neg2:  color-mix(in srgb, #2563eb 75%, #ffffff 25%);
+--score-neg3:  #2563eb;
+
+/* Заливки для календаря */
+--calendar-fill-pos3:  color-mix(in srgb, var(--palette-surface) 70%, var(--score-pos3) 30%);
+--calendar-fill-pos2:  color-mix(in srgb, var(--palette-surface) 72%, var(--score-pos2) 28%);
+--calendar-fill-pos1:  color-mix(in srgb, var(--palette-surface) 74%, var(--score-pos1) 26%);
+--calendar-fill-zero:  color-mix(in srgb, var(--palette-surface) 76%, var(--score-zero) 24%);
+--calendar-fill-neg1:  color-mix(in srgb, var(--palette-surface) 74%, var(--score-neg1) 26%);
+--calendar-fill-neg2:  color-mix(in srgb, var(--palette-surface) 72%, var(--score-neg2) 28%);
+--calendar-fill-neg3:  color-mix(in srgb, var(--palette-surface) 70%, var(--score-neg3) 30%);
+
 :root {
    --calendar-fill-happy:   color-mix(in srgb, var(--palette-surface) 72%, var(--mood-happy) 28%);
    --calendar-fill-pleased: color-mix(in srgb, var(--palette-surface) 72%, var(--mood-pleased) 28%);
