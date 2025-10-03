@@ -2038,18 +2038,30 @@
         
               // задаём фон на основе среднего балла
               // задаём фон на основе накопленной суммы
-              const total = dailyTotals[dateKey];
+            const total = dailyTotals[dateKey];
 
               if (typeof total === 'number') {
                 dayDiv.classList.add('has-mood');
+
                 const varName = bucketVarForTotal(total);
-                const base = getCSSVariable(varName) || getCSSVariable('--bucket-zero') || getCSSVariable('--score-zero');
-                dayDiv.style.backgroundColor = base;
+                const bg = getCSSVariable(varName) || getCSSVariable('--bucket-zero');
+
+                dayDiv.style.backgroundColor = bg;
                 dayDiv.style.backgroundImage = 'none';
+
+                const isNeg = total <= -10;
+                dayDiv.style.color = isNeg ? '#ffffff' : '#0b121a';
+
+                dayDiv.style.boxShadow =
+                  'inset 0 1px 0 rgba(255,255,255,0.06), 0 0 0 1px rgba(0,0,0,0.45)';
+                dayDiv.style.borderColor = 'transparent';
               } else if (isToday) {
-                const base = getCSSVariable('--bucket-zero') || getCSSVariable('--score-zero');
-                dayDiv.style.backgroundColor = base;
+                const bg = getCSSVariable('--bucket-zero');
+                dayDiv.style.backgroundColor = bg;
                 dayDiv.style.backgroundImage = 'none';
+                dayDiv.style.color = '#0b121a';
+                dayDiv.style.boxShadow =
+                  'inset 0 1px 0 rgba(255,255,255,0.06), 0 0 0 1px rgba(0,0,0,0.45)';
               }
 
               dayDiv.textContent = current.getDate();
@@ -2177,6 +2189,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
