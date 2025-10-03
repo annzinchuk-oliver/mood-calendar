@@ -149,11 +149,12 @@
         }
         .today-score.hidden{ display:none; }
 
-        .weekdays {
+       .weekdays {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 8px;
             margin-bottom: 12px;
+        }
 
         .weekday {
             text-align: center;
@@ -163,51 +164,8 @@
             padding: 12px 4px;
         }
 
-        .week {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-
         .day {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            border-radius: 12px;
-            border: 2px solid var(--border-color);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            font-weight: 500;
-            position: relative;
-            overflow: hidden;
-            color: var(--text-primary);
-        }
-
-        .day:hover {
-            border-color: var(--border-hover);
-            transform: scale(1.05);
-        }
-
-        .day.other-month {
-            color: var(--text-secondary);
-            background: var(--bg-primary);
-            opacity: 0.6;
-        }
-
-        .day.today {
-            border-color: var(--score-zero);
-            border-width: 3px;␊
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);␊
-        }
-
-        .day.has-mood {
-            border-color: transparent;
-            color: white;
-            font-weight: 600;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            animation: dayFadeIn 0.3s ease;
         }
 
         .stats {
@@ -2219,6 +2177,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
