@@ -767,13 +767,20 @@
           </div>
         </div>
 
-        <div id="moodSliderPopup" class="mood-popup hidden">
+ <div id="moodSliderPopup" class="mood-popup hidden">
           <div class="mood-popup-content">
             <h3>Как вы себя чувствуете?</h3>
-            <p>Выберите настроение на шкале от -3 до +3</p>
             <div style="display:flex;align-items:center;gap:8px;margin:16px 0;">
               <span style="font-size:28px;">😢</span>
-              <input id="moodSlider" type="range" min="-3" max="3" value="0" step="1" style="flex:1;">
+              <input
+                id="moodSlider"
+                type="range"
+                min="-5"
+                max="5"
+                step="1"
+                value="0"
+                aria-label="Ползунок настроения от −5 до +5"
+                style="flex:1;">
               <span style="font-size:28px;">😄</span>
             </div>
             <button class="btn btn--primary" onclick="confirmMoodScore()">Подтвердить</button>
@@ -2131,10 +2138,10 @@
           const minute = now.getMinutes();
           const timestamp = now.getTime();
 
-          const mood = delta >= 2 ? 'happy'
-                     : delta >= 1 ? 'pleased'
-                     : delta <= -2 ? 'sorrow'
-                     : delta <= -1 ? 'sad'
+          const mood = delta >= 4 ? 'happy'
+                     : delta >= 2 ? 'pleased'
+                     : delta <= -4 ? 'sorrow'
+                     : delta <= -2 ? 'sad'
                      : 'neutral';
           if (!moodData[dateKey]) moodData[dateKey] = [];
           moodData[dateKey].push({ hour, minute, mood, score: delta, timestamp });
@@ -2182,6 +2189,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
