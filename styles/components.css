@@ -572,3 +572,12 @@ a, .link { color: var(--brand); text-decoration: none; }
   box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--palette-border) 50%, transparent);
 }
 
+.day.today {
+  border-width: 3px;
+  border-color: var(--score-zero) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--score-zero) 40%, transparent);
+}
+
+.day.today.has-mood {
+  border-color: var(--score-zero) !important;
+}
