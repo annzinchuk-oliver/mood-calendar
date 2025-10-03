@@ -1941,12 +1941,12 @@
                 else if (avgScore > -2.5) varName = '--score-neg2';
                 else                      varName = '--score-neg3';
                 const base = getCSSVariable(varName);
-                const darker = adjustBrightness(base, -20);
+                dayDiv.style.background = base;
                 dayDiv.style.background = `linear-gradient(135deg, ${base}, ${darker})`;
               } else if (isToday) {
                 // подсветить сегодняшний день, если ещё нет оценки
                 const base = getCSSVariable('--score-zero');
-                const darker = adjustBrightness(base, -10);
+                dayDiv.style.background = base;
                 dayDiv.style.background = `linear-gradient(135deg, ${base}, ${darker})`;
               }
         
@@ -2039,5 +2039,6 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
