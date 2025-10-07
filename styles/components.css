@@ -148,7 +148,7 @@
 .message.user {
   align-self: flex-end;
   background: var(--success);
-  color: #fff;
+  color: #fff !important;
   border-bottom-right-radius: 6px;
 }
 .message.ai {
