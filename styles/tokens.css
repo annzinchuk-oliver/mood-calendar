@@ -47,9 +47,11 @@ LIGHT THEME — базовые токены (по умолчанию)
   /* фон/текст */
   --palette-surface: #ffffff;
   --palette-surface-variant: #f5f7fb;
+  --text: #0b121a;
   --text-primary: #0b121a;
   --text-muted: #5b6675;
 
+  --calendar-text-contrasted: #0b121a;
     /* акцент (брендовый) */
   --brand: #7c4dff;
   --brand-2: color-mix(in srgb, #7c4dff 82%, #4b2bbd 18%);
@@ -92,8 +94,11 @@ LIGHT THEME — базовые токены (по умолчанию)
   /* тёмная тема — мягче и читабельнее */
   --palette-surface: #1e2836;
   --palette-surface-variant: #273244;
+  --text: #e9edf3;
   --text-primary: #ffffff;
   --text-muted: #c9d2e0;
+
+  --calendar-text-contrasted: #ffffff;
 
   --brand: #7c4dff;
   --brand-2: color-mix(in srgb, #7c4dff 72%, #433196 28%);
@@ -133,7 +138,6 @@ LIGHT THEME — базовые токены (по умолчанию)
 
   --surface: var(--palette-bg);
   --surface-2: var(--palette-surface);
-  --text: var(--text-primary);
   --text-muted: var(--text-muted);
 
   --border: var(--palette-border);
@@ -190,8 +194,10 @@ LIGHT THEME — базовые токены (по умолчанию)
   :root:not([data-theme]) {
     --palette-surface: #151a23;
     --palette-surface-variant: #1a202b;
+    --text: #e8edf4; 
     --text-primary: #e8edf4;
     --text-muted: #aeb6c3;
+    --calendar-text-contrasted: #ffffff;
     --brand: #7c4dff;
     --brand-2: color-mix(in srgb, #7c4dff 72%, #433196 28%);
     --on-brand: #ffffff;
