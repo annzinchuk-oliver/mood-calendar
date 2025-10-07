@@ -133,8 +133,15 @@
         }
 
         [data-theme="dark"] .theme-toggle__knob {
+          background: var(--palette-surface-variant);
+          color: var(--text-primary);
           border-color: rgba(255,255,255,.08);
         }
+
+        [data-theme="dark"] .theme-toggle__label {
+          color: var(--text-primary);
+        }
+
 
         .theme-toggle__knob:active {
           transform: scale(.98);
@@ -2249,6 +2256,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
