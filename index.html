@@ -2072,13 +2072,8 @@
                 dayDiv.style.backgroundColor = bg;
                 dayDiv.style.backgroundImage = 'none';
 
-                const isNeg = total <= -10;
-                const isDark =
-                  document.documentElement.getAttribute('data-theme') === 'dark';
-                const baseText = getCSSVariable('--text-primary') || '#0b121a';
-                const textColor = isDark ? '#ffffff' : (isNeg ? '#ffffff' : baseText);
-
-                dayDiv.style.color = textColor;
+                const baseText = getCSSVariable('--text-primary') || '#ffffff';
+                dayDiv.style.color = baseText;
 
                 dayDiv.style.boxShadow =
                   'inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(0,0,0,0.40)';
@@ -2256,6 +2251,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
