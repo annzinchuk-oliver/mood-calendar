@@ -507,6 +507,9 @@ body.modal-open .bottom-nav { visibility: hidden; }  /* а CTA у тебя уж�
 .section-title{ font-weight:700; }
 .section-sub{ font-size:13px; color: var(--text-muted); }
 
+.stat-value--good { color: var(--mood-good); }
+.stat-value--neutral { color: var(--mood-neutral); }
+.stat-value--sad { color: var(--mood-sad); }
 /* Контейнеры списка для терапии/тестов */
 .content-list{
   display: grid;
@@ -567,7 +570,7 @@ a, .link { color: var(--brand); text-decoration: none; }
   gap: 6px;
 }
 
-.day {
+.calendar .day {
   aspect-ratio: 1 / 1;
   width: 100%;
   display: flex;
@@ -575,7 +578,7 @@ a, .link { color: var(--brand); text-decoration: none; }
   justify-content: center;
   border-radius: 10px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text);
   box-shadow:
   inset 0 1px 0 rgba(255, 255, 255, 0.05),
   0 0 0 1px rgba(0, 0, 0, 0.35);
@@ -586,36 +589,36 @@ a, .link { color: var(--brand); text-decoration: none; }
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.04),
     0 0 0 1px rgba(0,0,0,0.45);
-  color: var(--text-primary);
 }
 
 [data-theme="dark"] .calendar .day:hover {
   background: color-mix(in srgb, var(--palette-surface-variant) 78%, #000 22%);
 }
-.day.has-mood:hover { transform: translateY(-1px); }
+.calendar .day.has-mood:hover { transform: translateY(-1px); }
 
-.day--happy   { background: var(--calendar-fill-happy);   color: var(--palette-text); }
-.day--pleased { background: var(--calendar-fill-pleased); color: var(--palette-text); }
-.day--neutral { background: var(--calendar-fill-neutral); color: var(--palette-text); }
-.day--sad     { background: var(--calendar-fill-sad);     color: var(--palette-text); }
-.day--sorrow  { background: var(--calendar-fill-sorrow);  color: var(--palette-text); }
+.day--happy   { background: var(--calendar-fill-happy);   color: var(--calendar-text-contrasted) !important; }
+.day--pleased { background: var(--calendar-fill-pleased); color: var(--calendar-text-contrasted) !important; }
+.day--neutral { background: var(--calendar-fill-neutral); color: var(--calendar-text-contrasted) !important; }
+.day--sad     { background: var(--calendar-fill-sad);     color: var(--calendar-text-contrasted) !important; }
+.day--sorrow  { background: var(--calendar-fill-sorrow);  color: var(--calendar-text-contrasted) !important; }
+
+/* Любая из цветных меток настроения */
+.calendar .day.has-mood {
+  color: var(--calendar-text-contrasted) !important;
+}
 
 /* тонкая внутренняя окантовка для читабельности */
 .day--happy, .day--pleased, .day--neutral, .day--sad, .day--sorrow {
   box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--palette-border) 50%, transparent);
 }
 
-[data-theme="dark"] .calendar .day.has-mood {
-  color: #fff;
-}
-
-.day.today {
+.calendar .day.today {
   border-width: 2px;
   border-color: var(--bucket-zero) !important;
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--bucket-zero) 25%, transparent);
 }
 
-.day.today.has-mood {
+.calendar .day.today.has-mood {
   border-color: var(--bucket-zero) !important;
 }
 
