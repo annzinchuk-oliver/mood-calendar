@@ -722,5 +722,6 @@ a, .link { color: var(--brand); text-decoration: none; }
 }
 
 .link-btn:hover {
+  color: var(--text-primary);
   text-decoration: underline;
 }
