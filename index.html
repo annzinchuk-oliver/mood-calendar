@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="app-version" content="%APP_VERSION%">
+    <meta name="app-version" content="dev • 2025-10-07 15:21:38">
     <title>Календарь Настроения</title>
     
     
@@ -170,15 +170,15 @@
           padding: 6px 12px;
           border-radius: 999px;
           border: 2px solid var(--today-color);
-          color: var(--today-color);
-          background: transparent;
+          background: var(--today-color);
+          color: var(--calendar-text-contrasted);
           font-weight: 700;
         }
         .today-score.hidden{ display:none; }
 
         .week { gap: 6px; }
 
-        .day {
+        .calendar .day {
           box-shadow:
             inset 0 1px 0 rgba(255,255,255,0.05),
             0 0 0 1px rgba(0,0,0,0.40);
@@ -199,7 +199,7 @@
             padding: 12px 4px;
         }
 
-        .day {
+       .calendar .day {
             animation: dayFadeIn 0.3s ease;
         }
 
@@ -523,7 +523,7 @@
         }
 
         /* Анимации */
-        .day {
+      .calendar .day {
             animation: dayFadeIn 0.3s ease;
         }
 
@@ -627,9 +627,9 @@
         
               <div class="overview-section">
                 <h3>📈 Общая статистика (<span id="currentPeriod">3 дня</span>)</h3>
-                <div class="stat-row"><span class="stat-label">Хорошие записи:</span><span class="stat-value" id="statsGoodPercent">0%</span></div>
-                <div class="stat-row"><span class="stat-label">Нейтральные записи:</span><span class="stat-value" id="statsNeutralPercent">0%</span></div>
-                <div class="stat-row"><span class="stat-label">Грустные записи:</span><span class="stat-value" id="statsSadPercent">0%</span></div>
+                <div class="stat-row"><span class="stat-label">Хорошие записи:</span><span class="stat-value stat-value--good" id="statsGoodPercent">0%</span></div>
+                <div class="stat-row"><span class="stat-label">Нейтральные записи:</span><span class="stat-value stat-value--neutral" id="statsNeutralPercent">0%</span></div>
+                <div class="stat-row"><span class="stat-label">Грустные записи:</span><span class="stat-value stat-value--sad" id="statsSadPercent">0%</span></div>
                 <div class="total-records" id="statsTotalRecords">Всего записей: 0</div>
                 <div class="stat-row"><span class="stat-label">Записей в день:</span><span class="stat-value" id="avgPerDay">0</span></div>
                 <div class="stat-row"><span class="stat-label">Активных дней:</span><span class="stat-value" id="activeDays">0</span></div>
@@ -1171,8 +1171,7 @@
         // Initialize app
          // Initialize app
         document.addEventListener('DOMContentLoaded', async function() {
-          await runMigrationsIfNeeded();   // ← добавили␊
-          initTheme();
+         await runMigrationsIfNeeded();   // ← добавили␊
           setupThemeToggle();
           loadData();
           updateCalendar();
@@ -1187,23 +1186,31 @@
           enableStatsSwipe();
         });
 
-        // Theme management
-        function applyTheme(theme){
-          const t = (theme === 'dark' ? 'dark' : 'light');
+         // Theme management
+        function setTheme(theme) {
+          const t = theme === 'dark' ? 'dark' : 'light';
           document.documentElement.setAttribute('data-theme', t);
           localStorage.setItem('theme', t);
           const btn = document.getElementById('themeToggle');
-          if (btn) btn.setAttribute('aria-pressed', String(t === 'dark'));
-          if (typeof updateCalendar === 'function') {
-            try {
-              updateCalendar();
-            } catch (err) {
-              console.error('Failed to update calendar after theme change', err);
-            }
+          if (btn) {
+            btn.setAttribute('aria-pressed', String(t === 'dark'));
           }
         }
 
-        function initTheme(){
+        function toggleTheme() {
+          const current = document.documentElement.getAttribute('data-theme') || 'light';
+          setTheme(current === 'light' ? 'dark' : 'light');
+        }
+
+        function setupThemeToggle(){
+          const btn = document.getElementById('themeToggle');
+          if (!btn) return;
+          btn.addEventListener('click', toggleTheme);
+          const current = document.documentElement.getAttribute('data-theme') || 'light';
+          btn.setAttribute('aria-pressed', String(current === 'dark'));
+        }
+
+        (function bootTheme(){
           const legacy = localStorage.getItem('moodCalendarTheme');
           if (legacy === 'light' || legacy === 'dark') {
             localStorage.setItem('theme', legacy);
@@ -1211,23 +1218,8 @@
           }
 
           const saved = localStorage.getItem('theme');
-          if (saved === 'light' || saved === 'dark') {
-            applyTheme(saved);
-            return;
-          }
-
-          const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          applyTheme(prefersDark ? 'dark' : 'light');
-        }
-
-        function setupThemeToggle(){
-          const btn = document.getElementById('themeToggle');
-          if (!btn) return;
-          btn.addEventListener('click', () => {
-            const current = document.documentElement.getAttribute('data-theme') || 'light';
-            applyTheme(current === 'dark' ? 'light' : 'dark');
-          });
-        }
+          setTheme(saved === 'dark' ? 'dark' : 'light');
+        })();
 
         function getCSSVariable(variableName) {
             return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
@@ -1252,8 +1244,7 @@
             else                 varName = '--score-neg3';
           }
 
-          const col = getCSSVariable(varName) || '#eab308';
-          el.style.setProperty('--today-color', col);
+          el.style.setProperty('--today-color', `var(${varName})`);
 
           const show = typeof avg === 'number'
             ? ((avg>0?'+':'') + (Math.round(avg*10)/10))
@@ -1285,8 +1276,7 @@
             else                 varName = '--score-neg3';
           }
 
-          const col = getCSSVariable(varName) || '#eab308';
-          el.style.setProperty('--today-color', col);
+          el.style.setProperty('--today-color', `var(${varName})`);
 
           const show = typeof avg === 'number'
             ? ((avg>0?'+':'') + (Math.round(avg*10)/10))
@@ -1586,8 +1576,8 @@
                         hourMoodCounts[a] > hourMoodCounts[b] ? a : b
                     );
                     
-                    const moodColor = getCSSVariable(`--mood-${dominantMood}`);
-                    hourBlock.style.backgroundColor = moodColor;
+                    const moodVar = `--mood-${dominantMood}`;
+                    hourBlock.style.backgroundColor = `var(${moodVar})`;
                     hourBlock.classList.add('has-data');
                     hourBlock.title = `${hour}:00 - ${hourEntries.length} записей`;
                 } else {
@@ -1653,13 +1643,10 @@
             const sadPercent     = Math.round(sadCount     / periodData.totalEntries * 100);
 
             statsGoodElement.textContent    = `${goodPercent}%`;
-            statsGoodElement.style.color    = getCSSVariable('--mood-good');
 
             statsNeutralElement.textContent = `${neutralPercent}%`;
-            statsNeutralElement.style.color = getCSSVariable('--mood-neutral');
 
             statsSadElement.textContent     = `${sadPercent}%`;
-            statsSadElement.style.color     = getCSSVariable('--mood-sad');
             
             statsTotalElement.textContent = `Всего записей: ${periodData.totalEntries}`;
             avgPerDayElement.textContent = (periodData.totalEntries / Math.max(periodData.days, 1)).toFixed(1);
@@ -2068,7 +2055,7 @@
                 dayDiv.classList.add('has-mood');
 
                 const varName = bucketVarForTotal(total);
-                const bg = getCSSVariable(varName) || getCSSVariable('--bucket-zero');
+                const bg = `var(${varName})`;
 
                 dayDiv.style.backgroundColor = bg;
                 dayDiv.style.backgroundImage = 'none';
@@ -2080,7 +2067,7 @@
                   'inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(0,0,0,0.40)';
                 dayDiv.style.borderColor = 'transparent';
               } else if (isToday) {
-                const bg = getCSSVariable('--bucket-zero');
+                const bg = 'var(--bucket-zero)';
                 dayDiv.style.backgroundColor = bg;
                 dayDiv.style.backgroundImage = 'none';
                 // не задаём инлайновый цвет — даём теме рулить контрастом
@@ -2108,11 +2095,7 @@
           const total = dailyTotals?.[key] ?? 0;
 
           const varName = bucketVarForTotal(total);
-          const col = getCSSVariable(varName) || '#fde047';
-          el.style.setProperty('--today-color', col);
-
-          const useLightText = Math.abs(total) >= 20;
-          el.style.color = useLightText ? '#f8fafc' : '#1f2937';
+          el.style.setProperty('--today-color', `var(${varName})`);
 
           const sign = total > 0 ? '+' : '';
           el.textContent = `Сегодня: ${sign}${total} / 50`;
@@ -2250,6 +2233,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
