@@ -2061,7 +2061,7 @@
         
               // задаём фон на основе среднего балла
               // задаём фон на основе накопленной суммы
-            const total = dailyTotals[dateKey];
+              const total = dailyTotals[dateKey];
 
               if (typeof total === 'number') {
                 dayDiv.classList.add('has-mood');
@@ -2072,20 +2072,18 @@
                 dayDiv.style.backgroundColor = bg;
                 dayDiv.style.backgroundImage = 'none';
 
-                const baseText = getCSSVariable('--text-primary') || '#ffffff';
-                dayDiv.style.color = baseText;
+                // не задаём инлайновый цвет — даём теме рулить контрастом
+                dayDiv.style.removeProperty('color');
 
                 dayDiv.style.boxShadow =
                   'inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(0,0,0,0.40)';
                 dayDiv.style.borderColor = 'transparent';
-                } else if (isToday) {
+              } else if (isToday) {
                 const bg = getCSSVariable('--bucket-zero');
                 dayDiv.style.backgroundColor = bg;
                 dayDiv.style.backgroundImage = 'none';
-                const isDark =
-                  document.documentElement.getAttribute('data-theme') === 'dark';
-                const baseText = getCSSVariable('--text-primary') || '#0b121a';
-                dayDiv.style.color = baseText;
+                // не задаём инлайновый цвет — даём теме рулить контрастом
+                dayDiv.style.removeProperty('color');
                 dayDiv.style.boxShadow =
                   'inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(0,0,0,0.40)';
               }
@@ -2251,6 +2249,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
