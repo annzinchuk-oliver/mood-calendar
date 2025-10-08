@@ -1146,9 +1146,10 @@
     })();
     </script>
 
+    <script src="scripts/utils.js?v=__BUILD_ID__"></script>
     <script src="scripts/palette.global.js?v=__BUILD_ID__"></script>
 
-    <script type="module">
+    <script>
 
         // Application state
         let currentDate = new Date();
@@ -1209,10 +1210,9 @@
         });
 
          // Theme management
-        function setTheme(theme) {
+         function applyTheme(theme) {
           const t = theme === 'dark' ? 'dark' : 'light';
-          document.documentElement.setAttribute('data-theme', t);
-          localStorage.setItem('theme', t);
+          window.setTheme(t);
           const btn = document.getElementById('themeToggle');
           if (btn) {
             btn.setAttribute('aria-pressed', String(t === 'dark'));
@@ -1220,15 +1220,19 @@
         }
 
         function toggleTheme() {
-          const current = document.documentElement.getAttribute('data-theme') || 'light';
-          setTheme(current === 'light' ? 'dark' : 'light');
+          const current = typeof window.getTheme === 'function'
+            ? window.getTheme()
+            : (document.documentElement.getAttribute('data-theme') || 'light');
+          applyTheme(current === 'light' ? 'dark' : 'light');
         }
 
         function setupThemeToggle(){
           const btn = document.getElementById('themeToggle');
           if (!btn) return;
           btn.addEventListener('click', toggleTheme);
-          const current = document.documentElement.getAttribute('data-theme') || 'light';
+          const current = typeof window.getTheme === 'function'
+            ? window.getTheme()
+            : (document.documentElement.getAttribute('data-theme') || 'light');
           btn.setAttribute('aria-pressed', String(current === 'dark'));
         }
 
@@ -1240,44 +1244,8 @@
           }
 
           const saved = localStorage.getItem('theme');
-          setTheme(saved === 'dark' ? 'dark' : 'light');
+          applyTheme(saved === 'dark' ? 'dark' : 'light');
         })();
-
-        function getCSSVariable(variableName) {
-            return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
-        }
-
-        function renderTodayScore() {
-          const el = document.getElementById('todayScoreBadge');
-          if (!el) return;
-
-          const today = new Date(); today.setHours(0,0,0,0);
-          const key = getDateKey(today);
-          const avg = dailyScores?.[key];
-
-          let varName = '--score-zero';
-          if (typeof avg === 'number') {
-            if (avg >= 2.5)      varName = '--score-pos3';
-            else if (avg >= 1.5) varName = '--score-pos2';
-            else if (avg >= 0.5) varName = '--score-pos1';
-            else if (avg > -0.5) varName = '--score-zero';
-            else if (avg > -1.5) varName = '--score-neg1';
-            else if (avg > -2.5) varName = '--score-neg2';
-            else                 varName = '--score-neg3';
-          }
-
-          el.style.setProperty('--today-color', `var(${varName})`);
-
-          const show = typeof avg === 'number'
-            ? ((avg>0?'+':'') + (Math.round(avg*10)/10))
-            : '+0';
-
-          el.textContent = `Сегодня: ${show}`;
-          el.classList.remove('hidden');
-        }
-        function getCSSVariable(variableName) {
-            return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
-        }
 
         function renderTodayScore() {
           const el = document.getElementById('todayScoreBadge');
@@ -2225,6 +2193,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
