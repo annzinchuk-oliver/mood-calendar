@@ -1151,6 +1151,34 @@
         const DAILY_MIN = -50;
         const DAILY_MAX = 50;
 
+        const clamp01 = (x) => Math.max(0, Math.min(1, x));
+        const MAX_ABS_TOTAL = DAILY_MAX;
+
+        function computeDayFill(total) {
+          if (total === 0) {
+            return 'var(--bucket-zero)';
+          }
+
+          const abs = Math.abs(total);
+          const p = clamp01(abs / MAX_ABS_TOTAL);
+          const isPositive = total > 0;
+          const base = isPositive ? 'var(--mood-happy)' : 'var(--mood-sad)';
+
+          if (!CSS.supports('color', 'color-mix(in srgb, black, white)')) {
+            const light = Math.round(72 - (72 - 35) * p);
+            if (isPositive) {
+              return `hsl(140 70% ${light}%)`;
+            }
+            return `hsl(220 70% ${light}%)`;
+          }
+
+          if (isPositive) {
+            return `color-mix(in srgb, ${base} ${30 + 70 * p}%, white)`;
+          }
+
+          return `color-mix(in srgb, ${base} ${50 - 40 * p}%, white)`;
+        }
+
         // Mood types
         const moodTypes = {
             // Старые ключи (для совместимости). good → positive, neutral → neutral, sad → печаль
@@ -1998,22 +2026,6 @@
             updateCalendar();
         }
 
-        function bucketVarForTotal(total) {
-          if (total >= 50) return '--bucket-pos50';
-          if (total >= 40) return '--bucket-pos40';
-          if (total >= 30) return '--bucket-pos30';
-          if (total >= 20) return '--bucket-pos20';
-          if (total >= 10) return '--bucket-pos10';
-          if (total >= 1)  return '--bucket-zero';
-          if (total === 0) return '--bucket-zero';
-          if (total <= -50) return '--bucket-neg50';
-          if (total <= -40) return '--bucket-neg40';
-          if (total <= -30) return '--bucket-neg30';
-          if (total <= -20) return '--bucket-neg20';
-          if (total <= -10) return '--bucket-neg10';
-          return '--bucket-zero';
-        }
-
         function updateCalendar() {
           document.getElementById('monthTitle').textContent =
             `${monthNames[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
@@ -2051,13 +2063,10 @@
               // задаём фон на основе накопленной суммы
               const total = dailyTotals[dateKey];
 
-              if (typeof total === 'number') {
+               if (typeof total === 'number' && total !== 0) {
                 dayDiv.classList.add('has-mood');
 
-                const varName = bucketVarForTotal(total);
-                const bg = `var(${varName})`;
-
-                dayDiv.style.backgroundColor = bg;
+                dayDiv.style.backgroundColor = computeDayFill(total);
                 dayDiv.style.backgroundImage = 'none';
 
                 // не задаём инлайновый цвет — даём теме рулить контрастом
@@ -2094,8 +2103,8 @@
           const key = getDateKey(today);
           const total = dailyTotals?.[key] ?? 0;
 
-          const varName = bucketVarForTotal(total);
-          el.style.setProperty('--today-color', `var(${varName})`);
+          const color = total === 0 ? 'var(--bucket-zero)' : computeDayFill(total);
+          el.style.setProperty('--today-color', color);
 
           const sign = total > 0 ? '+' : '';
           el.textContent = `Сегодня: ${sign}${total} / 50`;
@@ -2233,6 +2242,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
