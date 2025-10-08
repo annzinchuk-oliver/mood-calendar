@@ -74,6 +74,14 @@
           color: var(--text-primary);
         }
 
+        .calendar .day {
+          color: var(--text);
+        }
+
+        .calendar .day.has-mood {
+          color: var(--calendar-text-contrasted) !important;
+        }
+
         .month-nav {
             display: flex;
             justify-content: space-between;
@@ -1138,7 +1146,9 @@
     })();
     </script>
 
-    <script>
+    <script type="module">
+        import { moodColor } from './scripts/palette.js';
+
         // Application state
         let currentDate = new Date();
         let selectedDate = new Date();
@@ -1151,32 +1161,15 @@
         const DAILY_MIN = -50;
         const DAILY_MAX = 50;
 
-        const clamp01 = (x) => Math.max(0, Math.min(1, x));
-        const MAX_ABS_TOTAL = DAILY_MAX;
-
-        function computeDayFill(total) {
-          if (total === 0) {
-            return 'var(--bucket-zero)';
+        function paintDayCell(dayDiv, totalRaw) {
+          if (!(totalRaw === 0 || typeof totalRaw === 'number')) {
+            return;
           }
 
-          const abs = Math.abs(total);
-          const p = clamp01(abs / MAX_ABS_TOTAL);
-          const isPositive = total > 0;
-          const base = isPositive ? 'var(--mood-happy)' : 'var(--mood-sad)';
-
-          if (!CSS.supports('color', 'color-mix(in srgb, black, white)')) {
-            const light = Math.round(72 - (72 - 35) * p);
-            if (isPositive) {
-              return `hsl(140 70% ${light}%)`;
-            }
-            return `hsl(220 70% ${light}%)`;
-          }
-
-          if (isPositive) {
-            return `color-mix(in srgb, ${base} ${30 + 70 * p}%, white)`;
-          }
-
-          return `color-mix(in srgb, ${base} ${50 - 40 * p}%, white)`;
+          dayDiv.classList.add('has-mood');
+          dayDiv.style.removeProperty('background');
+          dayDiv.style.removeProperty('background-image');
+          dayDiv.style.setProperty('background-color', moodColor(totalRaw), 'important');
         }
 
         // Mood types
@@ -1595,17 +1588,12 @@
                 const hourEntries = todayEntries.filter(entry => entry.hour === hour);
                 
                 if (hourEntries.length > 0) {
-                    const hourMoodCounts = hourEntries.reduce((acc, entry) => {
-                        acc[entry.mood] = (acc[entry.mood] || 0) + 1;
-                        return acc;
-                    }, {});
-                    
-                    const dominantMood = Object.keys(hourMoodCounts).reduce((a, b) => 
-                        hourMoodCounts[a] > hourMoodCounts[b] ? a : b
-                    );
-                    
-                    const moodVar = `--mood-${dominantMood}`;
-                    hourBlock.style.backgroundColor = `var(${moodVar})`;
+                    const totalScore = hourEntries.reduce((sum, entry) => {
+                        const value = typeof entry.score === 'number' ? entry.score : 0;
+                        return sum + value;
+                    }, 0);
+
+                    hourBlock.style.backgroundColor = moodColor(totalScore);
                     hourBlock.classList.add('has-data');
                     hourBlock.title = `${hour}:00 - ${hourEntries.length} записей`;
                 } else {
@@ -2059,30 +2047,12 @@
               if (!isCurrentMonth) dayDiv.classList.add('other-month');
               if (isToday) dayDiv.classList.add('today');
         
-              // задаём фон на основе среднего балла
-              // задаём фон на основе накопленной суммы
               const total = dailyTotals[dateKey];
 
-               if (typeof total === 'number' && total !== 0) {
-                dayDiv.classList.add('has-mood');
-
-                dayDiv.style.backgroundColor = computeDayFill(total);
-                dayDiv.style.backgroundImage = 'none';
-
-                // не задаём инлайновый цвет — даём теме рулить контрастом
-                dayDiv.style.removeProperty('color');
-
-                dayDiv.style.boxShadow =
-                  'inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(0,0,0,0.40)';
-                dayDiv.style.borderColor = 'transparent';
+              if (typeof total === 'number') {
+                paintDayCell(dayDiv, total);
               } else if (isToday) {
-                const bg = 'var(--bucket-zero)';
-                dayDiv.style.backgroundColor = bg;
-                dayDiv.style.backgroundImage = 'none';
-                // не задаём инлайновый цвет — даём теме рулить контрастом
-                dayDiv.style.removeProperty('color');
-                dayDiv.style.boxShadow =
-                  'inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(0,0,0,0.40)';
+                paintDayCell(dayDiv, 0);
               }
 
               dayDiv.textContent = current.getDate();
@@ -2101,10 +2071,9 @@
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           const key = getDateKey(today);
-          const total = dailyTotals?.[key] ?? 0;
+          const total = typeof dailyTotals?.[key] === 'number' ? dailyTotals[key] : 0;
 
-          const color = total === 0 ? 'var(--bucket-zero)' : computeDayFill(total);
-          el.style.setProperty('--today-color', color);
+          el.style.setProperty('--today-color', moodColor(total));
 
           const sign = total > 0 ? '+' : '';
           el.textContent = `Сегодня: ${sign}${total} / 50`;
@@ -2237,11 +2206,25 @@
 
         // Add event listener for notifications button
         document.getElementById('enableNotifications').addEventListener('click', requestNotificationPermission);
+
+        Object.assign(window, {
+          navigateMonth,
+          openMoodSlider,
+          closeMoodSlider,
+          confirmMoodScore,
+          openStats,
+          closeStats,
+          setStatsFilter,
+          switchPage,
+          sendMessage,
+          openTest
+        });
     </script>
     <!-- Load core module which defines the global App object with store, bus and navigation helpers -->
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
