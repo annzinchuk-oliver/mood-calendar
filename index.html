@@ -1146,8 +1146,9 @@
     })();
     </script>
 
+    <script src="scripts/palette.global.js?v=__BUILD_ID__"></script>
+
     <script type="module">
-        import { moodColor } from './scripts/palette.js';
 
         // Application state
         let currentDate = new Date();
@@ -1169,7 +1170,7 @@
           dayDiv.classList.add('has-mood');
           dayDiv.style.removeProperty('background');
           dayDiv.style.removeProperty('background-image');
-          dayDiv.style.setProperty('background-color', moodColor(totalRaw), 'important');
+          dayDiv.style.setProperty('background-color', window.Palette.moodColor(totalRaw), 'important');
         }
 
         // Mood types
@@ -1593,7 +1594,7 @@
                         return sum + value;
                     }, 0);
 
-                    hourBlock.style.backgroundColor = moodColor(totalScore);
+                    hourBlock.style.backgroundColor = window.Palette.moodColor(totalScore);
                     hourBlock.classList.add('has-data');
                     hourBlock.title = `${hour}:00 - ${hourEntries.length} записей`;
                 } else {
@@ -2073,7 +2074,7 @@
           const key = getDateKey(today);
           const total = typeof dailyTotals?.[key] === 'number' ? dailyTotals[key] : 0;
 
-          el.style.setProperty('--today-color', moodColor(total));
+          el.style.setProperty('--today-color', window.Palette.moodColor(total));
 
           const sign = total > 0 ? '+' : '';
           el.textContent = `Сегодня: ${sign}${total} / 50`;
@@ -2224,6 +2225,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
