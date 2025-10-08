@@ -184,14 +184,6 @@
         }
         .today-score.hidden{ display:none; }
 
-        .week { gap: 6px; }
-
-        .calendar .day {
-          box-shadow:
-            inset 0 1px 0 rgba(255,255,255,0.05),
-            0 0 0 1px rgba(0,0,0,0.40);
-        }
-
        .weekdays {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -594,7 +586,7 @@
                     <div class="weekday">Пт</div>
                     <div class="weekday">Сб</div>
                 </div>
-                <div id="calendarDays"></div>
+                <div id="calendarDays" class="calendar-grid"></div>
              </div>
 
          <div class="calendar-cta">
@@ -2000,34 +1992,31 @@
           today.setHours(0, 0, 0, 0);
           const todayKey = getDateKey(today);
         
-          for (let week = 0; week < 6; week++) {
-            const weekDiv = document.createElement('div');
-            weekDiv.className = 'week';
-        
-            for (let day = 0; day < 7; day++) {
-              const current = new Date(startDate);
-              current.setDate(startDate.getDate() + (week * 7 + day));
-              const dateKey = getDateKey(current);
-              const isCurrentMonth = current.getMonth() === month;
-              const isToday = dateKey === todayKey;
-        
-              const dayDiv = document.createElement('div');
-              dayDiv.className = 'day';
-              if (!isCurrentMonth) dayDiv.classList.add('other-month');
-              if (isToday) dayDiv.classList.add('today');
-        
-              const total = dailyTotals[dateKey];
+          const totalCells = 42; // 6 weeks * 7 days ensures full grid
+          for (let cell = 0; cell < totalCells; cell++) {
+            const current = new Date(startDate);
+            current.setDate(startDate.getDate() + cell);
+            const dateKey = getDateKey(current);
+            const isCurrentMonth = current.getMonth() === month;
+            const isToday = dateKey === todayKey;
 
-              if (typeof total === 'number') {
-                paintDayCell(dayDiv, total);
-              } else if (isToday) {
-                paintDayCell(dayDiv, 0);
-              }
-
-              dayDiv.textContent = current.getDate();
-              weekDiv.appendChild(dayDiv);
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'day';
+            if (!isCurrentMonth) {
+              dayDiv.classList.add('is-outside', 'other-month');
             }
-            calendarDays.appendChild(weekDiv);
+            if (isToday) dayDiv.classList.add('today');
+
+            const total = dailyTotals[dateKey];
+
+            if (typeof total === 'number') {
+              paintDayCell(dayDiv, total);
+            } else if (isToday) {
+              paintDayCell(dayDiv, 0);
+            }
+
+            dayDiv.textContent = current.getDate();
+            calendarDays.appendChild(dayDiv);
           }
 
           renderTodayScore();
@@ -2193,6 +2182,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
