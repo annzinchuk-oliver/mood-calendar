@@ -52,3 +52,8 @@
     window.SCHEMA_VERSION = 2;
   }
 })();
+
+// Глобальная "заглушка" на случай, если реальную функцию ещё не загрузили
+if (typeof window.enableStatsSwipe !== 'function') {
+  window.enableStatsSwipe = function enableStatsSwipe() {};
+}
