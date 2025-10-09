@@ -447,20 +447,79 @@
             font-size: 16px;
         }
 
+        .hourly-chart__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
         .hourly-chart {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
+            position: relative;
+            width: 100%;
+            height: 240px;
+        }
+
+        .hourly-chart canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .scale-toggle {
+            display: inline-flex;
+            align-items: center;
             gap: 4px;
+            background: var(--bg-secondary);
+            border-radius: 999px;
+            padding: 4px;
+            border: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
+        }
+
+        .scale-toggle__btn {
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background-color .2s ease, color .2s ease;
+        }
+
+        .scale-toggle__btn.active {
+            background: color-mix(in srgb, var(--brand) 18%, transparent);
+            color: var(--text-primary);
+        }
+
+        .hourly-aggregates {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
             margin-top: 12px;
         }
 
-        .hour-block {
-            text-align: center;
-            padding: 8px 4px;
-            border-radius: 8px;
-            font-size: 11px;
+        .aggregate-item {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 12px;
+            border: 1px solid color-mix(in srgb, var(--border-color) 60%, transparent);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .aggregate-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .aggregate-value {
+            font-size: 16px;
+            font-weight: 600;
             color: var(--text-primary);
-            border: 1px solid var(--border-color);
         }
 
 
@@ -618,10 +677,32 @@
               </div>
         
               <div class="correlation-section">
-                <h3>📊 Настроение сегодня по часам</h3>
-                <div id="hourlyChart" class="hourly-chart"></div>
+                <div class="hourly-chart__header">
+                  <h3>📊 Настроение сегодня по часам</h3>
+                  <div class="scale-toggle" role="group" aria-label="Диапазон шкалы настроения">
+                    <button type="button" class="scale-toggle__btn" data-scale="auto" onclick="setHourlyScale('auto')">Авто</button>
+                    <button type="button" class="scale-toggle__btn" data-scale="fixed" onclick="setHourlyScale('fixed')">±50</button>
+                  </div>
+                </div>
+                <div id="hourlyChart" class="hourly-chart">
+                  <canvas id="hourlyChartCanvas" aria-label="График настроения по часам" role="img"></canvas>
+                </div>
+                <div id="hourlyAggregates" class="hourly-aggregates" aria-live="polite">
+                  <div class="aggregate-item">
+                    <span class="aggregate-label">Среднее за день</span>
+                    <span class="aggregate-value" data-aggregate="avg">0.0</span>
+                  </div>
+                  <div class="aggregate-item">
+                    <span class="aggregate-label">Сумма за день</span>
+                    <span class="aggregate-value" data-aggregate="total">0</span>
+                  </div>
+                  <div class="aggregate-item">
+                    <span class="aggregate-label">Пиковый час</span>
+                    <span class="aggregate-value" data-aggregate="peak">–</span>
+                  </div>
+                </div>
                 <p style="font-size:12px; color:var(--text-secondary); text-align:center; margin-top:6px;">
-                  Нажмите на час, чтобы увидеть записи
+                  Наведите или коснитесь столбика, чтобы увидеть детали
                 </p>
               </div>
         
@@ -1140,6 +1221,7 @@
 
     <script src="scripts/utils.js?v=__BUILD_ID__"></script>
     <script src="scripts/palette.global.js?v=__BUILD_ID__"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 
     <script>
 
@@ -1154,6 +1236,9 @@
         let dailyTotals = {};
         const DAILY_MIN = -50;
         const DAILY_MAX = 50;
+        let hourlyChartInstance = null;
+        let hourlyScaleMode = 'auto';
+        let hourlyChartResizeTimer = null;
 
         function paintDayCell(dayDiv, totalRaw) {
           if (!(totalRaw === 0 || typeof totalRaw === 'number')) {
@@ -1532,57 +1617,228 @@
 
 
 
-        function updateHourlyChart() {
-            const today = new Date();
-            const todayKey = getDateKey(today);
-            const todayEntries = moodData[todayKey] || [];
-            
-            const hourlyChart = document.getElementById('hourlyChart');
-            if (!hourlyChart) return;
-            
-            hourlyChart.innerHTML = '';
-            
-            for (let hour = 6; hour <= 23; hour++) {
-                const hourBlock = document.createElement('div');
-                hourBlock.className = 'hour-block';
-                
-                const hourEntries = todayEntries.filter(entry => entry.hour === hour);
-                
-                if (hourEntries.length > 0) {
-                    const totalScore = hourEntries.reduce((sum, entry) => {
-                        const value = typeof entry.score === 'number' ? entry.score : 0;
-                        return sum + value;
-                    }, 0);
-
-                    hourBlock.style.backgroundColor = window.Palette.moodColor(totalScore);
-                    hourBlock.classList.add('has-data');
-                    hourBlock.title = `${hour}:00 - ${hourEntries.length} записей`;
-                } else {
-                    hourBlock.style.backgroundColor = 'transparent';
-                    hourBlock.title = `${hour}:00 - нет записей`;
-                }
-                
-                hourBlock.textContent = hour;
-                hourBlock.onclick = () => showHourDetails(hour, hourEntries);
-                
-                hourlyChart.appendChild(hourBlock);
-            }
+        function setHourlyScale(mode) {
+            hourlyScaleMode = mode === 'fixed' ? 'fixed' : 'auto';
+            updateScaleToggleUI();
+            updateHourlyChart();
         }
 
-        function showHourDetails(hour, entries) {
-            if (entries.length === 0) {
-                alert(`${hour}:00 - записей нет`);
+        function updateScaleToggleUI() {
+            document.querySelectorAll('.scale-toggle__btn').forEach(btn => {
+                const isActive = btn.getAttribute('data-scale') === hourlyScaleMode;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+        }
+
+        function updateHourlyChart() {
+            const canvas = document.getElementById('hourlyChartCanvas');
+            if (!canvas || typeof Chart === 'undefined') {
                 return;
             }
-            
-            const details = entries.map(entry => {
-                const time = `${entry.hour.toString().padStart(2, '0')}:${entry.minute.toString().padStart(2, '0')}`;
-                const moodName = moodTypes[entry.mood].name;
-                return `${time} - ${moodName}`;
-            }).join('\n');
-            
-            alert(`${hour}:00\n${entries.length} записей:\n\n${details}`);
+
+            updateScaleToggleUI();
+
+            const ctx = canvas.getContext('2d');
+            const todayKey = getDateKey(new Date());
+            const entries = moodData[todayKey] || [];
+            const hourlyTotals = new Array(24).fill(0);
+            const hourHasData = new Array(24).fill(false);
+            const hourlyEntriesList = Array.from({ length: 24 }, () => []);
+
+            entries.forEach(entry => {
+                if (entry == null || typeof entry.hour !== 'number') return;
+                const hour = Math.min(23, Math.max(0, entry.hour));
+                const value = typeof entry.score === 'number' ? entry.score : 0;
+                hourlyTotals[hour] += value;
+                hourHasData[hour] = true;
+                hourlyEntriesList[hour].push(entry);
+            });
+
+            const aggregatesEl = document.getElementById('hourlyAggregates');
+            if (aggregatesEl) {
+                const totalEntries = entries.length;
+                const totalSum = entries.reduce((sum, entry) => {
+                    const value = typeof entry.score === 'number' ? entry.score : 0;
+                    return sum + value;
+                }, 0);
+                const avgValue = totalEntries ? (totalSum / totalEntries) : 0;
+                let peakHour = null;
+                let peakValue = 0;
+                hourlyTotals.forEach((value, hour) => {
+                    if (!hourHasData[hour]) return;
+                    if (peakHour === null || Math.abs(value) > Math.abs(peakValue)) {
+                        peakHour = hour;
+                        peakValue = value;
+                    }
+                });
+
+                const avgEl = aggregatesEl.querySelector('[data-aggregate="avg"]');
+                const totalEl = aggregatesEl.querySelector('[data-aggregate="total"]');
+                const peakEl = aggregatesEl.querySelector('[data-aggregate="peak"]');
+
+                if (avgEl) avgEl.textContent = `${avgValue > 0 ? '+' : ''}${avgValue.toFixed(1)}`;
+                if (totalEl) totalEl.textContent = `${totalSum > 0 ? '+' : ''}${totalSum}`;
+                if (peakEl) {
+                    if (peakHour === null) {
+                        peakEl.textContent = '–';
+                    } else {
+                        const sign = peakValue > 0 ? '+' : '';
+                        peakEl.textContent = `${peakHour.toString().padStart(2, '0')}:00 (${sign}${peakValue})`;
+                    }
+                }
+            }
+
+            if (hourlyChartInstance) {
+                hourlyChartInstance.destroy();
+            }
+
+            const hourLabels = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
+            const rootTheme = document.documentElement.getAttribute('data-theme');
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const isDark = rootTheme ? rootTheme === 'dark' : prefersDark;
+            const emptyBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+            const emptyBorder = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)';
+            const hasData = entries.length > 0;
+            const minVal = hasData ? Math.min(...hourlyTotals, 0) : -5;
+            const maxVal = hasData ? Math.max(...hourlyTotals, 0) : 5;
+            const padding = hasData ? Math.max(2, Math.round((maxVal - minVal) * 0.15)) : 2;
+
+            let yMin = undefined;
+            let yMax = undefined;
+            let ySuggestedMin = Math.min(minVal - padding, 0);
+            let ySuggestedMax = Math.max(maxVal + padding, 0);
+            let yStepSize = undefined;
+
+            if (hourlyScaleMode === 'fixed') {
+                yMin = -50;
+                yMax = 50;
+                ySuggestedMin = undefined;
+                ySuggestedMax = undefined;
+                yStepSize = 10;
+            }
+
+            hourlyChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: hourLabels,
+                    datasets: [{
+                        data: hourlyTotals,
+                        backgroundColor: hourlyTotals.map((value, hour) => {
+                            if (!hourHasData[hour]) return emptyBg;
+                            return window.Palette.moodColor(value);
+                        }),
+                        borderColor: hourlyTotals.map((value, hour) => {
+                            if (!hourHasData[hour]) return emptyBorder;
+                            return window.Palette.moodColor(value);
+                        }),
+                        borderWidth: hourlyTotals.map((_, hour) => hourHasData[hour] ? 0 : 1),
+                        borderSkipped: false,
+                        borderRadius: 6,
+                        hoverBackgroundColor: hourlyTotals.map((value, hour) => {
+                            if (!hourHasData[hour]) return emptyBg;
+                            return window.Palette.moodColor(value);
+                        }),
+                        hoverBorderColor: hourlyTotals.map((value, hour) => {
+                            if (!hourHasData[hour]) return emptyBorder;
+                            return window.Palette.moodColor(value);
+                        })
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                autoSkip: false,
+                                color: isDark ? '#bbb' : '#666',
+                                maxRotation: 0,
+                                callback: function(value, index) {
+                                    const label = hourLabels[index] || value;
+                                    if (window.innerWidth < 500 && index % 2 !== 0) {
+                                        return '';
+                                    }
+                                    return `${label}:00`;
+                                }
+                            }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            min: yMin,
+                            max: yMax,
+                            suggestedMin: ySuggestedMin,
+                            suggestedMax: ySuggestedMax,
+                            ticks: {
+                                color: isDark ? '#bbb' : '#666',
+                                stepSize: yStepSize
+                            },
+                            grid: {
+                                color: function(context) {
+                                    if (context.tick.value === 0) {
+                                        return isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)';
+                                    }
+                                    return isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)';
+                                },
+                                lineWidth: function(context) {
+                                    return context.tick.value === 0 ? 1.2 : 0.5;
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            displayColors: false,
+                            callbacks: {
+                                title: function(context) {
+                                    const hourLabel = context[0]?.label || '00';
+                                    return `${hourLabel}:00`;
+                                },
+                                label: function(context) {
+                                    const hourIdx = context.dataIndex;
+                                    const total = hourlyTotals[hourIdx] || 0;
+                                    const sign = total > 0 ? '+' : '';
+                                    return `Сумма: ${sign}${total}`;
+                                },
+                                afterLabel: function(context) {
+                                    const hourIdx = context.dataIndex;
+                                    const hourEntries = hourlyEntriesList[hourIdx] || [];
+                                    if (hourEntries.length === 0) {
+                                        return 'Нет записей';
+                                    }
+                                    const notes = hourEntries
+                                        .filter(entry => entry && entry.note)
+                                        .map(entry => `• ${entry.note}`);
+                                    if (notes.length === 0) {
+                                        return `Записей: ${hourEntries.length}`;
+                                    }
+                                    return [`Записей: ${hourEntries.length}`, ...notes];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         }
+
+        window.addEventListener('resize', () => {
+            if (hourlyChartResizeTimer) {
+                clearTimeout(hourlyChartResizeTimer);
+            }
+            hourlyChartResizeTimer = setTimeout(() => {
+                const statsSheet = document.getElementById('statsSheet');
+                if (statsSheet && statsSheet.hidden === false) {
+                    updateHourlyChart();
+                }
+            }, 200);
+        });
 
         function updateOverviewStats() {
             const periodData = getDataForPeriod(currentStatsFilter);
@@ -2182,6 +2438,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
