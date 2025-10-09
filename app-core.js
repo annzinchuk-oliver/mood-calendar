@@ -481,17 +481,17 @@ function renderTodayHourlyChart(){
   // если Chart.js недоступен — выходим без ошибки
   if (typeof window.Chart !== 'function') return;
 
-  // вычисление шага подписей X (фикс «гряды»)
+  // === разрежение подписей по ширине
   function computeLabelStep() {
     const wrap = document.getElementById('today-hourly');
     const w = wrap?.clientWidth || window.innerWidth;
-    if (w < 340) return 4;
-    if (w < 420) return 3;
-    if (w < 560) return 2;
-    return 1;
+    if (w < 340) return 4;     // 0,4,8,12,16,20
+    if (w < 420) return 3;     // 0,3,6,9,12,15,18,21
+    if (w < 560) return 2;     // 0,2,4,6,…
+    return 1;                  // все часы
   }
 
-  const labelStep = computeLabelStep();
+  let labelStep = computeLabelStep();
 
   // палитра
   const isDark = document.documentElement.classList.contains('theme-dark');
@@ -551,7 +551,12 @@ function renderTodayHourlyChart(){
             autoSkip: false,
             padding: 6,
             color: isDark ? '#9AA0A6' : '#5f6368',
-            callback(val){ return (Number(val) % labelStep === 0) ? `${val}:00` : ''; }
+            // показываем только каждый labelStep-й час
+            callback(val /* индекс */, idx) {
+              const hour = Number(val);
+              return (hour % labelStep === 0) ? String(hour) : '';
+            },
+            font: () => ({ size: (labelStep >= 3 ? 10 : 12) })
           }
         },
         y: {
