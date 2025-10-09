@@ -231,46 +231,11 @@
 })(window, document);
 
 // ======== Статистика: состояние ========
-let statsModalOpen = false;
 let overallRange = '3d';
 let yScaleMode = 'auto'; // 'auto' | 'fixed'
 let hourlyChart = null;
 
 const RANGE_LABELS = { '3d':'3 дня', '7d':'Неделя', '1m':'Месяц', 'all':'Все время' };
-
-// ======== Открыть / закрыть модалку ========
-function openStatsModal() {
-  const modal = document.getElementById('stats-modal');
-  if (!modal) return;
-  modal.removeAttribute('hidden');
-  modal.setAttribute('aria-hidden', 'false');
-  // включаем свайп-закрытие
-  enableStatsSwipe(modal);
-
-
-  // инициализация табов
-  initOverallRangeTabs();
-  // дефолт: авто масштаб
-  initScaleToggle();
-
-  // рендер «сегодня» и «общая статистика»
-  renderTodayHourlyChart();
-  renderOverallStats();
-}
-
-function closeStatsModal() {
-  const modal = document.getElementById('stats-modal');
-  if (!modal) return;
-  modal.setAttribute('hidden', '');
-  modal.setAttribute('aria-hidden', 'true');
-  statsModalOpen = false;
-
-  // чистим график
-  if (hourlyChart && typeof hourlyChart.destroy === 'function') {
-    hourlyChart.destroy();
-    hourlyChart = null;
-    }
-  }
 
 // ======== Диапазон дат для общей статистики ========
 function getDateKeysForRange(rangeKey){
@@ -304,7 +269,9 @@ function enableStatsSwipe(modalEl) {
     // если потянули вниз > 60px — закрываем
     if (dy > 60) {
       startY = null;
-      closeStatsModal();
+      if (typeof window.closeStatsModal === 'function') {
+      window.closeStatsModal();
+      }
     }
   }, { passive: true });
 
@@ -552,8 +519,72 @@ function initScaleToggle(){
 }
 
 // --- Экспорт в глобал, чтобы было видно из HTML (если где-то всё же вызывается напрямую)
-window.openStatsModal = openStatsModal;
-window.closeStatsModal = closeStatsModal;
+/* ====== Статистика: функции открытия/закрытия ====== */
+(function attachStatsModalHandlers(){
+  // делают модалку видимой/невидимой
+  function openStatsModal() {
+    const m = document.getElementById('stats-modal');
+    if (!m) return;
+    m.hidden = false;
+    m.setAttribute('aria-hidden', 'false');
+
+    // если нужно — инициализация содержимого:
+    if (typeof renderTodayHourlyChart === 'function') renderTodayHourlyChart();
+    if (typeof renderOverallStats === 'function') renderOverallStats();
+
+    // свайп по желанию (не обязателен)
+    if (typeof enableStatsSwipe === 'function') enableStatsSwipe(m);
+  }
+
+  function closeStatsModal() {
+    const m = document.getElementById('stats-modal');
+    if (!m) return;
+    m.hidden = true;
+    m.setAttribute('aria-hidden', 'true');
+  }
+
+  // делегируем клики на открытие/закрытие
+  document.addEventListener('click', (e) => {
+    const openBtn = e.target.closest('[data-open-stats]');
+    if (openBtn) { openStatsModal(); return; }
+
+    const closeBtn = e.target.closest('[data-close-modal]');
+    if (closeBtn) { closeStatsModal(); return; }
+  });
+
+  // на всякий случай — экспорт в window (если где-то остался прямой вызов)
+  window.openStatsModal = openStatsModal;
+  window.closeStatsModal = closeStatsModal;
+})();
+
+/* ====== Безопасная заглушка свайпа (чтобы не падало) ====== */
+if (typeof window.enableStatsSwipe !== 'function') {
+  window.enableStatsSwipe = function enableStatsSwipe(modalEl){
+    // минимальная реализация: свайп вниз >60px — закрыть
+    if (!modalEl) return;
+    let startY = null;
+    modalEl.addEventListener('touchstart', (e) => { startY = e.touches?.[0]?.clientY ?? null; }, {passive:true});
+    modalEl.addEventListener('touchmove',  (e) => {
+      if (startY == null) return;
+      const y = e.touches?.[0]?.clientY ?? startY;
+      if (y - startY > 60) { startY = null; window.closeStatsModal(); }
+    }, {passive:true});
+    modalEl.addEventListener('touchend', () => { startY = null; }, {passive:true});
+  };
+}
+
+// Дополнительная очистка графика при закрытии модалки
+if (typeof window.closeStatsModal === 'function') {
+  const originalCloseStatsModal = window.closeStatsModal;
+  window.closeStatsModal = function patchedCloseStatsModal(...args) {
+    const result = originalCloseStatsModal.apply(this, args);
+    if (hourlyChart && typeof hourlyChart.destroy === 'function') {
+      hourlyChart.destroy();
+      hourlyChart = null;
+    }
+    return result;
+  };
+}
 
 /* ===== APP BOOT ===== */
 function appBoot() {
@@ -565,13 +596,8 @@ function appBoot() {
     }
 
     // 2) навешивание обработчиков на кнопки (без inline onclick)
-    document.addEventListener('click', (e) => {
-      const openBtn = e.target.closest('[data-open-stats]');
-      if (openBtn) openStatsModal();
-
-      const closeBtn = e.target.closest('[data-close-modal]');
-      if (closeBtn) closeStatsModal();
-    });
+    initOverallRangeTabs();
+    initScaleToggle();
 
     // 3) всё остальное, что раньше запускалось сразу
   } catch (err) {
