@@ -953,3 +953,10 @@ a, .link { color: var(--brand); text-decoration: none; }
 @media (max-width: 520px){
   .aggregates { grid-template-columns: 1fr; }
 }
+/* Контейнер модалки и карточек — не расползаться */
+.modal__dialog { width: min(720px, 92vw); }
+.card { max-width: 100%; }
+
+/* Холст графика — фиксируем комфортную высоту */
+#today-hourly .chart-wrap { height: 220px; }
+#today-hourly canvas { width: 100% !important; height: 100% !important; display: block; }
