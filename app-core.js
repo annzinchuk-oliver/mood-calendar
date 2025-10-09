@@ -214,106 +214,309 @@
 
 })(window, document);
 
-(function (window, document) {
-  'use strict';
+// ======== Статистика: состояние ========
+let statsModalOpen = false;
+let overallRange = '3d';
+let yScaleMode = 'auto'; // 'auto' | 'fixed'
+let hourlyChart = null;
 
-  // --- состояние периода для общей статистики ---
-  let overallRange = '3d';
+const RANGE_LABELS = { '3d':'3 дня', '7d':'Неделя', '1m':'Месяц', 'all':'Все время' };
 
-  const RANGE_LABELS = {
-    '3d': '3 дня',
-    '7d': 'Неделя',
-    '1m': 'Месяц',
-    'all': 'Все время'
+// ======== Открыть / закрыть модалку ========
+function openStatsModal() {
+  const modal = document.getElementById('stats-modal');
+  if (!modal) return;
+  modal.removeAttribute('hidden');
+  modal.setAttribute('aria-hidden', 'false');
+  statsModalOpen = true;
+
+  // инициализация табов
+  initOverallRangeTabs();
+  // дефолт: авто масштаб
+  initScaleToggle();
+
+  // рендер «сегодня» и «общая статистика»
+  renderTodayHourlyChart();
+  renderOverallStats();
+}
+
+function closeStatsModal() {
+  const modal = document.getElementById('stats-modal');
+  if (!modal) return;
+  modal.setAttribute('hidden', '');
+  modal.setAttribute('aria-hidden', 'true');
+  statsModalOpen = false;
+
+  // чистим график
+  if (hourlyChart && typeof hourlyChart.destroy === 'function') {
+    hourlyChart.destroy();
+    hourlyChart = null;
+    }
+  }
+
+// обработчик нижней кнопки "Закрыть"
+document.addEventListener('click', (e) => {
+  if (e.target.closest('[data-close-modal]')) {
+    closeStatsModal();
+  }
+});
+
+// ======== Диапазон дат для общей статистики ========
+function getDateKeysForRange(rangeKey){
+  const allKeys = Object.keys(window.moodData || {}).sort(); // 'YYYY-MM-DD'
+  if (!allKeys.length) return [];
+  if (rangeKey === 'all') return allKeys;
+
+  const now = new Date();
+  const from = new Date(now);
+  if (rangeKey === '3d') from.setDate(from.getDate() - 2);
+  if (rangeKey === '7d') from.setDate(from.getDate() - 6);
+  if (rangeKey === '1m') from.setMonth(from.getMonth() - 1);
+
+  const fromStr = from.toISOString().slice(0,10);
+  return allKeys.filter(k => k >= fromStr);
+}
+
+// ======== Агрегация и карточка общей статистики ========
+function aggregateRange(dateKeys) {
+  let total = 0, zeroCnt = 0, activeDays = 0;
+  let posCnt = 0, negCnt = 0, posSum = 0, negSum = 0;
+
+  for (const k of dateKeys) {
+    const arr = (window.moodData?.[k] ?? []);
+    if (arr.length) activeDays++;
+    total += arr.length;
+    for (const e of arr) {
+      const v = Number(e.score) || 0;
+      if (v > 0) { posCnt++; posSum += v; }
+      else if (v < 0) { negCnt++; negSum += v; }
+      else { zeroCnt++; }
+    }
+  }
+
+  const considered = posCnt + negCnt;
+  const positiveShare = considered ? Math.round((posCnt / considered) * 100) : 0;
+  const negativeShare = considered ? (100 - positiveShare) : 0;
+  return {
+    totalEntries: total,
+    zeroEntries: zeroCnt,
+    activeDays,
+    entriesPerDay: activeDays ? total / activeDays : 0,
+    positiveShare, negativeShare,
+    balanceSum: posSum + negSum
   };
+}
 
-  function getDateKeysForRange(rangeKey) {
-    const allKeys = Object.keys(window.moodData || {}).sort();
-    const targetRange = rangeKey || '3d';
-    if (targetRange === 'all') return allKeys;
+function buildOverallStatsHTML(dateKeys) {
+  const s = aggregateRange(dateKeys);
+  const sign = s.balanceSum > 0 ? '+' : (s.balanceSum < 0 ? '−' : '');
+  return `
+    <div class="stats-grid">
+      <div class="row two">
+        <div class="metric"><div class="label">Доля позитива</div><div class="value">${s.positiveShare}%</div></div>
+        <div class="metric"><div class="label">Доля негатива</div><div class="value">${s.negativeShare}%</div></div>
+      </div>
+      <hr />
+      <div class="row three">
+        <div class="metric"><div class="label">Баланс настроения</div><div class="value">${s.balanceSum === 0 ? '0' : (sign + Math.abs(s.balanceSum))}</div></div>
+        <div class="metric"><div class="label">Записей в день</div><div class="value">${s.entriesPerDay.toFixed(1)}</div></div>
+        <div class="metric"><div class="label">Активных дней</div><div class="value">${s.activeDays}</div></div>
+      </div>
+      <div class="footnote">Всего записей: ${s.totalEntries}${s.zeroEntries ? ` · 0-балльных: ${s.zeroEntries} (не в процентах)` : ''}</div>
+    </div>`;
+}
 
-    const now = new Date();
-    const from = new Date(now);
-    if (targetRange === '3d') from.setDate(from.getDate() - 2);
-    if (targetRange === '7d') from.setDate(from.getDate() - 6);
-    if (targetRange === '1m') from.setMonth(from.getMonth() - 1);
+// стили для карточки (минимальные, если их нет)
+const styleBlockId = 'stats-grid-inline-style';
+if (!document.getElementById(styleBlockId)) {
+  const s = document.createElement('style');
+  s.id = styleBlockId;
+  s.textContent = `
+  .stats-grid .row { display:grid; gap:12px; }
+  .stats-grid .row.two { grid-template-columns: 1fr 1fr; }
+  .stats-grid .row.three { grid-template-columns: repeat(3, 1fr); }
+  .stats-grid .metric .label { color: var(--text-secondary, #6b7280); font-size:12px; }
+  .stats-grid .metric .value { font-weight:700; font-size:20px; }
+  .stats-grid .footnote { margin-top:8px; color:var(--text-secondary, #6b7280); font-size:12px; text-align:center; }
+  @media (max-width:420px){ .stats-grid .row.three { grid-template-columns: 1fr 1fr; } }
+  `;
+  document.head.appendChild(s);
+}
 
-    const fromStr = from.toISOString().slice(0, 10);
-    return allKeys.filter((key) => key >= fromStr);
-  }
+function renderOverallStats(){
+  const labelEl = document.getElementById('overall-range-label');
+  if (labelEl) labelEl.textContent = RANGE_LABELS[overallRange] || '';
+  const dateKeys = getDateKeysForRange(overallRange);
+  const container = document.getElementById('overall-stats-body');
+  if (container) container.innerHTML = buildOverallStatsHTML(dateKeys);
+}
 
-  function renderOverallStats() {
-    const labelEl = document.getElementById('overall-range-label');
-    if (labelEl) {
-      labelEl.textContent = RANGE_LABELS[overallRange] || '';
-    }
-
-    const dateKeys = getDateKeysForRange(overallRange);
-    const container = document.getElementById('overall-stats-body');
-    if (!container) return;
-
-    if (typeof window.buildOverallStatsHTML === 'function') {
-      container.innerHTML = window.buildOverallStatsHTML(dateKeys, overallRange);
-    } else {
-      container.innerHTML = '';
-    }
-  }
-
-  function updateTabsVisualState(tabsRoot) {
-    const buttons = tabsRoot.querySelectorAll('.tab');
-    buttons.forEach((btn) => {
-      const isActive = btn.dataset.range === overallRange;
-      btn.classList.toggle('active', isActive);
-      btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
-    });
-  }
-
-  function initOverallRangeTabs() {
-    const tabsRoot = document.getElementById('overall-range-tabs');
-    if (!tabsRoot) return;
-
-    if (!tabsRoot.dataset.initialized) {
-      tabsRoot.addEventListener('click', (event) => {
-        const button = event.target.closest('button.tab');
-        if (!button) return;
-
-        const newRange = button.dataset.range;
-        if (!newRange || newRange === overallRange) return;
-
-        overallRange = newRange;
-        updateTabsVisualState(tabsRoot);
-        renderOverallStats();
+function initOverallRangeTabs(){
+  const tabsRoot = document.getElementById('overall-range-tabs');
+  if (!tabsRoot) return;
+  if (!tabsRoot.dataset.bound) {
+    tabsRoot.addEventListener('click', (e) => {
+      const btn = e.target.closest('button.tab');
+      if (!btn) return;
+      const newRange = btn.dataset.range;
+      if (!newRange || newRange === overallRange) return;
+      overallRange = newRange;
+      tabsRoot.querySelectorAll('.tab').forEach(b => {
+        const active = b.dataset.range === overallRange;
+        b.classList.toggle('active', active);
+        b.setAttribute('aria-selected', active ? 'true' : 'false');
       });
-      tabsRoot.dataset.initialized = 'true';
-    }
-
-    updateTabsVisualState(tabsRoot);
-  }
-
-  function openStatsModal() {
-    initOverallRangeTabs();
-
-    if (typeof window.renderTodayHourlyChart === 'function') {
-      window.renderTodayHourlyChart();
-    }
-
-    renderOverallStats();
-  }
-
-  window.StatsModal = {
-    get overallRange() {
-      return overallRange;
-    },
-    set overallRange(value) {
-      if (!value || value === overallRange) return;
-      overallRange = value;
-      initOverallRangeTabs();
       renderOverallStats();
+    });
+    tabsRoot.dataset.bound = '1';
+  }
+
+  tabsRoot.querySelectorAll('.tab').forEach(b => {
+    const active = b.dataset.range === overallRange;
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+}
+
+// ======== «Сегодня по часам» (Chart.js, фолбэк, фиксы оси X) ========
+function renderTodayHourlyChart(){
+  // агрегируем сегодня
+  const todayKey = new Date().toISOString().slice(0,10);
+  const entries = (window.moodData?.[todayKey] ?? []);
+  const hourlyTotals = Array(24).fill(0);
+  const hourHasData = Array(24).fill(false);
+  const hourlyEntriesList = Array.from({length:24}, () => []);
+  for (const e of entries) {
+    const h = Number(e.hour) || 0;
+    const v = Number(e.score) || 0;
+    hourlyTotals[h] += v;
+    hourHasData[h] = true;
+    hourlyEntriesList[h].push(e);
+  }
+
+  // агрегаты
+  const totalSum = entries.reduce((s,e) => s + (Number(e.score)||0), 0);
+  const avg = entries.length ? (totalSum / entries.length) : 0;
+  let peakHour = null, peakVal = 0;
+  hourlyTotals.forEach((v,h) => { if (Math.abs(v) > Math.abs(peakVal)) { peakVal=v; peakHour=h; } });
+  const sign = totalSum>0?'+':(totalSum<0?'−':'');
+  const peakDisp = peakHour===null ? '—' : `${String(peakHour).padStart(2,'0')}:00 (${peakVal>0?'+':''}${peakVal})`;
+
+  const elAvg = document.getElementById('agg-avg');
+  const elSum = document.getElementById('agg-sum');
+  const elPeak= document.getElementById('agg-peak');
+  if (elAvg) elAvg.textContent = avg.toFixed(1);
+  if (elSum) elSum.textContent = `${sign}${Math.abs(totalSum)}`;
+  if (elPeak) elPeak.textContent = peakDisp;
+
+  // если Chart.js недоступен — выходим без ошибки
+  if (typeof window.Chart !== 'function') return;
+
+  // вычисление шага подписей X (фикс «гряды»)
+  function computeLabelStep() {
+    const wrap = document.getElementById('today-hourly');
+    const w = wrap?.clientWidth || window.innerWidth;
+    if (w < 340) return 4;
+    if (w < 420) return 3;
+    if (w < 560) return 2;
+    return 1;
+  }
+
+  const labelStep = computeLabelStep();
+
+  // палитра
+  const isDark = document.documentElement.classList.contains('theme-dark');
+
+  // уничтожаем предыдущий график
+  if (hourlyChart && typeof hourlyChart.destroy === 'function') hourlyChart.destroy();
+
+  const canvas = document.getElementById('hourly-chart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  hourlyChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Array.from({length:24}, (_,h)=>h),
+      datasets: [{
+        data: hourlyTotals,
+        backgroundColor: hourlyTotals.map((total, h) => {
+          if (!hourHasData[h]) return isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+          return (window.Palette?.moodColor?.(total)) || (total>=0?'#22c55e':'#3b82f6');
+        }),
+        borderColor: hourlyTotals.map((total, h) => {
+          if (!hourHasData[h]) return isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)';
+          return (window.Palette?.moodColor?.(total)) || (total>=0?'#22c55e':'#3b82f6');
+        }),
+        borderWidth: hourlyTotals.map((_,h)=> hourHasData[h]?0:1 ),
+      }]
     },
-    RANGE_LABELS,
-    getDateKeysForRange,
-    renderOverallStats,
-    initOverallRangeTabs,
-    open: openStatsModal
-  };
-})(window, document);
+   options: {
+      animation: false,
+      maintainAspectRatio: false,
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title(ctx){ return `${ctx[0].label}:00`; },
+            label(ctx){
+              const hour = ctx.dataIndex;
+              const total = ctx.parsed.y;
+              const arr = hourlyEntriesList[hour];
+              if (!arr.length) return `${total} (нет записей)`;
+              if (arr.length === 1) {
+                const n = arr[0].note ? ` — "${arr[0].note}"` : '';
+                return `${total>0?'+':''}${total}${n}`;
+              }
+              return `${total>0?'+':''}${total} (${arr.length} записей)`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          offset: true,
+          grid: { display: false },
+          ticks: {
+            maxRotation: 0,
+            autoSkip: false,
+            padding: 6,
+            color: isDark ? '#9AA0A6' : '#5f6368',
+            callback(val){ return (Number(val) % labelStep === 0) ? `${val}:00` : ''; }
+          }
+        },
+        y: {
+          beginAtZero: true,
+          min: yScaleMode==='fixed' ? -50 : undefined,
+          max: yScaleMode==='fixed' ?  50 : undefined,
+          ticks: { color: isDark ? '#9AA0A6' : '#5f6368', stepSize: yScaleMode==='fixed' ? 10 : undefined },
+          grid: {
+            color: (ctx) => ctx.tick.value===0
+              ? (isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)')
+              : (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'),
+            lineWidth: (ctx) => ctx.tick.value===0 ? 1 : .5
+          }
+        }
+      }
+    }
+  });
+}
+
+// переключатель масштаба
+function initScaleToggle(){
+  const root = document.querySelector('.scale-toggle');
+  if (!root) return;
+  root.addEventListener('click', (e) => {
+    const btn = e.target.closest('.chip');
+    if (!btn) return;
+    const mode = btn.dataset.scale; // 'auto' | 'fixed'
+    if (!mode || mode === yScaleMode) return;
+    yScaleMode = mode;
+    root.querySelectorAll('.chip').forEach(c => c.classList.toggle('is-active', c.dataset.scale===mode));
+    renderTodayHourlyChart(); // перерисовать с новым масштабом
+  });
+}
+
+// (опционально) экспорт в глобал, если открытие по кнопке снаружи
+window.openStatsModal = openStatsModal;
+window.closeStatsModal = closeStatsModal;
