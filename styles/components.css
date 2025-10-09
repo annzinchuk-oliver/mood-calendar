@@ -790,3 +790,50 @@ a, .link { color: var(--brand); text-decoration: none; }
   color: var(--text-primary);
   text-decoration: underline;
 }
+
+/* Stats card layout */
+.stats-card {
+  border-radius: 12px;
+  background: var(--card, var(--surface-2));
+  padding: 12px 14px;
+}
+.stats-card .card-header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.stats-card .card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.stats-card .row {
+  display: grid;
+  gap: 12px;
+}
+.stats-card .row.two-col {
+  grid-template-columns: repeat(2, 1fr);
+}
+.stats-card .row.three-col {
+  grid-template-columns: repeat(3, 1fr);
+}
+.stats-card .metric .label {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+.stats-card .metric .value {
+  font-weight: 700;
+  font-size: 20px;
+}
+.stats-card .footnote {
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-align: center;
+}
+@media (max-width: 420px) {
+  .stats-card .row.three-col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
