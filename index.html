@@ -447,6 +447,39 @@
             font-size: 16px;
         }
 
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        #today-hourly .hourly-chart__header {
+            justify-content: flex-end;
+            margin-bottom: 8px;
+        }
+
+        .section-divider {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 0;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 6px;
+        }
+
+        .empty-state {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 12px 0;
+        }
+
+
         .hourly-chart__header {
             display: flex;
             align-items: center;
@@ -669,23 +702,16 @@
             </div>
         
             <div id="statsBody" style="display:grid; gap:12px;">
-              <div class="stats-filters">
-                <button class="filter-btn active" onclick="setStatsFilter('3days')">3 дня</button>
-                <button class="filter-btn" onclick="setStatsFilter('week')">Неделя</button>
-                <button class="filter-btn" onclick="setStatsFilter('month')">Месяц</button>
-                <button class="filter-btn" onclick="setStatsFilter('all')">Все время</button>
-              </div>
-        
-              <div class="correlation-section">
+              <section class="card" id="today-hourly">
+                <div class="card-title">Настроение сегодня по часам</div>
                 <div class="hourly-chart__header">
-                  <h3>📊 Настроение сегодня по часам</h3>
                   <div class="scale-toggle" role="group" aria-label="Диапазон шкалы настроения">
                     <button type="button" class="scale-toggle__btn" data-scale="auto" onclick="setHourlyScale('auto')">Авто</button>
                     <button type="button" class="scale-toggle__btn" data-scale="fixed" onclick="setHourlyScale('fixed')">±50</button>
                   </div>
                 </div>
-                <div id="hourlyChart" class="hourly-chart">
-                  <canvas id="hourlyChartCanvas" aria-label="График настроения по часам" role="img"></canvas>
+                <div class="hourly-chart" id="hourlyChart">
+                  <canvas id="hourly-chart" aria-label="График настроения по часам" role="img"></canvas>
                 </div>
                 <div id="hourlyAggregates" class="hourly-aggregates" aria-live="polite">
                   <div class="aggregate-item">
@@ -701,20 +727,24 @@
                     <span class="aggregate-value" data-aggregate="peak">–</span>
                   </div>
                 </div>
-                <p style="font-size:12px; color:var(--text-secondary); text-align:center; margin-top:6px;">
-                  Наведите или коснитесь столбика, чтобы увидеть детали
-                </p>
+                <p class="hint">Наведите или коснитесь столбика, чтобы увидеть детали</p>
+              </section>
+
+              <hr class="section-divider" />
+
+              <div id="overall-range-tabs" class="range-tabs" role="tablist" aria-label="Диапазон общей статистики">
+                <button class="tab active" data-range="3d"  role="tab" aria-selected="true">3 дня</button>
+                <button class="tab"          data-range="7d"  role="tab" aria-selected="false">Неделя</button>
+                <button class="tab"          data-range="1m"  role="tab" aria-selected="false">Месяц</button>
+                <button class="tab"          data-range="all" role="tab" aria-selected="false">Все время</button>
               </div>
-        
-              <div class="overview-section">
-                <h3>📈 Общая статистика (<span id="currentPeriod">3 дня</span>)</h3>
-                <div class="stat-row"><span class="stat-label">Хорошие записи:</span><span class="stat-value stat-value--good" id="statsGoodPercent">0%</span></div>
-                <div class="stat-row"><span class="stat-label">Нейтральные записи:</span><span class="stat-value stat-value--neutral" id="statsNeutralPercent">0%</span></div>
-                <div class="stat-row"><span class="stat-label">Грустные записи:</span><span class="stat-value stat-value--sad" id="statsSadPercent">0%</span></div>
-                <div class="total-records" id="statsTotalRecords">Всего записей: 0</div>
-                <div class="stat-row"><span class="stat-label">Записей в день:</span><span class="stat-value" id="avgPerDay">0</span></div>
-                <div class="stat-row"><span class="stat-label">Активных дней:</span><span class="stat-value" id="activeDays">0</span></div>
-              </div>
+
+              <section class="card" id="overall-stats">
+                <div class="card-title">
+                  Общая статистика (<span id="overall-range-label">3 дня</span>)
+                </div>
+                <div id="overall-stats-body"><!-- сюда рендерится карточка статистики --></div>
+              </section>
             </div>
         
             <button class="btn btn--ghost" style="margin-top:8px; width:100%;" onclick="closeStats()">Закрыть</button>
@@ -1231,7 +1261,6 @@
         let moodData = {};
         let dailyMoods = {};
         let currentPage = 'calendar';
-        let currentStatsFilter = '3days';
         let dailyScores = {};
         let dailyTotals = {};
         const DAILY_MIN = -50;
@@ -1242,7 +1271,7 @@
         let hourlyLabelStep = 1;
 
         function computeHourlyLabelStep() {
-            const canvas = document.getElementById('hourlyChartCanvas');
+            const canvas = document.getElementById('hourly-chart');
             const el = canvas?.parentElement || canvas;
             const width = el?.clientWidth ?? window.innerWidth;
             if (width < 340) return 4;
@@ -1564,32 +1593,120 @@
             }
         }
 
-        // Stats functionality
-        function setStatsFilter(filter) {
-            currentStatsFilter = filter;
-            
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active');
-                const btnOnClick = btn.getAttribute('onclick');
-                if (btnOnClick && btnOnClick.includes(`'${filter}'`)) {
-                    btn.classList.add('active');
+       // Stats functionality
+        function computeOverallStats(dateKeys, rangeKey = '3d') {
+            const keys = Array.isArray(dateKeys) ? dateKeys : [];
+            const stats = {
+                totalEntries: 0,
+                moodCounts: {},
+                activeDays: 0,
+                rangeDays: 1
+            };
+
+            let firstKey = null;
+            let lastKey = null;
+
+            keys.forEach((key) => {
+                if (typeof key !== 'string') return;
+                if (!firstKey) firstKey = key;
+                lastKey = key;
+
+                const entries = Array.isArray(moodData[key]) ? moodData[key] : [];
+                if (entries.length > 0) {
+                    stats.activeDays += 1;
                 }
+
+                entries.forEach((entry) => {
+                    stats.totalEntries += 1;
+                    const moodKey = entry && entry.mood;
+                    if (moodKey) {
+                        stats.moodCounts[moodKey] = (stats.moodCounts[moodKey] || 0) + 1;
+                    }
+                });
             });
-            
-            updateStatsPage();
+
+            const DAY = 24 * 60 * 60 * 1000;
+
+            if (rangeKey === 'all') {
+                if (firstKey && lastKey) {
+                    const from = new Date(firstKey);
+                    const to = new Date(lastKey);
+                    if (!Number.isNaN(from.getTime()) && !Number.isNaN(to.getTime())) {
+                        stats.rangeDays = Math.max(1, Math.floor((to - from) / DAY) + 1);
+                    }
+                }
+            } else {
+                const now = new Date();
+                const from = new Date(now);
+                if (rangeKey === '3d') {
+                    from.setDate(from.getDate() - 2);
+                } else if (rangeKey === '7d') {
+                    from.setDate(from.getDate() - 6);
+                } else if (rangeKey === '1m') {
+                    from.setMonth(from.getMonth() - 1);
+                } else {
+                    from.setDate(from.getDate() - 6);
+                }
+                stats.rangeDays = Math.max(1, Math.floor((now - from) / DAY) + 1);
+            }
+
+            stats.rangeDays = Math.max(stats.rangeDays, 1);
+            return stats;
         }
 
-        function updateStatsPage() {
-            updateHourlyChart();
-            updateOverviewStats();
+        function buildOverallStatsHTML(dateKeys, rangeKey = '3d') {
+            const stats = computeOverallStats(dateKeys, rangeKey);
+            if (!stats.totalEntries) {
+                return '<p class="empty-state">За выбранный период пока нет записей.</p>';
+            }
+
+            const moodCounts = stats.moodCounts || {};
+            const totalEntries = stats.totalEntries;
+            const goodCount = (moodCounts.good || 0) + (moodCounts.happy || 0) + (moodCounts.pleased || 0);
+            const neutralCount = (moodCounts.neutral || 0);
+            const sadCount = (moodCounts.sad || 0) + (moodCounts.sorrow || 0);
+
+            const clampPercent = (value) => {
+                if (!Number.isFinite(value)) return 0;
+                return Math.max(0, Math.min(100, Math.round(value)));
+            };
+
+            const goodPercent = clampPercent(goodCount / totalEntries * 100);
+            const neutralPercent = clampPercent(neutralCount / totalEntries * 100);
+            const sadPercent = clampPercent(sadCount / totalEntries * 100);
+
+            const avgPerDayRaw = stats.rangeDays ? (totalEntries / stats.rangeDays) : 0;
+            const avgPerDay = Number.isFinite(avgPerDayRaw)
+                ? (Math.abs(avgPerDayRaw % 1) < 1e-6 ? avgPerDayRaw.toFixed(0) : avgPerDayRaw.toFixed(1))
+                : '0';
+
+            return [
+                `<div class="stat-row"><span class="stat-label">Хорошие записи:</span><span class="stat-value stat-value--good">${goodPercent}%</span></div>`,
+                `<div class="stat-row"><span class="stat-label">Нейтральные записи:</span><span class="stat-value stat-value--neutral">${neutralPercent}%</span></div>`,
+                `<div class="stat-row"><span class="stat-label">Грустные записи:</span><span class="stat-value stat-value--sad">${sadPercent}%</span></div>`,
+                `<div class="total-records">Всего записей: ${totalEntries}</div>`,
+                `<div class="stat-row"><span class="stat-label">Записей в день:</span><span class="stat-value">${avgPerDay}</span></div>`,
+                `<div class="stat-row"><span class="stat-label">Активных дней:</span><span class="stat-value">${stats.activeDays}</span></div>`
+            ].join('');
         }
-        
+
         function openStats(){
           const sheet = document.getElementById('statsSheet');
           if (!sheet) return;
           sheet.hidden = false;
           document.body.classList.add('modal-open');  // по желанию — блокируем скролл фона
-          updateStatsPage();                           // твоя существующая функция
+
+          if (window.StatsModal && typeof window.StatsModal.open === 'function') {
+            window.StatsModal.open();
+            return;
+          }
+
+          renderTodayHourlyChart();
+          const container = document.getElementById('overall-stats-body');
+          if (container) {
+            const fallbackKeys = Object.keys(moodData || {}).sort();
+            container.innerHTML = buildOverallStatsHTML(fallbackKeys, 'all');
+          }
         }
         function closeStats(){
           const sheet = document.getElementById('statsSheet');
@@ -1631,7 +1748,7 @@
         function setHourlyScale(mode) {
             hourlyScaleMode = mode === 'fixed' ? 'fixed' : 'auto';
             updateScaleToggleUI();
-            updateHourlyChart();
+            renderTodayHourlyChart();
         }
 
         function updateScaleToggleUI() {
@@ -1643,7 +1760,7 @@
         }
 
         function updateHourlyChart() {
-            const canvas = document.getElementById('hourlyChartCanvas');
+            const canvas = document.getElementById('hourly-chart');
             if (!canvas || typeof Chart === 'undefined') {
                 return;
             }
@@ -1836,113 +1953,10 @@
             hourlyChartResizeTimer = setTimeout(() => {
                 const statsSheet = document.getElementById('statsSheet');
                 if (statsSheet && statsSheet.hidden === false) {
-                    updateHourlyChart();
+                    renderTodayHourlyChart();
                 }
             }, 200);
         });
-
-        function updateOverviewStats() {
-            const periodData = getDataForPeriod(currentStatsFilter);
-            
-            const currentPeriodElement = document.getElementById('currentPeriod');
-            const statsGoodElement = document.getElementById('statsGoodPercent');
-            const statsNeutralElement = document.getElementById('statsNeutralPercent');
-            const statsSadElement = document.getElementById('statsSadPercent');
-            const statsTotalElement = document.getElementById('statsTotalRecords');
-            const avgPerDayElement = document.getElementById('avgPerDay');
-            const activeDaysElement = document.getElementById('activeDays');
-            
-            if (!currentPeriodElement) return;
-            
-            currentPeriodElement.textContent = getPeriodName(currentStatsFilter);
-            
-            if (periodData.totalEntries === 0) {
-                statsGoodElement.textContent = '0%';
-                statsNeutralElement.textContent = '0%';
-                statsSadElement.textContent = '0%';
-                statsTotalElement.textContent = 'Всего записей: 0';
-                avgPerDayElement.textContent = '0';
-                activeDaysElement.textContent = '0';
-                return;
-            }
-            
-            // Суммируем новые шкалы в общие категории: good (happy, pleased, good), neutral, sad (sad, sorrow).
-            const moodCounts = periodData.moodCounts || {};
-            const goodCount    = (moodCounts.good || 0) + (moodCounts.happy || 0) + (moodCounts.pleased || 0);
-            const neutralCount = (moodCounts.neutral || 0);
-            const sadCount     = (moodCounts.sad || 0) + (moodCounts.sorrow || 0);
-
-            const goodPercent    = Math.round(goodCount    / periodData.totalEntries * 100);
-            const neutralPercent = Math.round(neutralCount / periodData.totalEntries * 100);
-            const sadPercent     = Math.round(sadCount     / periodData.totalEntries * 100);
-
-            statsGoodElement.textContent    = `${goodPercent}%`;
-
-            statsNeutralElement.textContent = `${neutralPercent}%`;
-
-            statsSadElement.textContent     = `${sadPercent}%`;
-            
-            statsTotalElement.textContent = `Всего записей: ${periodData.totalEntries}`;
-            avgPerDayElement.textContent = (periodData.totalEntries / Math.max(periodData.days, 1)).toFixed(1);
-            activeDaysElement.textContent = periodData.activeDays;
-        }
-
-        function getDataForPeriod(period) {
-            const now = new Date();
-            let startDate = new Date();
-            
-            switch (period) {
-                case '3days':
-                    startDate.setDate(now.getDate() - 3);
-                    break;
-                case 'week':
-                    startDate.setDate(now.getDate() - 7);
-                    break;
-                case 'month':
-                    startDate.setMonth(now.getMonth() - 1);
-                    break;
-                case 'all':
-                    startDate = new Date('2020-01-01');
-                    break;
-            }
-            
-            let totalEntries = 0;
-            let moodCounts = { good: 0, neutral: 0, sad: 0 };
-            let activeDays = 0;
-            
-            Object.keys(moodData).forEach(dateKey => {
-                const date = new Date(dateKey);
-                if (date >= startDate && date <= now) {
-                    const dayEntries = moodData[dateKey];
-                    if (dayEntries && dayEntries.length > 0) {
-                        activeDays++;
-                        dayEntries.forEach(entry => {
-                            totalEntries++;
-                            moodCounts[entry.mood] = (moodCounts[entry.mood] || 0) + 1;
-                        });
-                    }
-                }
-            });
-            
-            const days = Math.max(Math.ceil((now - startDate) / (1000 * 60 * 60 * 24)), 1);
-            
-            return {
-                totalEntries,
-                moodCounts,
-                activeDays,
-                days
-            };
-        }
-
-        function getPeriodName(period) {
-            switch (period) {
-                case '3days': return '3 дня';
-                case 'week': return 'неделя';
-                case 'month': return 'месяц';
-                case 'all': return 'все время';
-                default: return period;
-            }
-        }
 
         // Notification functions
         function checkNotificationPermission() {
@@ -2429,7 +2443,6 @@
           confirmMoodScore,
           openStats,
           closeStats,
-          setStatsFilter,
           switchPage,
           sendMessage,
           openTest
@@ -2439,6 +2452,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
