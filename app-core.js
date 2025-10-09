@@ -1,18 +1,34 @@
-/**
- * Core logic for Mood Calendar: event bus, state management and simple router.
- *
- * The purpose of this module is to expose a global `App` object with a
- * persistent store and a basic pub/sub system. It also provides simple
- * navigation helpers which update the UI by toggling visibility of elements
- * annotated with `data-page` attributes.
- *
- * Usage:
- *   App.store.update('ui.theme', 'dark');
- *   const state = App.store.getState();
- *   App.bus.emit('event:name', payload);
- *   App.bus.on('event:name', handler);
- *   App.navigateTo('pageId');
- */
+/* ===== SAFETY BOOTSTRAP (must be first lines in app-core.js) ===== */
+
+// --- ТЕМА (фолбэки, если нет реализации где-то ещё)
+(() => {
+  const THEME_KEY = 'THEME';
+
+  if (typeof window.getTheme !== 'function') {
+    window.getTheme = () => localStorage.getItem(THEME_KEY) || 'light';
+  }
+  if (typeof window.setTheme !== 'function') {
+    window.setTheme = (t) => {
+      document.documentElement.dataset.theme = t;
+      localStorage.setItem(THEME_KEY, t);
+    };
+  }
+  // применяем сохранённую тему один раз, если ещё не применена
+  if (!document.documentElement.dataset.theme) {
+    window.setTheme(window.getTheme());
+  }
+})();
+
+// --- КОНСТАНТЫ СХЕМЫ (объявляем до любых обращений)
+(() => {
+  // если где-то уже определены — не перетираем
+  if (typeof window.SCHEMA_KEY === 'undefined') {
+    window.SCHEMA_KEY = 'mood.schema.v2';
+  }
+  if (typeof window.SCHEMA_VERSION === 'undefined') {
+    window.SCHEMA_VERSION = 2;
+  }
+})();
 
 (function (window, document) {
   'use strict';
@@ -255,13 +271,6 @@ function closeStatsModal() {
     hourlyChart = null;
     }
   }
-
-// обработчик нижней кнопки "Закрыть"
-document.addEventListener('click', (e) => {
-  if (e.target.closest('[data-close-modal]')) {
-    closeStatsModal();
-  }
-});
 
 // ======== Диапазон дат для общей статистики ========
 function getDateKeysForRange(rangeKey){
@@ -546,10 +555,33 @@ function initScaleToggle(){
 window.openStatsModal = openStatsModal;
 window.closeStatsModal = closeStatsModal;
 
-// --- Делегирование клика по кнопке "Статистика" (вместо inline onclick)
-document.addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-open-stats]');
-  if (btn) {
-    openStatsModal();
+/* ===== APP BOOT ===== */
+function appBoot() {
+  try {
+    // твои инициализации, которые раньше были на «голом» уровне:
+    // 1) миграции стораджа
+    if (typeof runMigrationsIfNeeded === 'function') {
+      runMigrationsIfNeeded(); // внутри используешь window.SCHEMA_KEY/SCHEMA_VERSION
+    }
+
+    // 2) навешивание обработчиков на кнопки (без inline onclick)
+    document.addEventListener('click', (e) => {
+      const openBtn = e.target.closest('[data-open-stats]');
+      if (openBtn) openStatsModal();
+
+      const closeBtn = e.target.closest('[data-close-modal]');
+      if (closeBtn) closeStatsModal();
+    });
+
+    // 3) всё остальное, что раньше запускалось сразу
+  } catch (err) {
+    console.error('Boot error:', err);
   }
-});
+}
+
+// стартуем безопасно, когда DOM готов
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', appBoot, { once: true });
+} else {
+  appBoot();
+}
