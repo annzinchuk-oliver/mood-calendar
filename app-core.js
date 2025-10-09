@@ -520,42 +520,37 @@ function initScaleToggle(){
 
 // --- Экспорт в глобал, чтобы было видно из HTML (если где-то всё же вызывается напрямую)
 /* ====== Статистика: функции открытия/закрытия ====== */
-(function attachStatsModalHandlers(){
-  // делают модалку видимой/невидимой
-  function openStatsModal() {
-    const m = document.getElementById('stats-modal');
-    if (!m) return;
-    m.hidden = false;
-    m.setAttribute('aria-hidden', 'false');
+function openStatsModal() {
+  const m = document.getElementById('stats-modal');
+  if (!m) return;
+  m.hidden = false;
+  m.setAttribute('aria-hidden', 'false');
 
-    // если нужно — инициализация содержимого:
-    if (typeof renderTodayHourlyChart === 'function') renderTodayHourlyChart();
-    if (typeof renderOverallStats === 'function') renderOverallStats();
+  if (typeof renderTodayHourlyChart === 'function') renderTodayHourlyChart();
+  if (typeof renderOverallStats === 'function') renderOverallStats();
 
-    // свайп по желанию (не обязателен)
-    if (typeof enableStatsSwipe === 'function') enableStatsSwipe(m);
-  }
+  if (typeof enableStatsSwipe === 'function') enableStatsSwipe(m);
+}
 
-  function closeStatsModal() {
-    const m = document.getElementById('stats-modal');
-    if (!m) return;
-    m.hidden = true;
-    m.setAttribute('aria-hidden', 'true');
-  }
+function closeStatsModal() {
+  const m = document.getElementById('stats-modal');
+  if (!m) return;
+  m.hidden = true;
+  m.setAttribute('aria-hidden', 'true');
+}
 
-  // делегируем клики на открытие/закрытие
-  document.addEventListener('click', (e) => {
-    const openBtn = e.target.closest('[data-open-stats]');
-    if (openBtn) { openStatsModal(); return; }
+// Делегирование клика по кнопке «Статистика»
+document.addEventListener('click', (e) => {
+  const openBtn = e.target.closest('[data-open-stats]');
+  if (openBtn) { e.preventDefault(); openStatsModal(); return; }
 
-    const closeBtn = e.target.closest('[data-close-modal]');
-    if (closeBtn) { closeStatsModal(); return; }
-  });
+  const closeBtn = e.target.closest('[data-close-modal]');
+  if (closeBtn) { e.preventDefault(); closeStatsModal(); return; }
+});
 
-  // на всякий случай — экспорт в window (если где-то остался прямой вызов)
-  window.openStatsModal = openStatsModal;
-  window.closeStatsModal = closeStatsModal;
-})();
+// На всякий экспорт, если где-то остался прямой вызов
+window.openStatsModal = openStatsModal;
+window.closeStatsModal = closeStatsModal;
 
 /* ====== Безопасная заглушка свайпа (чтобы не падало) ====== */
 if (typeof window.enableStatsSwipe !== 'function') {
