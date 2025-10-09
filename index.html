@@ -1239,6 +1239,17 @@
         let hourlyChartInstance = null;
         let hourlyScaleMode = 'auto';
         let hourlyChartResizeTimer = null;
+        let hourlyLabelStep = 1;
+
+        function computeHourlyLabelStep() {
+            const canvas = document.getElementById('hourlyChartCanvas');
+            const el = canvas?.parentElement || canvas;
+            const width = el?.clientWidth ?? window.innerWidth;
+            if (width < 340) return 4;
+            if (width < 420) return 3;
+            if (width < 560) return 2;
+            return 1;
+        }
 
         function paintDayCell(dayDiv, totalRaw) {
           if (!(totalRaw === 0 || typeof totalRaw === 'number')) {
@@ -1699,24 +1710,8 @@
             const isDark = rootTheme ? rootTheme === 'dark' : prefersDark;
             const emptyBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
             const emptyBorder = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)';
-            const hasData = entries.length > 0;
-            const minVal = hasData ? Math.min(...hourlyTotals, 0) : -5;
-            const maxVal = hasData ? Math.max(...hourlyTotals, 0) : 5;
-            const padding = hasData ? Math.max(2, Math.round((maxVal - minVal) * 0.15)) : 2;
-
-            let yMin = undefined;
-            let yMax = undefined;
-            let ySuggestedMin = Math.min(minVal - padding, 0);
-            let ySuggestedMax = Math.max(maxVal + padding, 0);
-            let yStepSize = undefined;
-
-            if (hourlyScaleMode === 'fixed') {
-                yMin = -50;
-                yMax = 50;
-                ySuggestedMin = undefined;
-                ySuggestedMax = undefined;
-                yStepSize = 10;
-            }
+            const useAutoScale = hourlyScaleMode !== 'fixed';
+            hourlyLabelStep = computeHourlyLabelStep();
 
             hourlyChartInstance = new Chart(ctx, {
                 type: 'bar',
@@ -1751,42 +1746,41 @@
                     animation: false,
                     scales: {
                         x: {
+                            offset: true,
                             grid: { display: false },
                             ticks: {
-                                autoSkip: false,
-                                color: isDark ? '#bbb' : '#666',
                                 maxRotation: 0,
-                                callback: function(value, index) {
-                                    const label = hourLabels[index] || value;
-                                    if (window.innerWidth < 500 && index % 2 !== 0) {
+                                autoSkip: false,
+                                callback: function(value) {
+                                    const hour = Number(value);
+                                    if (!Number.isFinite(hour) || hour % hourlyLabelStep !== 0) {
                                         return '';
                                     }
-                                    return `${label}:00`;
-                                }
+                                    return `${hour.toString().padStart(2, '0')}:00`;
+                                },
+                                color: isDark ? '#9AA0A6' : '#5f6368',
+                                padding: 6
                             }
                         },
                         y: {
-                            beginAtZero: false,
-                            min: yMin,
-                            max: yMax,
-                            suggestedMin: ySuggestedMin,
-                            suggestedMax: ySuggestedMax,
+                            beginAtZero: true,
+                            min: useAutoScale ? undefined : -50,
+                            max: useAutoScale ? undefined : 50,
                             ticks: {
-                                color: isDark ? '#bbb' : '#666',
-                                stepSize: yStepSize
+                                color: isDark ? '#9AA0A6' : '#5f6368',
+                                stepSize: useAutoScale ? undefined : 10
                             },
                             grid: {
-                                color: function(context) {
-                                    if (context.tick.value === 0) {
-                                        return isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)';
-                                    }
-                                    return isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)';
-                                },
-                                lineWidth: function(context) {
-                                    return context.tick.value === 0 ? 1.2 : 0.5;
-                                }
+                                color: (ctx) =>
+                                    ctx.tick.value === 0
+                                        ? (isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)')
+                                        : (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'),
+                                lineWidth: (ctx) => (ctx.tick.value === 0 ? 1 : 0.5)
                             }
                         }
+                    },
+                    layout: {
+                        padding: { bottom: 8 }
                     },
                     interaction: {
                         mode: 'index',
@@ -1829,6 +1823,13 @@
         }
 
         window.addEventListener('resize', () => {
+            const newStep = computeHourlyLabelStep();
+            if (newStep !== hourlyLabelStep) {
+                hourlyLabelStep = newStep;
+                if (hourlyChartInstance) {
+                    hourlyChartInstance.update('none');
+                }
+            }
             if (hourlyChartResizeTimer) {
                 clearTimeout(hourlyChartResizeTimer);
             }
@@ -2438,6 +2439,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
