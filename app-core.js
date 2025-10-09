@@ -213,3 +213,107 @@
   });
 
 })(window, document);
+
+(function (window, document) {
+  'use strict';
+
+  // --- состояние периода для общей статистики ---
+  let overallRange = '3d';
+
+  const RANGE_LABELS = {
+    '3d': '3 дня',
+    '7d': 'Неделя',
+    '1m': 'Месяц',
+    'all': 'Все время'
+  };
+
+  function getDateKeysForRange(rangeKey) {
+    const allKeys = Object.keys(window.moodData || {}).sort();
+    const targetRange = rangeKey || '3d';
+    if (targetRange === 'all') return allKeys;
+
+    const now = new Date();
+    const from = new Date(now);
+    if (targetRange === '3d') from.setDate(from.getDate() - 2);
+    if (targetRange === '7d') from.setDate(from.getDate() - 6);
+    if (targetRange === '1m') from.setMonth(from.getMonth() - 1);
+
+    const fromStr = from.toISOString().slice(0, 10);
+    return allKeys.filter((key) => key >= fromStr);
+  }
+
+  function renderOverallStats() {
+    const labelEl = document.getElementById('overall-range-label');
+    if (labelEl) {
+      labelEl.textContent = RANGE_LABELS[overallRange] || '';
+    }
+
+    const dateKeys = getDateKeysForRange(overallRange);
+    const container = document.getElementById('overall-stats-body');
+    if (!container) return;
+
+    if (typeof window.buildOverallStatsHTML === 'function') {
+      container.innerHTML = window.buildOverallStatsHTML(dateKeys, overallRange);
+    } else {
+      container.innerHTML = '';
+    }
+  }
+
+  function updateTabsVisualState(tabsRoot) {
+    const buttons = tabsRoot.querySelectorAll('.tab');
+    buttons.forEach((btn) => {
+      const isActive = btn.dataset.range === overallRange;
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+  }
+
+  function initOverallRangeTabs() {
+    const tabsRoot = document.getElementById('overall-range-tabs');
+    if (!tabsRoot) return;
+
+    if (!tabsRoot.dataset.initialized) {
+      tabsRoot.addEventListener('click', (event) => {
+        const button = event.target.closest('button.tab');
+        if (!button) return;
+
+        const newRange = button.dataset.range;
+        if (!newRange || newRange === overallRange) return;
+
+        overallRange = newRange;
+        updateTabsVisualState(tabsRoot);
+        renderOverallStats();
+      });
+      tabsRoot.dataset.initialized = 'true';
+    }
+
+    updateTabsVisualState(tabsRoot);
+  }
+
+  function openStatsModal() {
+    initOverallRangeTabs();
+
+    if (typeof window.renderTodayHourlyChart === 'function') {
+      window.renderTodayHourlyChart();
+    }
+
+    renderOverallStats();
+  }
+
+  window.StatsModal = {
+    get overallRange() {
+      return overallRange;
+    },
+    set overallRange(value) {
+      if (!value || value === overallRange) return;
+      overallRange = value;
+      initOverallRangeTabs();
+      renderOverallStats();
+    },
+    RANGE_LABELS,
+    getDateKeysForRange,
+    renderOverallStats,
+    initOverallRangeTabs,
+    open: openStatsModal
+  };
+})(window, document);
