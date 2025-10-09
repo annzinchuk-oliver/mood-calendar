@@ -687,70 +687,67 @@
                 Записать настроение
             </button>
             <!-- Кнопка статистики остаётся внизу -->
-            <button class="btn btn--primary btn--xl" onclick="openStats()">📊 Статистика</button>
+            <button class="btn btn--primary btn--xl" onclick="openStatsModal()">📊 Статистика</button>
           </div>
         </div>
 
-<!-- Stats: одна корректная модалка -->
-        <div id="statsSheet" class="sheet" hidden>
-          <div class="sheet__backdrop" onclick="closeStats()"></div>
-        
-          <div class="sheet__panel" id="statsPanel" role="dialog" aria-modal="true" aria-labelledby="statsTitle">
-            <div class="sheet__header">
-              <h3 id="statsTitle">📈 Статистика</h3>
-              <button class="sheet__close btn btn--ghost" aria-label="Закрыть" onclick="closeStats()">✕</button>
+        <!-- Модалка: Статистика -->
+        <div id="stats-modal" class="modal" aria-hidden="true" hidden>
+          <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="stats-title">
+            <div class="modal__header">
+              <div id="stats-title" class="modal__title">Статистика</div>
+              <!-- верхний крестик УДАЛЁН -->
             </div>
         
-            <div id="statsBody" style="display:grid; gap:12px;">
+            <div class="modal__body">
+        
+              <!-- Сегодня по часам -->
               <section class="card" id="today-hourly">
                 <div class="card-title">Настроение сегодня по часам</div>
-                <div class="hourly-chart__header">
-                  <div class="scale-toggle" role="group" aria-label="Диапазон шкалы настроения">
-                    <button type="button" class="scale-toggle__btn" data-scale="auto" onclick="setHourlyScale('auto')">Авто</button>
-                    <button type="button" class="scale-toggle__btn" data-scale="fixed" onclick="setHourlyScale('fixed')">±50</button>
-                  </div>
+                <div class="chart-wrap">
+                  <canvas id="hourly-chart" height="200"></canvas>
                 </div>
-                <div class="hourly-chart" id="hourlyChart">
-                  <canvas id="hourly-chart" aria-label="График настроения по часам" role="img"></canvas>
+        
+                <div class="scale-toggle">
+                  <button type="button" class="chip is-active" data-scale="auto">Авто</button>
+                  <button type="button" class="chip" data-scale="fixed">±50</button>
                 </div>
-                <div id="hourlyAggregates" class="hourly-aggregates" aria-live="polite">
-                  <div class="aggregate-item">
-                    <span class="aggregate-label">Среднее за день</span>
-                    <span class="aggregate-value" data-aggregate="avg">0.0</span>
-                  </div>
-                  <div class="aggregate-item">
-                    <span class="aggregate-label">Сумма за день</span>
-                    <span class="aggregate-value" data-aggregate="total">0</span>
-                  </div>
-                  <div class="aggregate-item">
-                    <span class="aggregate-label">Пиковый час</span>
-                    <span class="aggregate-value" data-aggregate="peak">–</span>
-                  </div>
+        
+                <div class="aggregates">
+                  <div class="agg"><div class="label">Среднее за день</div><div class="value" id="agg-avg">0.0</div></div>
+                  <div class="agg"><div class="label">Сумма за день</div><div class="value" id="agg-sum">0</div></div>
+                  <div class="agg"><div class="label">Пиковый час</div><div class="value" id="agg-peak">—</div></div>
                 </div>
+        
                 <p class="hint">Наведите или коснитесь столбика, чтобы увидеть детали</p>
               </section>
-
+        
               <hr class="section-divider" />
-
+        
+              <!-- Табы диапазона ДЛЯ ОБЩЕЙ СТАТИСТИКИ -->
               <div id="overall-range-tabs" class="range-tabs" role="tablist" aria-label="Диапазон общей статистики">
-                <button class="tab active" data-range="3d"  role="tab" aria-selected="true">3 дня</button>
-                <button class="tab"          data-range="7d"  role="tab" aria-selected="false">Неделя</button>
-                <button class="tab"          data-range="1m"  role="tab" aria-selected="false">Месяц</button>
-                <button class="tab"          data-range="all" role="tab" aria-selected="false">Все время</button>
+                <button type="button" class="tab active" data-range="3d"  role="tab" aria-selected="true">3 дня</button>
+                <button type="button" class="tab"        data-range="7d"  role="tab" aria-selected="false">Неделя</button>
+                <button type="button" class="tab"        data-range="1m"  role="tab" aria-selected="false">Месяц</button>
+                <button type="button" class="tab"        data-range="all" role="tab" aria-selected="false">Все время</button>
               </div>
-
+        
+              <!-- Общая статистика -->
               <section class="card" id="overall-stats">
                 <div class="card-title">
                   Общая статистика (<span id="overall-range-label">3 дня</span>)
                 </div>
-                <div id="overall-stats-body"><!-- сюда рендерится карточка статистики --></div>
+                <div id="overall-stats-body"></div>
               </section>
-            </div>
         
-            <button class="btn btn--ghost" style="margin-top:8px; width:100%;" onclick="closeStats()">Закрыть</button>
+              <!-- Нижняя большая кнопка -->
+              <div class="modal-footer-close">
+                <button type="button" class="btn btn-large" data-close-modal>Закрыть</button>
+              </div>
+            </div>
           </div>
         </div>
-        
+
         <div class="chat-page" id="chatPage">
           <div class="chat-header">
             <h2>ИИ Чат</h2>
@@ -1265,21 +1262,7 @@
         let dailyTotals = {};
         const DAILY_MIN = -50;
         const DAILY_MAX = 50;
-        let hourlyChartInstance = null;
-        let hourlyScaleMode = 'auto';
-        let hourlyChartResizeTimer = null;
-        let hourlyLabelStep = 1;
-
-        function computeHourlyLabelStep() {
-            const canvas = document.getElementById('hourly-chart');
-            const el = canvas?.parentElement || canvas;
-            const width = el?.clientWidth ?? window.innerWidth;
-            if (width < 340) return 4;
-            if (width < 420) return 3;
-            if (width < 560) return 2;
-            return 1;
-        }
-
+        
         function paintDayCell(dayDiv, totalRaw) {
           if (!(totalRaw === 0 || typeof totalRaw === 'number')) {
             return;
@@ -1594,368 +1577,31 @@
         }
 
        // Stats functionality
-        function computeOverallStats(dateKeys, rangeKey = '3d') {
-            const keys = Array.isArray(dateKeys) ? dateKeys : [];
-            const stats = {
-                totalEntries: 0,
-                moodCounts: {},
-                activeDays: 0,
-                rangeDays: 1
-            };
-
-            let firstKey = null;
-            let lastKey = null;
-
-            keys.forEach((key) => {
-                if (typeof key !== 'string') return;
-                if (!firstKey) firstKey = key;
-                lastKey = key;
-
-                const entries = Array.isArray(moodData[key]) ? moodData[key] : [];
-                if (entries.length > 0) {
-                    stats.activeDays += 1;
-                }
-
-                entries.forEach((entry) => {
-                    stats.totalEntries += 1;
-                    const moodKey = entry && entry.mood;
-                    if (moodKey) {
-                        stats.moodCounts[moodKey] = (stats.moodCounts[moodKey] || 0) + 1;
-                    }
-                });
-            });
-
-            const DAY = 24 * 60 * 60 * 1000;
-
-            if (rangeKey === 'all') {
-                if (firstKey && lastKey) {
-                    const from = new Date(firstKey);
-                    const to = new Date(lastKey);
-                    if (!Number.isNaN(from.getTime()) && !Number.isNaN(to.getTime())) {
-                        stats.rangeDays = Math.max(1, Math.floor((to - from) / DAY) + 1);
-                    }
-                }
-            } else {
-                const now = new Date();
-                const from = new Date(now);
-                if (rangeKey === '3d') {
-                    from.setDate(from.getDate() - 2);
-                } else if (rangeKey === '7d') {
-                    from.setDate(from.getDate() - 6);
-                } else if (rangeKey === '1m') {
-                    from.setMonth(from.getMonth() - 1);
-                } else {
-                    from.setDate(from.getDate() - 6);
-                }
-                stats.rangeDays = Math.max(1, Math.floor((now - from) / DAY) + 1);
-            }
-
-            stats.rangeDays = Math.max(stats.rangeDays, 1);
-            return stats;
-        }
-
-        function buildOverallStatsHTML(dateKeys, rangeKey = '3d') {
-            const stats = computeOverallStats(dateKeys, rangeKey);
-            if (!stats.totalEntries) {
-                return '<p class="empty-state">За выбранный период пока нет записей.</p>';
-            }
-
-            const moodCounts = stats.moodCounts || {};
-            const totalEntries = stats.totalEntries;
-            const goodCount = (moodCounts.good || 0) + (moodCounts.happy || 0) + (moodCounts.pleased || 0);
-            const neutralCount = (moodCounts.neutral || 0);
-            const sadCount = (moodCounts.sad || 0) + (moodCounts.sorrow || 0);
-
-            const clampPercent = (value) => {
-                if (!Number.isFinite(value)) return 0;
-                return Math.max(0, Math.min(100, Math.round(value)));
-            };
-
-            const goodPercent = clampPercent(goodCount / totalEntries * 100);
-            const neutralPercent = clampPercent(neutralCount / totalEntries * 100);
-            const sadPercent = clampPercent(sadCount / totalEntries * 100);
-
-            const avgPerDayRaw = stats.rangeDays ? (totalEntries / stats.rangeDays) : 0;
-            const avgPerDay = Number.isFinite(avgPerDayRaw)
-                ? (Math.abs(avgPerDayRaw % 1) < 1e-6 ? avgPerDayRaw.toFixed(0) : avgPerDayRaw.toFixed(1))
-                : '0';
-
-            return [
-                `<div class="stat-row"><span class="stat-label">Хорошие записи:</span><span class="stat-value stat-value--good">${goodPercent}%</span></div>`,
-                `<div class="stat-row"><span class="stat-label">Нейтральные записи:</span><span class="stat-value stat-value--neutral">${neutralPercent}%</span></div>`,
-                `<div class="stat-row"><span class="stat-label">Грустные записи:</span><span class="stat-value stat-value--sad">${sadPercent}%</span></div>`,
-                `<div class="total-records">Всего записей: ${totalEntries}</div>`,
-                `<div class="stat-row"><span class="stat-label">Записей в день:</span><span class="stat-value">${avgPerDay}</span></div>`,
-                `<div class="stat-row"><span class="stat-label">Активных дней:</span><span class="stat-value">${stats.activeDays}</span></div>`
-            ].join('');
-        }
-
         function openStats(){
-          const sheet = document.getElementById('statsSheet');
-          if (!sheet) return;
-          sheet.hidden = false;
-          document.body.classList.add('modal-open');  // по желанию — блокируем скролл фона
-
-          if (window.StatsModal && typeof window.StatsModal.open === 'function') {
-            window.StatsModal.open();
-            return;
-          }
-
-          renderTodayHourlyChart();
-          const container = document.getElementById('overall-stats-body');
-          if (container) {
-            const fallbackKeys = Object.keys(moodData || {}).sort();
-            container.innerHTML = buildOverallStatsHTML(fallbackKeys, 'all');
+          if (typeof window.openStatsModal === 'function') {
+            window.openStatsModal();
           }
         }
         function closeStats(){
-          const sheet = document.getElementById('statsSheet');
-          if (!sheet) return;
-          sheet.hidden = true;
-          document.body.classList.remove('modal-open');
-        }
-          // Закрытие по клику на фон и по Esc
-
-          document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeStats();
-          });
-        
-          // Свайп-вниз для закрытия листа
-// Свайп-вниз или влево для закрытия модалки
-        function enableStatsSwipe() {
-          const panel = document.querySelector('#statsSheet .sheet__panel'); // ← так надёжнее
-          if (!panel) return;
-        
-          let sx = 0, sy = 0, dx = 0, dy = 0;
-        
-          panel.addEventListener('touchstart', (e) => {
-            const t = e.touches[0];
-            sx = t.clientX; sy = t.clientY; dx = dy = 0;
-          }, { passive: true });
-        
-          panel.addEventListener('touchmove', (e) => {
-            const t = e.touches[0];
-            dx = t.clientX - sx; dy = t.clientY - sy;
-          }, { passive: true });
-        
-          panel.addEventListener('touchend', () => {
-            if (Math.abs(dy) > 80 || Math.abs(dx) > 120) closeStats();
-          });
+          if (typeof window.closeStatsModal === 'function') {
+            window.closeStatsModal();
+          }
         }
 
-
-
-        function setHourlyScale(mode) {
-            hourlyScaleMode = mode === 'fixed' ? 'fixed' : 'auto';
-            updateScaleToggleUI();
-            renderTodayHourlyChart();
-        }
-
-        function updateScaleToggleUI() {
-            document.querySelectorAll('.scale-toggle__btn').forEach(btn => {
-                const isActive = btn.getAttribute('data-scale') === hourlyScaleMode;
-                btn.classList.toggle('active', isActive);
-                btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-            });
-        }
-
-        function updateHourlyChart() {
-            const canvas = document.getElementById('hourly-chart');
-            if (!canvas || typeof Chart === 'undefined') {
-                return;
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            const modal = document.getElementById('stats-modal');
+            if (modal && !modal.hasAttribute('hidden') && typeof window.closeStatsModal === 'function') {
+              window.closeStatsModal();
             }
-
-            updateScaleToggleUI();
-
-            const ctx = canvas.getContext('2d');
-            const todayKey = getDateKey(new Date());
-            const entries = moodData[todayKey] || [];
-            const hourlyTotals = new Array(24).fill(0);
-            const hourHasData = new Array(24).fill(false);
-            const hourlyEntriesList = Array.from({ length: 24 }, () => []);
-
-            entries.forEach(entry => {
-                if (entry == null || typeof entry.hour !== 'number') return;
-                const hour = Math.min(23, Math.max(0, entry.hour));
-                const value = typeof entry.score === 'number' ? entry.score : 0;
-                hourlyTotals[hour] += value;
-                hourHasData[hour] = true;
-                hourlyEntriesList[hour].push(entry);
-            });
-
-            const aggregatesEl = document.getElementById('hourlyAggregates');
-            if (aggregatesEl) {
-                const totalEntries = entries.length;
-                const totalSum = entries.reduce((sum, entry) => {
-                    const value = typeof entry.score === 'number' ? entry.score : 0;
-                    return sum + value;
-                }, 0);
-                const avgValue = totalEntries ? (totalSum / totalEntries) : 0;
-                let peakHour = null;
-                let peakValue = 0;
-                hourlyTotals.forEach((value, hour) => {
-                    if (!hourHasData[hour]) return;
-                    if (peakHour === null || Math.abs(value) > Math.abs(peakValue)) {
-                        peakHour = hour;
-                        peakValue = value;
-                    }
-                });
-
-                const avgEl = aggregatesEl.querySelector('[data-aggregate="avg"]');
-                const totalEl = aggregatesEl.querySelector('[data-aggregate="total"]');
-                const peakEl = aggregatesEl.querySelector('[data-aggregate="peak"]');
-
-                if (avgEl) avgEl.textContent = `${avgValue > 0 ? '+' : ''}${avgValue.toFixed(1)}`;
-                if (totalEl) totalEl.textContent = `${totalSum > 0 ? '+' : ''}${totalSum}`;
-                if (peakEl) {
-                    if (peakHour === null) {
-                        peakEl.textContent = '–';
-                    } else {
-                        const sign = peakValue > 0 ? '+' : '';
-                        peakEl.textContent = `${peakHour.toString().padStart(2, '0')}:00 (${sign}${peakValue})`;
-                    }
-                }
-            }
-
-            if (hourlyChartInstance) {
-                hourlyChartInstance.destroy();
-            }
-
-            const hourLabels = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
-            const rootTheme = document.documentElement.getAttribute('data-theme');
-            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const isDark = rootTheme ? rootTheme === 'dark' : prefersDark;
-            const emptyBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
-            const emptyBorder = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)';
-            const useAutoScale = hourlyScaleMode !== 'fixed';
-            hourlyLabelStep = computeHourlyLabelStep();
-
-            hourlyChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: hourLabels,
-                    datasets: [{
-                        data: hourlyTotals,
-                        backgroundColor: hourlyTotals.map((value, hour) => {
-                            if (!hourHasData[hour]) return emptyBg;
-                            return window.Palette.moodColor(value);
-                        }),
-                        borderColor: hourlyTotals.map((value, hour) => {
-                            if (!hourHasData[hour]) return emptyBorder;
-                            return window.Palette.moodColor(value);
-                        }),
-                        borderWidth: hourlyTotals.map((_, hour) => hourHasData[hour] ? 0 : 1),
-                        borderSkipped: false,
-                        borderRadius: 6,
-                        hoverBackgroundColor: hourlyTotals.map((value, hour) => {
-                            if (!hourHasData[hour]) return emptyBg;
-                            return window.Palette.moodColor(value);
-                        }),
-                        hoverBorderColor: hourlyTotals.map((value, hour) => {
-                            if (!hourHasData[hour]) return emptyBorder;
-                            return window.Palette.moodColor(value);
-                        })
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: false,
-                    scales: {
-                        x: {
-                            offset: true,
-                            grid: { display: false },
-                            ticks: {
-                                maxRotation: 0,
-                                autoSkip: false,
-                                callback: function(value) {
-                                    const hour = Number(value);
-                                    if (!Number.isFinite(hour) || hour % hourlyLabelStep !== 0) {
-                                        return '';
-                                    }
-                                    return `${hour.toString().padStart(2, '0')}:00`;
-                                },
-                                color: isDark ? '#9AA0A6' : '#5f6368',
-                                padding: 6
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            min: useAutoScale ? undefined : -50,
-                            max: useAutoScale ? undefined : 50,
-                            ticks: {
-                                color: isDark ? '#9AA0A6' : '#5f6368',
-                                stepSize: useAutoScale ? undefined : 10
-                            },
-                            grid: {
-                                color: (ctx) =>
-                                    ctx.tick.value === 0
-                                        ? (isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)')
-                                        : (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'),
-                                lineWidth: (ctx) => (ctx.tick.value === 0 ? 1 : 0.5)
-                            }
-                        }
-                    },
-                    layout: {
-                        padding: { bottom: 8 }
-                    },
-                    interaction: {
-                        mode: 'index',
-                        intersect: false
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            displayColors: false,
-                            callbacks: {
-                                title: function(context) {
-                                    const hourLabel = context[0]?.label || '00';
-                                    return `${hourLabel}:00`;
-                                },
-                                label: function(context) {
-                                    const hourIdx = context.dataIndex;
-                                    const total = hourlyTotals[hourIdx] || 0;
-                                    const sign = total > 0 ? '+' : '';
-                                    return `Сумма: ${sign}${total}`;
-                                },
-                                afterLabel: function(context) {
-                                    const hourIdx = context.dataIndex;
-                                    const hourEntries = hourlyEntriesList[hourIdx] || [];
-                                    if (hourEntries.length === 0) {
-                                        return 'Нет записей';
-                                    }
-                                    const notes = hourEntries
-                                        .filter(entry => entry && entry.note)
-                                        .map(entry => `• ${entry.note}`);
-                                    if (notes.length === 0) {
-                                        return `Записей: ${hourEntries.length}`;
-                                    }
-                                    return [`Записей: ${hourEntries.length}`, ...notes];
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
+          }
+        });
 
         window.addEventListener('resize', () => {
-            const newStep = computeHourlyLabelStep();
-            if (newStep !== hourlyLabelStep) {
-                hourlyLabelStep = newStep;
-                if (hourlyChartInstance) {
-                    hourlyChartInstance.update('none');
-                }
-            }
-            if (hourlyChartResizeTimer) {
-                clearTimeout(hourlyChartResizeTimer);
-            }
-            hourlyChartResizeTimer = setTimeout(() => {
-                const statsSheet = document.getElementById('statsSheet');
-                if (statsSheet && statsSheet.hidden === false) {
-                    renderTodayHourlyChart();
-                }
-            }, 200);
+          const modal = document.getElementById('stats-modal');
+          if (modal && !modal.hasAttribute('hidden') && typeof window.renderTodayHourlyChart === 'function') {
+            window.renderTodayHourlyChart();
+          }
         });
 
         // Notification functions
@@ -2452,6 +2098,7 @@
     <script src="./app-core.js"></script>
 </body>
 </html>
+
 
 
 
