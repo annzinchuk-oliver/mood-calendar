@@ -2078,6 +2078,8 @@
           dailyScores[dateKey] = entries.length ? totalForAverage / entries.length : 0;
 
           saveData();
+          // сообщаем, что данные изменились
+          document.dispatchEvent(new CustomEvent('stats:data-changed'));
           updateCalendar();
           renderTodayScore();
           pingTodayBadge();
@@ -2105,6 +2107,7 @@
     <script src="/app-core.js" defer></script>
 </body>
 </html>
+
 
 
 
