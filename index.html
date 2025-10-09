@@ -1246,6 +1246,9 @@
     })();
     </script>
 
+    <!-- ДОЛЖЕН идти первым, без defer, чтобы выполнить синхронно -->
+    <script src="/scripts/safe-prelude.js"></script>
+
     <script src="/scripts/palette.global.js?v=__BUILD_ID__" defer></script>
     <script src="/scripts/utils.js?v=__BUILD_ID__" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js" defer></script>
@@ -1294,7 +1297,9 @@
         // Initialize app
          // Initialize app
         document.addEventListener('DOMContentLoaded', async function() {
-         await runMigrationsIfNeeded();   // ← добавили␊
+         if (typeof runMigrationsIfNeeded === 'function') {
+           await runMigrationsIfNeeded();   // ← добавили␊
+         }
           setupThemeToggle();
           loadData();
           updateCalendar();
@@ -2098,6 +2103,7 @@
     <script src="/app-core.js" defer></script>
 </body>
 </html>
+
 
 
 
