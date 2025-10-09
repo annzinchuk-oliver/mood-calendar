@@ -238,8 +238,74 @@ let hourlyChart = null;
 const RANGE_LABELS = { '3d':'3 дня', '7d':'Неделя', '1m':'Месяц', 'all':'Все время' };
 
 // ======== Диапазон дат для общей статистики ========
+/* ---------- DATA ADAPTER: берём из window.moodData или собираем из localStorage ---------- */
+
+// Проверяем YYYY-MM-DD
+const _DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function buildIndexFromLocalStorage() {
+  const byDate = Object.create(null);
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      const raw = localStorage.getItem(k);
+      if (!raw || raw.length < 2) continue;
+      let val;
+      try { val = JSON.parse(raw); } catch { continue; }
+
+      // 1) Формат: { "2025-10-09": [ {hour, score, note?}, ... ], ... }
+      if (val && typeof val === 'object' && !Array.isArray(val)) {
+        for (const dk of Object.keys(val)) {
+          if (!_DATE_RE.test(dk)) continue;
+          const arr = Array.isArray(val[dk]) ? val[dk] : [];
+          if (!byDate[dk]) byDate[dk] = [];
+          for (const e of arr) {
+            if (e && typeof e === 'object' && Number.isFinite(+e.hour) && Number.isFinite(+e.score)) {
+              byDate[dk].push({ hour: +e.hour, score: +e.score, note: e.note || '' });
+            }
+          }
+        }
+      }
+
+      // 2) Формат: [ { date:'YYYY-MM-DD', hour, score, note? }, ... ]
+      if (Array.isArray(val)) {
+        for (const e of val) {
+          if (!e || typeof e !== 'object') continue;
+          const dk = e.date && _DATE_RE.test(e.date) ? e.date : null;
+          if (!dk || !Number.isFinite(+e.hour) || !Number.isFinite(+e.score)) continue;
+          if (!byDate[dk]) byDate[dk] = [];
+          byDate[dk].push({ hour: +e.hour, score: +e.score, note: e.note || '' });
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('localStorage scan failed:', err);
+  }
+  return byDate;
+}
+
+// Универсальный индекс
+function getStatsIndex() {
+  // приоритет — то, чем уже пользуется приложение
+  const fromGlobal = (window.moodData && typeof window.moodData === 'object') ? window.moodData : null;
+  if (fromGlobal && Object.keys(fromGlobal).length) return fromGlobal;
+
+  // fallback — собрать из стораджа
+  const fromLS = buildIndexFromLocalStorage();
+  if (Object.keys(fromLS).length) return fromLS;
+
+  // пусто — вернём пустой индекс
+  return Object.create(null);
+}
+
+// «сегодня»
+function getTodayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+// ключи дат по диапазону
 function getDateKeysForRange(rangeKey){
-  const allKeys = Object.keys(window.moodData || {}).sort(); // 'YYYY-MM-DD'
+  const allKeys = Object.keys(getStatsIndex()).filter(_ => _DATE_RE.test(_)).sort();
   if (!allKeys.length) return [];
   if (rangeKey === 'all') return allKeys;
 
@@ -279,12 +345,12 @@ function enableStatsSwipe(modalEl) {
 }
 
 // ======== Агрегация и карточка общей статистики ========
-function aggregateRange(dateKeys) {
+function aggregateRange(dateKeys, index) {
   let total = 0, zeroCnt = 0, activeDays = 0;
   let posCnt = 0, negCnt = 0, posSum = 0, negSum = 0;
 
   for (const k of dateKeys) {
-    const arr = (window.moodData?.[k] ?? []);
+    const arr = Array.isArray(index[k]) ? index[k] : [];
     if (arr.length) activeDays++;
     total += arr.length;
     for (const e of arr) {
@@ -308,8 +374,8 @@ function aggregateRange(dateKeys) {
   };
 }
 
-function buildOverallStatsHTML(dateKeys) {
-  const s = aggregateRange(dateKeys);
+function buildOverallStatsHTML(dateKeys, index) {
+  const s = aggregateRange(dateKeys, index);
   const sign = s.balanceSum > 0 ? '+' : (s.balanceSum < 0 ? '−' : '');
   return `
     <div class="stats-grid">
@@ -348,8 +414,9 @@ function renderOverallStats(){
   const labelEl = document.getElementById('overall-range-label');
   if (labelEl) labelEl.textContent = RANGE_LABELS[overallRange] || '';
   const dateKeys = getDateKeysForRange(overallRange);
+  const index = getStatsIndex();
   const container = document.getElementById('overall-stats-body');
-  if (container) container.innerHTML = buildOverallStatsHTML(dateKeys);
+  if (container) container.innerHTML = buildOverallStatsHTML(dateKeys, index);
 }
 
 function initOverallRangeTabs(){
@@ -382,8 +449,9 @@ function initOverallRangeTabs(){
 // ======== «Сегодня по часам» (Chart.js, фолбэк, фиксы оси X) ========
 function renderTodayHourlyChart(){
   // агрегируем сегодня
-  const todayKey = new Date().toISOString().slice(0,10);
-  const entries = (window.moodData?.[todayKey] ?? []);
+  const index = getStatsIndex();
+  const todayKey = getTodayKey();
+  const entries = Array.isArray(index[todayKey]) ? index[todayKey] : [];
   const hourlyTotals = Array(24).fill(0);
   const hourHasData = Array(24).fill(false);
   const hourlyEntriesList = Array.from({length:24}, () => []);
@@ -548,6 +616,14 @@ document.addEventListener('click', (e) => {
   if (closeBtn) { e.preventDefault(); closeStatsModal(); return; }
 });
 
+document.addEventListener('stats:data-changed', () => {
+  // при открытой модалке – обнови оба блока
+  const modal = document.getElementById('stats-modal');
+  if (modal && !modal.hidden) {
+    if (typeof renderTodayHourlyChart === 'function') renderTodayHourlyChart();
+    if (typeof renderOverallStats === 'function') renderOverallStats();
+  }
+});
 // На всякий экспорт, если где-то остался прямой вызов
 window.openStatsModal = openStatsModal;
 window.closeStatsModal = closeStatsModal;
