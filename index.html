@@ -1311,7 +1311,9 @@
 
           setupChatInput();
           maybeProactiveChat();
-          enableStatsSwipe();
+          if (typeof enableStatsSwipe === 'function') {
+            enableStatsSwipe(document.getElementById('stats-modal'));
+          }
         });
 
          // Theme management
@@ -2103,6 +2105,7 @@
     <script src="/app-core.js" defer></script>
 </body>
 </html>
+
 
 
 
