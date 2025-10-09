@@ -202,15 +202,80 @@
 .bar--sad     { background: var(--info); }
 
 /* ---------- Hourly grid blocks ---------- */
-.hour-block {
-  text-align: center;
-  padding: 8px 4px;
-  border-radius: var(--radius-1);
-  font-size: 11px;
-  color: var(--text);
-  border: 1px solid var(--border);
+.hourly-chart__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
 }
-.hour-block.has-data { color: var(--text); font-weight: bold; }
+
+.hourly-chart {
+  position: relative;
+  width: 100%;
+  height: 240px;
+}
+
+.hourly-chart canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.scale-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 4px;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+.scale-toggle__btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color .2s ease, color .2s ease;
+}
+
+.scale-toggle__btn.active {
+  background: color-mix(in srgb, var(--brand) 18%, transparent);
+  color: var(--text);
+}
+
+.hourly-aggregates {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.aggregate-item {
+  background: var(--surface);
+  border-radius: var(--radius-1);
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.aggregate-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.aggregate-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
 
 /* ---------- Nav & Send button (из чата/календаря) ---------- */
 .nav-btn {
