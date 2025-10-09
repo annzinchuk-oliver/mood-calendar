@@ -228,7 +228,9 @@ function openStatsModal() {
   if (!modal) return;
   modal.removeAttribute('hidden');
   modal.setAttribute('aria-hidden', 'false');
-  statsModalOpen = true;
+  // включаем свайп-закрытие
+  enableStatsSwipe(modal);
+
 
   // инициализация табов
   initOverallRangeTabs();
@@ -275,6 +277,29 @@ function getDateKeysForRange(rangeKey){
 
   const fromStr = from.toISOString().slice(0,10);
   return allKeys.filter(k => k >= fromStr);
+}
+// Простая поддержка свайпа вниз для закрытия модалки
+function enableStatsSwipe(modalEl) {
+  if (!modalEl) return;
+  if (modalEl.dataset.swipeBound === 'true') return;
+  modalEl.dataset.swipeBound = 'true';
+  let startY = null;
+
+  modalEl.addEventListener('touchstart', (e) => {
+    startY = e.touches?.[0]?.clientY ?? null;
+  }, { passive: true });
+
+  modalEl.addEventListener('touchmove', (e) => {
+    if (startY == null) return;
+    const dy = (e.touches?.[0]?.clientY ?? startY) - startY;
+    // если потянули вниз > 60px — закрываем
+    if (dy > 60) {
+      startY = null;
+      closeStatsModal();
+    }
+  }, { passive: true });
+
+  modalEl.addEventListener('touchend', () => { startY = null; }, { passive: true });
 }
 
 // ======== Агрегация и карточка общей статистики ========
@@ -517,6 +542,14 @@ function initScaleToggle(){
   });
 }
 
-// (опционально) экспорт в глобал, если открытие по кнопке снаружи
+// --- Экспорт в глобал, чтобы было видно из HTML (если где-то всё же вызывается напрямую)
 window.openStatsModal = openStatsModal;
 window.closeStatsModal = closeStatsModal;
+
+// --- Делегирование клика по кнопке "Статистика" (вместо inline onclick)
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-open-stats]');
+  if (btn) {
+    openStatsModal();
+  }
+});
