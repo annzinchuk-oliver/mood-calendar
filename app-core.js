@@ -235,6 +235,16 @@ let overallRange = '3d';
 let yScaleMode = 'auto'; // 'auto' | 'fixed'
 let hourlyChart = null;
 
+function computeEvenLabelStep() {
+  const w = (document.getElementById('today-hourly')?.clientWidth) || window.innerWidth;
+  if (w < 340) return 6;   // 0,6,12,18
+  if (w < 420) return 4;   // 0,4,8,12,16,20
+  return 2;                // 0,2,4,...,22
+}
+
+let hourlyLabelStep = computeEvenLabelStep();
+let hourlyLabelStepListenerBound = false;
+
 const RANGE_LABELS = { '3d':'3 дня', '7d':'Неделя', '1m':'Месяц', 'all':'Все время' };
 
 // ======== Диапазон дат для общей статистики ========
@@ -405,7 +415,7 @@ if (!document.getElementById(styleBlockId)) {
   .stats-grid .metric .label { color: var(--text-secondary, #6b7280); font-size:12px; }
   .stats-grid .metric .value { font-weight:700; font-size:20px; }
   .stats-grid .footnote { margin-top:8px; color:var(--text-secondary, #6b7280); font-size:12px; text-align:center; }
-  @media (max-width:420px){ .stats-grid .row.three { grid-template-columns: 1fr 1fr; } }
+  @media (max-width:480px){ .stats-grid .row.three { grid-template-columns: 1fr 1fr; } }
   `;
   document.head.appendChild(s);
 }
@@ -481,17 +491,21 @@ function renderTodayHourlyChart(){
   // если Chart.js недоступен — выходим без ошибки
   if (typeof window.Chart !== 'function') return;
 
-  // === разрежение подписей по ширине
-  function computeLabelStep() {
-    const wrap = document.getElementById('today-hourly');
-    const w = wrap?.clientWidth || window.innerWidth;
-    if (w < 340) return 4;     // 0,4,8,12,16,20
-    if (w < 420) return 3;     // 0,3,6,9,12,15,18,21
-    if (w < 560) return 2;     // 0,2,4,6,…
-    return 1;                  // все часы
-  }
+  // === разрежение подписей по ширине: только чётные часы
+  hourlyLabelStep = computeEvenLabelStep();
 
-  let labelStep = computeLabelStep();
+  if (!hourlyLabelStepListenerBound) {
+    window.addEventListener('resize', () => {
+      const s = computeEvenLabelStep();
+      if (s !== hourlyLabelStep) {
+        hourlyLabelStep = s;
+        if (hourlyChart && typeof hourlyChart.update === 'function') {
+          hourlyChart.update('none');
+        }
+      }
+    });
+    hourlyLabelStepListenerBound = true;
+  }
 
   // палитра
   const isDark = document.documentElement.classList.contains('theme-dark');
@@ -551,12 +565,12 @@ function renderTodayHourlyChart(){
             autoSkip: false,
             padding: 6,
             color: isDark ? '#9AA0A6' : '#5f6368',
-            // показываем только каждый labelStep-й час
-            callback(val /* индекс */, idx) {
+            // показываем только чётные часы и с выбранным шагом
+            callback(val /* 0..23 */) {
               const hour = Number(val);
-              return (hour % labelStep === 0) ? String(hour) : '';
+              return (hour % 2 === 0 && hour % hourlyLabelStep === 0) ? String(hour) : '';
             },
-            font: () => ({ size: (labelStep >= 3 ? 10 : 12) })
+            font: () => ({ size: (hourlyLabelStep >= 4 ? 10 : 12) })
           }
         },
         y: {
