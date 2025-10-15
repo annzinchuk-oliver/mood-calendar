@@ -1379,14 +1379,14 @@
             else                 varName = '--score-neg3';
           }
 
-          applyBadgeStyles(el, `var(${varName})`);
-
-          const show = typeof avg === 'number'
-            ? ((avg>0?'+':'') + (Math.round(avg*10)/10))␊
-            : '+0';
-
-          el.textContent = `Сегодня: ${show}`;
-          el.classList.remove('hidden');
+            applyBadgeStyles(el, `var(${varName})`);
+            
+            const show = Number.isFinite(avg)
+              ? `${avg > 0 ? '+' : ''}${Math.round(avg * 10) / 10}`
+              : '0';
+            
+            el.textContent = `Сегодня: ${show} / 50`;
+            el.classList.remove('hidden');
         }
 
         function switchPage(page) {
@@ -2116,6 +2116,7 @@
     <script src="/app-core.js" defer></script>
 </body>
 </html>
+
 
 
 
