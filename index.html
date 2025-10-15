@@ -172,16 +172,9 @@
 
         .today-score {
           --today-color: var(--bucket-zero);
-          display: inline-flex;
-          align-items: center;
-          gap: .5rem;
-          padding: 6px 12px;
-          border-radius: 999px;
-          border: 2px solid var(--today-color);
-          background: var(--today-color);
-          color: var(--calendar-text-contrasted);
-          font-weight: 700;
+          --badge-bg: var(--today-color);
         }
+        
         .today-score.hidden{ display:none; }
 
        .weekdays {
@@ -647,7 +640,7 @@
           <div class="header-left"></div>
 
           <div class="header-right">
-            <div id="todayScoreBadge" class="today-score hidden" aria-live="polite"></div>
+            <div id="todayScoreBadge" class="today-score badge-today hidden" aria-live="polite"></div>
 
             <div class="theme-toggle" role="group" aria-label="Переключить тему">
               <button id="themeToggle" class="theme-toggle__knob" type="button" aria-pressed="false" title="Сменить тему">
@@ -1354,6 +1347,19 @@
           applyTheme(saved === 'dark' ? 'dark' : 'light');
         })();
 
+        function applyBadgeStyles(el, colorValue) {
+          if (!el) return;
+          if (colorValue) {
+            el.style.setProperty('--today-color', colorValue);
+            el.style.setProperty('--badge-bg', colorValue);
+          }
+          const computedBg = getComputedStyle(el).backgroundColor;
+          const pick = typeof window.pickTextOn === 'function'
+            ? window.pickTextOn(computedBg)
+            : '#111111';
+          el.style.setProperty('--badge-fg', pick);
+        }
+
         function renderTodayScore() {
           const el = document.getElementById('todayScoreBadge');
           if (!el) return;
@@ -1373,10 +1379,10 @@
             else                 varName = '--score-neg3';
           }
 
-          el.style.setProperty('--today-color', `var(${varName})`);
+          applyBadgeStyles(el, `var(${varName})`);
 
           const show = typeof avg === 'number'
-            ? ((avg>0?'+':'') + (Math.round(avg*10)/10))
+            ? ((avg>0?'+':'') + (Math.round(avg*10)/10))␊
             : '+0';
 
           el.textContent = `Сегодня: ${show}`;
@@ -1955,7 +1961,10 @@
           const key = getDateKey(today);
           const total = typeof dailyTotals?.[key] === 'number' ? dailyTotals[key] : 0;
 
-          el.style.setProperty('--today-color', window.Palette.moodColor(total));
+          const paletteColor = typeof window.Palette?.moodColor === 'function'
+            ? window.Palette.moodColor(total)
+            : null;
+          applyBadgeStyles(el, paletteColor || 'var(--badge-ochre-bg)');
 
           const sign = total > 0 ? '+' : '';
           el.textContent = `Сегодня: ${sign}${total} / 50`;
@@ -2107,6 +2116,7 @@
     <script src="/app-core.js" defer></script>
 </body>
 </html>
+
 
 
 
