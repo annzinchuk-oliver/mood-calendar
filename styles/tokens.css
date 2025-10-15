@@ -51,11 +51,37 @@ LIGHT THEME — базовые токены (по умолчанию)
   --text-primary: #0b121a;
   --text-muted: #5b6675;
 
+     /* базовые поверхности */
+  --bg: #f5f7fb;
+  --card: #ffffff;
+  --surface-1: var(--bg);
+  --surface-2: var(--card);
+  --surface-3: color-mix(in srgb, #0b121a 6%, #ffffff 94%);
+
+  --line: rgba(15, 18, 26, .08);
+
   --calendar-text-contrasted: #0b121a;
     /* акцент (брендовый) */
   --brand: #7c4dff;
   --brand-2: color-mix(in srgb, #7c4dff 82%, #4b2bbd 18%);
   --on-brand: #ffffff;
+   
+  --accent: var(--brand);
+  --accent-10: color-mix(in srgb, var(--accent) 18%, transparent);
+  --accent-20: color-mix(in srgb, var(--accent) 28%, transparent);
+  --chip-bg: rgba(15, 18, 26, .05);
+  --chip-bg-hover: rgba(15, 18, 26, .09);
+
+  --badge-ochre-bg: #f2cc47;
+  --badge-ochre-fg: #1e2329;
+  --badge-ochre-ring: rgba(0, 0, 0, .18);
+
+  --modal-bg: var(--card);
+  --divider: rgba(15, 18, 26, .08);
+
+  --axis-color: #5f6368;
+  --grid-weak: rgba(0, 0, 0, .08);
+  --grid-zero: rgba(0, 0, 0, .55);
 
   /* системные цвета */
   --palette-border: #d9dfeb;
@@ -95,15 +121,24 @@ LIGHT THEME — базовые токены (по умолчанию)
 /* ==========================================================
    DARK THEME — оверрайды для data-theme="dark"
    ========================================================== */
-
+:root.theme-dark,
+html.theme-dark,
 [data-theme="dark"] {
 
   /* тёмная тема — мягче и читабельнее */
-  --palette-surface: #1e2836;
-  --palette-surface-variant: #273244;
-  --text: #e9edf3;
-  --text-primary: #ffffff;
-  --text-muted: #c9d2e0;
+  --palette-surface: #171c22;
+  --palette-surface-variant: #0f1318;
+  --text: #e7edf5;
+  --text-primary: #e7edf5;
+  --text-muted: #a9b3bf;
+
+  --bg: #0f1318;
+  --card: #171c22;
+  --surface-1: #0f1318;
+  --surface-2: #171c22;
+  --surface-3: #1d242c;
+
+  --line: rgba(230, 237, 245, .10);
 
   --calendar-text-contrasted: #ffffff;
 
@@ -111,33 +146,50 @@ LIGHT THEME — базовые токены (по умолчанию)
   --brand-2: color-mix(in srgb, #7c4dff 72%, #433196 28%);
   --on-brand: #ffffff;
 
-  --palette-border: #202838;
-  --palette-border-strong: #2f3a4d;
-  --palette-hover: #20293a;
-  --day-border: color-mix(in srgb, #fff 35%, transparent);
-  --day-bg: color-mix(in srgb, #fff 2%, transparent);
+  --palette-border: rgba(230, 237, 245, .14);
+  --palette-border-strong: rgba(230, 237, 245, .22);
+  --palette-hover: rgba(255, 255, 255, .06);
+  --day-border: rgba(231, 237, 245, .22);
+  --day-bg: color-mix(in srgb, #ffffff 5%, transparent);
    
   --palette-bg: var(--palette-surface-variant);
   --palette-text: var(--text-primary);
   --palette-text-muted: var(--text-muted);
 
-  --palette-good: #1fa857;
-  --palette-neutral: #f2cc47;
-  --palette-sad: #3558d6;
+  --palette-good: #3adc70;
+  --palette-neutral: #f0c75a;
+  --palette-sad: #5e8ff2;
 
   --bucket-pos50: #1fa857;
-  --bucket-pos40: color-mix(in srgb, #1fa857 78%, #111827 22%);
-  --bucket-pos30: color-mix(in srgb, #1fa857 62%, #111827 38%);
-  --bucket-pos20: color-mix(in srgb, #1fa857 48%, #111827 52%);
-  --bucket-pos10: color-mix(in srgb, #1fa857 34%, #111827 66%);
+  --bucket-pos40: color-mix(in srgb, #1fa857 78%, #0f1318 22%);
+  --bucket-pos30: color-mix(in srgb, #1fa857 62%, #0f1318 38%);
+  --bucket-pos20: color-mix(in srgb, #1fa857 48%, #0f1318 52%);
+  --bucket-pos10: color-mix(in srgb, #1fa857 34%, #0f1318 66%);
 
-  --bucket-zero:  #f2cc47; 
-  --bucket-neg10: color-mix(in srgb, #3558d6 42%, #0b1220 58%);
-  --bucket-neg20: color-mix(in srgb, #2b4fd1 55%, #0b1220 45%);
-  --bucket-neg30: color-mix(in srgb, #2446c9 68%, #0b1220 32%);
-  --bucket-neg40: color-mix(in srgb, #1f3fbd 80%, #0b1220 20%);
+  --bucket-zero:  #f0c75a;
+  --bucket-neg10: color-mix(in srgb, #5e8ff2 42%, #0f1318 58%);
+  --bucket-neg20: color-mix(in srgb, #4f7fe4 55%, #0f1318 45%);
+  --bucket-neg30: color-mix(in srgb, #436fe0 68%, #0f1318 32%);
+  --bucket-neg40: color-mix(in srgb, #3a63d6 80%, #0f1318 20%);
    
   --bucket-neg50: #1e3a8a;
+
+  --accent: #8b5cf6;
+  --accent-10: color-mix(in srgb, var(--accent) 16%, transparent);
+  --accent-20: color-mix(in srgb, var(--accent) 28%, transparent);
+  --chip-bg: rgba(255,255,255,.06);
+  --chip-bg-hover: rgba(255,255,255,.10);
+
+  --badge-ochre-bg: #f0c75a;
+  --badge-ochre-fg: #1e2329;
+  --badge-ochre-ring: rgba(0,0,0,.18);
+
+  --modal-bg: var(--surface-2);
+  --divider: rgba(230,237,245,.12);
+
+  --axis-color: #a9b3bf;
+  --grid-weak: rgba(231,237,245,.08);
+  --grid-zero: rgba(231,237,245,.55);
 }
 
 /* ==========================================================
@@ -145,8 +197,8 @@ LIGHT THEME — базовые токены (по умолчанию)
    ========================================================== */
 :root, [data-theme] {
 
-  --surface: var(--palette-bg);
-  --surface-2: var(--palette-surface);
+  --surface: var(--bg);
+  --surface-2: var(--card);
   --text-muted: var(--text-muted);
 
   --border: var(--palette-border);
