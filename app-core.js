@@ -33,6 +33,50 @@
 (function (window, document) {
   'use strict';
 
+    function normalizeHex(color) {
+    if (!color) return null;
+    const value = String(color).trim();
+    if (!value) return null;
+    if (value.startsWith('#')) {
+      if (value.length === 4) {
+        return '#' + value.slice(1).split('').map((c) => c + c).join('').toLowerCase();
+      }
+      if (value.length === 7) return value.toLowerCase();
+      if (value.length === 9) return '#' + value.slice(1, 7).toLowerCase();
+      return value.toLowerCase();
+    }
+    const match = value.match(/\d+(?:\.\d+)?/g);
+    if (match && match.length >= 3) {
+      const [r, g, b] = match.map((part) => {
+        const n = Number(part);
+        return Number.isFinite(n) ? Math.round(n) : 0;
+      });
+      return '#' + [r, g, b].map((n) => Math.max(0, Math.min(255, n)).toString(16).padStart(2, '0')).join('');
+    }
+    return null;
+  }
+
+  function pickTextOn(bgColor) {
+    const hex = normalizeHex(bgColor) || '#f0c75a';
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+
+    function linearize(channel) {
+      const c = channel / 255;
+      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    }
+
+    const luminance = 0.2126 * linearize(r) + 0.7152 * linearize(g) + 0.0722 * linearize(b);
+    const contrastWhite = 1.05 / (luminance + 0.05);
+    const contrastBlack = (luminance + 0.05) / 0.05;
+    return contrastWhite >= contrastBlack ? '#ffffff' : '#111111';
+  }
+
+  if (typeof window.pickTextOn !== 'function') {
+    window.pickTextOn = pickTextOn;
+  }
+  
   // Current version of the persisted store. Bump this when you change the
   // structure of the initial state to force a reset of localStorage.
   const STORE_VERSION = 1;
@@ -509,7 +553,10 @@ function renderTodayHourlyChart(){
 
   // палитра
   const isDark = document.documentElement.classList.contains('theme-dark');
-
+  const rootStyle = getComputedStyle(document.documentElement);
+  const axisColor = rootStyle.getPropertyValue('--axis-color').trim() || (isDark ? '#a9b3bf' : '#5f6368');
+  const gridWeak = rootStyle.getPropertyValue('--grid-weak').trim() || (isDark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)');
+  const gridZero = rootStyle.getPropertyValue('--grid-zero').trim() || (isDark ? 'rgba(255,255,255,.55)' : 'rgba(0,0,0,.55)');
   // уничтожаем предыдущий график
   if (hourlyChart && typeof hourlyChart.destroy === 'function') hourlyChart.destroy();
 
@@ -564,7 +611,7 @@ function renderTodayHourlyChart(){
             maxRotation: 0,
             autoSkip: false,
             padding: 6,
-            color: isDark ? '#9AA0A6' : '#5f6368',
+            color: axisColor,
             // показываем только чётные часы и с выбранным шагом
             callback(val /* 0..23 */) {
               const hour = Number(val);
@@ -577,11 +624,9 @@ function renderTodayHourlyChart(){
           beginAtZero: true,
           min: yScaleMode==='fixed' ? -50 : undefined,
           max: yScaleMode==='fixed' ?  50 : undefined,
-          ticks: { color: isDark ? '#9AA0A6' : '#5f6368', stepSize: yScaleMode==='fixed' ? 10 : undefined },
+          ticks: { color: axisColor, stepSize: yScaleMode==='fixed' ? 10 : undefined },
           grid: {
-            color: (ctx) => ctx.tick.value===0
-              ? (isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)')
-              : (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'),
+            color: (ctx) => ctx.tick.value===0 ? gridZero : gridWeak,
             lineWidth: (ctx) => ctx.tick.value===0 ? 1 : .5
           }
         }
