@@ -32,6 +32,90 @@
 
 (function (window, document) {
   'use strict';
+  
+  // ===== УНИВЕРСАЛЬНЫЙ КОНТРОЛЛЕР МОДАЛОК =====
+  (function modalController(){
+    const openStack = [];
+
+    function syncBodyState() {
+      if (openStack.length > 0) {
+        document.body.classList.add('modal-open');
+      } else {
+        document.body.classList.remove('modal-open');
+      }
+    }
+
+    function getModal(sel) {
+      return typeof sel === 'string' ? document.querySelector(sel) : sel;
+    }
+
+    function focusFirst(el) {
+      const f = el.querySelector('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');
+      if (f) {
+        try { f.focus(); } catch (err) {/* noop */}
+      }
+    }
+
+    function openModal(sel) {
+      const el = getModal(sel);
+      if (!el) return;
+      if (!openStack.includes(el)) {
+        openStack.push(el);
+      }
+      el.hidden = false;
+      el.setAttribute('aria-hidden', 'false');
+      focusFirst(el);
+      syncBodyState();
+      el.dispatchEvent(new CustomEvent('modal:open', { bubbles: true }));
+    }
+
+    function closeModal(sel) {
+      const el = getModal(sel);
+      if (!el) return;
+      const idx = openStack.indexOf(el);
+      if (idx !== -1) {
+        openStack.splice(idx, 1);
+      }
+      el.hidden = true;
+      el.setAttribute('aria-hidden', 'true');
+      syncBodyState();
+      el.dispatchEvent(new CustomEvent('modal:close', { bubbles: true }));
+    }
+
+    document.addEventListener('click', (e) => {
+      const openBtn = e.target.closest('[data-open-modal]');
+      if (openBtn) {
+        e.preventDefault();
+        openModal(openBtn.getAttribute('data-open-modal'));
+        return;
+      }
+      const closeBtn = e.target.closest('[data-close-modal]');
+      if (closeBtn) {
+        e.preventDefault();
+        closeModal(closeBtn.closest('.modal'));
+        return;
+      }
+      const backdrop = e.target.closest('.modal__backdrop');
+      if (backdrop) {
+        closeModal(backdrop.parentElement);
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        for (let i = openStack.length - 1; i >= 0; i--) {
+          const modal = openStack[i];
+          if (modal && !modal.hidden) {
+            closeModal(modal);
+            break;
+          }
+        }
+      }
+    });
+
+    window.openModal = openModal;
+    window.closeModal = closeModal;
+  })();
 
     function normalizeHex(color) {
     if (!color) return null;
@@ -650,36 +734,6 @@ function initScaleToggle(){
   });
 }
 
-// --- Экспорт в глобал, чтобы было видно из HTML (если где-то всё же вызывается напрямую)
-/* ====== Статистика: функции открытия/закрытия ====== */
-function openStatsModal() {
-  const m = document.getElementById('stats-modal');
-  if (!m) return;
-  m.hidden = false;
-  m.setAttribute('aria-hidden', 'false');
-
-  if (typeof renderTodayHourlyChart === 'function') renderTodayHourlyChart();
-  if (typeof renderOverallStats === 'function') renderOverallStats();
-
-  if (typeof enableStatsSwipe === 'function') enableStatsSwipe(m);
-}
-
-function closeStatsModal() {
-  const m = document.getElementById('stats-modal');
-  if (!m) return;
-  m.hidden = true;
-  m.setAttribute('aria-hidden', 'true');
-}
-
-// Делегирование клика по кнопке «Статистика»
-document.addEventListener('click', (e) => {
-  const openBtn = e.target.closest('[data-open-stats]');
-  if (openBtn) { e.preventDefault(); openStatsModal(); return; }
-
-  const closeBtn = e.target.closest('[data-close-modal]');
-  if (closeBtn) { e.preventDefault(); closeStatsModal(); return; }
-});
-
 document.addEventListener('stats:data-changed', () => {
   // при открытой модалке – обнови оба блока
   const modal = document.getElementById('stats-modal');
@@ -688,9 +742,6 @@ document.addEventListener('stats:data-changed', () => {
     if (typeof renderOverallStats === 'function') renderOverallStats();
   }
 });
-// На всякий экспорт, если где-то остался прямой вызов
-window.openStatsModal = openStatsModal;
-window.closeStatsModal = closeStatsModal;
 
 /* ====== Безопасная заглушка свайпа (чтобы не падало) ====== */
 if (typeof window.enableStatsSwipe !== 'function') {
@@ -702,23 +753,31 @@ if (typeof window.enableStatsSwipe !== 'function') {
     modalEl.addEventListener('touchmove',  (e) => {
       if (startY == null) return;
       const y = e.touches?.[0]?.clientY ?? startY;
-      if (y - startY > 60) { startY = null; window.closeStatsModal(); }
+      if (y - startY > 60) { startY = null; window.closeModal?.('#stats-modal'); }
     }, {passive:true});
     modalEl.addEventListener('touchend', () => { startY = null; }, {passive:true});
   };
 }
 
-// Дополнительная очистка графика при закрытии модалки
-if (typeof window.closeStatsModal === 'function') {
-  const originalCloseStatsModal = window.closeStatsModal;
-  window.closeStatsModal = function patchedCloseStatsModal(...args) {
-    const result = originalCloseStatsModal.apply(this, args);
+function setupStatsModal() {
+  const modal = document.getElementById('stats-modal');
+  if (!modal) return;
+
+  modal.addEventListener('modal:open', () => {
+    if (typeof renderTodayHourlyChart === 'function') renderTodayHourlyChart();
+    if (typeof renderOverallStats === 'function') renderOverallStats();
+    if (!modal.dataset.swipeAttached && typeof enableStatsSwipe === 'function') {
+      enableStatsSwipe(modal);
+      modal.dataset.swipeAttached = 'true';
+    }
+  });
+
+  modal.addEventListener('modal:close', () => {
     if (hourlyChart && typeof hourlyChart.destroy === 'function') {
       hourlyChart.destroy();
       hourlyChart = null;
     }
-    return result;
-  };
+  });
 }
 
 /* ===== APP BOOT ===== */
@@ -733,6 +792,7 @@ function appBoot() {
     // 2) навешивание обработчиков на кнопки (без inline onclick)
     initOverallRangeTabs();
     initScaleToggle();
+    setupStatsModal();
 
     // 3) всё остальное, что раньше запускалось сразу
   } catch (err) {
