@@ -680,43 +680,44 @@
                 Записать настроение
             </button>
             <!-- Кнопка статистики остаётся внизу -->
-          <button type="button" class="btn btn--primary btn--xl" data-open-stats>📊 Статистика</button>
-          </div>
+          <button type="button" class="btn btn--primary btn--xl" data-open-modal="#stats-modal">📊 Статистика</button>
         </div>
+      </div>
 
-        <!-- Модалка: Статистика -->
-        <div id="stats-modal" class="modal" aria-hidden="true" hidden>
-          <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="stats-title">
-            <div class="modal__header">
-              <div id="stats-title" class="modal__title">Статистика</div>
-              <!-- верхний крестик УДАЛЁН -->
-            </div>
-        
-            <div class="modal__body">
-        
+      <!-- Модалка: Статистика -->
+      <div id="stats-modal" class="modal" hidden aria-hidden="true">
+        <div class="modal__backdrop" data-close-modal></div>
+
+        <div class="modal__dialog modal--md" role="dialog" aria-modal="true" aria-labelledby="stats-title">
+          <header class="modal__header">
+            <h3 id="stats-title" class="modal__title">Статистика</h3>
+          </header>
+
+          <div class="modal__body">
+            <div class="modal__content">
               <!-- Сегодня по часам -->
               <section class="card" id="today-hourly">
                 <div class="card-title">Настроение сегодня по часам</div>
                 <div class="chart-wrap">
                   <canvas id="hourly-chart" height="200"></canvas>
                 </div>
-        
+
                 <div class="scale-toggle">
                   <button type="button" class="chip is-active" data-scale="auto">Авто</button>
                   <button type="button" class="chip" data-scale="fixed">±50</button>
                 </div>
-        
+
                 <div class="aggregates">
                   <div class="agg"><div class="label">Среднее за день</div><div class="value" id="agg-avg">0.0</div></div>
                   <div class="agg"><div class="label">Сумма за день</div><div class="value" id="agg-sum">0</div></div>
                   <div class="agg"><div class="label">Пиковый час</div><div class="value" id="agg-peak">—</div></div>
                 </div>
-        
+
                 <p class="hint">Наведите или коснитесь столбика, чтобы увидеть детали</p>
               </section>
-        
+
               <hr class="section-divider" />
-        
+
               <!-- Табы диапазона ДЛЯ ОБЩЕЙ СТАТИСТИКИ -->
               <div id="overall-range-tabs" class="range-tabs" role="tablist" aria-label="Диапазон общей статистики">
                 <button type="button" class="tab active" data-range="3d"  role="tab" aria-selected="true">3 дня</button>
@@ -724,7 +725,7 @@
                 <button type="button" class="tab"        data-range="1m"  role="tab" aria-selected="false">Месяц</button>
                 <button type="button" class="tab"        data-range="all" role="tab" aria-selected="false">Все время</button>
               </div>
-        
+
               <!-- Общая статистика -->
               <section class="card" id="overall-stats">
                 <div class="card-title">
@@ -732,14 +733,14 @@
                 </div>
                 <div id="overall-stats-body"></div>
               </section>
-        
-              <!-- Нижняя большая кнопка -->
-              <div class="modal-footer-close">
-                <button type="button" class="btn btn-large" data-close-modal>Закрыть</button>
-              </div>
             </div>
           </div>
+
+          <footer class="modal__footer">
+            <button type="button" class="btn btn-primary" data-close-modal>Закрыть</button>
+          </footer>
         </div>
+      </div>
 
         <div class="chat-page" id="chatPage">
           <div class="chat-header">
@@ -845,71 +846,103 @@
     
 
 <!-- ===== Therapy Modal ===== -->
-        <div id="therapyPopup" class="mood-popup hidden">
-          <div class="mood-popup-content" style="max-width:420px">
-            <h3 id="therapyTitle">Терапия</h3>
-            <p id="therapySubtitle">Описание практики</p>
-        
-            <div class="thermo">
-              <div class="ring" id="thermoRing">
-                <div class="ring-inner">
-                  <div id="thermoPhase" class="phase">Готовы?</div>
-                  <div id="thermoTime" class="time">00</div>
+        <div id="therapy-modal" class="modal" hidden aria-hidden="true">
+          <div class="modal__backdrop" data-close-modal></div>
+
+          <div class="modal__dialog modal--md" role="dialog" aria-modal="true" aria-labelledby="therapyTitle">
+            <header class="modal__header">
+              <h3 id="therapyTitle" class="modal__title">Терапия</h3>
+            </header>
+
+            <div class="modal__body">
+              <div class="modal__content">
+                <p id="therapySubtitle" class="modal__subtitle">Описание практики</p>
+
+                <div class="thermo">
+                  <div class="ring" id="thermoRing">
+                    <div class="ring-inner">
+                      <div id="thermoPhase" class="phase">Готовы?</div>
+                      <div id="thermoTime" class="time">00</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="therapyHint" class="therapy-hint"></div>
+
+                <div class="therapy-actions">
+                  <button class="btn btn--primary" id="therapyStartBtn">▶ Запустить</button>
+                  <button class="btn" id="therapyStopBtn">⏹ Остановить</button>
                 </div>
               </div>
             </div>
-        
-            <div id="therapyHint" class="therapy-hint"></div>
-        
-            <div class="therapy-actions">
-              <button class="btn btn--primary" id="therapyStartBtn">▶ Запустить</button>
-              <button class="btn" id="therapyStopBtn">⏹ Остановить</button>
-            </div>
-        
-            <button class="skip-btn" onclick="closeTherapy()">Закрыть</button>
+
+            <footer class="modal__footer">
+              <button type="button" class="btn btn-primary" data-close-modal>Закрыть</button>
+            </footer>
           </div>
         </div>
 
         <!-- ===== Test Modal ===== -->
-        <div id="testPopup" class="mood-popup hidden">
-          <div class="mood-popup-content" style="max-width:520px">
-            <h3 id="testTitle">Тест</h3>
-            <p id="testDesc">Короткий скрининг</p>
-        
-            <div id="testFormHost" style="display:grid; gap:12px; margin:12px 0;"></div>
-        
-            <div class="therapy-actions" style="margin-top:4px;">
-              <button class="btn btn--primary" id="testSubmitBtn">Готово</button>
-              <button class="btn" id="testCancelBtn">Отмена</button>
+        <div id="test-modal" class="modal" hidden aria-hidden="true">
+          <div class="modal__backdrop" data-close-modal></div>
+
+          <div class="modal__dialog modal--md" role="dialog" aria-modal="true" aria-labelledby="testTitle">
+            <header class="modal__header">
+              <h3 id="testTitle" class="modal__title">Тест</h3>
+            </header>
+
+            <div class="modal__body">
+              <div class="modal__content">
+                <p id="testDesc" class="modal__subtitle">Короткий скрининг</p>
+
+                <div id="testFormHost" class="test-form-host"></div>
+
+                <div class="therapy-actions" style="margin-top:4px;">
+                  <button class="btn btn--primary" id="testSubmitBtn">Готово</button>
+                  <button class="btn" id="testCancelBtn">Отмена</button>
+                </div>
+              </div>
             </div>
-        
-            <button class="skip-btn" onclick="closeTest()">Закрыть</button>
+
+            <footer class="modal__footer">
+              <button type="button" class="btn btn-primary" data-close-modal>Закрыть</button>
+            </footer>
           </div>
         </div>
 
-       <div id="moodSliderPopup" class="mood-popup hidden">
-          <div class="mood-popup-content">
-            <h3>Как вы себя чувствуете?</h3>
+        <div id="mood-modal" class="modal" hidden aria-hidden="true">
+          <div class="modal__backdrop" data-close-modal></div>
 
-            <div class="mood-range-row">
-              <!-- СЛЕВА — грустный -->
-              <span class="mood-emoji" aria-hidden="true" title="Плохо">😢</span>
+          <div class="modal__dialog modal--sm" role="dialog" aria-modal="true" aria-labelledby="mood-modal-title">
+            <header class="modal__header">
+              <h3 id="mood-modal-title" class="modal__title">Как вы себя чувствуете?</h3>
+            </header>
 
-              <input
-                id="moodSlider"
-                type="range"
-                min="-5" max="5" step="1" value="0"
-                class="mood-range"
-                aria-label="Ползунок настроения от −5 до +5">
+            <div class="modal__body">
+              <div class="modal__content">
+                <div class="mood-range-row">
+                  <span class="mood-emoji" aria-hidden="true" title="Плохо">😢</span>
 
-              <!-- СПРАВА — счастливый -->
-              <span class="mood-emoji" aria-hidden="true" title="Хорошо">😄</span>
+                  <input
+                    id="moodSlider"
+                    type="range"
+                    min="-5" max="5" step="1" value="0"
+                    class="mood-range"
+                    aria-label="Ползунок настроения от −5 до +5">
+
+                  <span class="mood-emoji" aria-hidden="true" title="Хорошо">😄</span>
+                </div>
+
+                <div class="mood-actions">
+                  <button class="btn btn--primary" onclick="confirmMoodScore()">Подтвердить</button>
+                  <button class="link-btn" type="button" onclick="closeMoodSlider()">Закрыть</button>
+                </div>
+              </div>
             </div>
 
-            <div class="mood-actions">
-              <button class="btn btn--primary" onclick="confirmMoodScore()">Подтвердить</button>
-              <button class="link-btn" onclick="closeMoodSlider()">Закрыть</button>
-            </div>
+            <footer class="modal__footer">
+              <button type="button" class="btn btn-primary" data-close-modal>Закрыть</button>
+            </footer>
           </div>
         </div>
 
@@ -952,14 +985,14 @@
         openById(id) {
           const cfg = (window.PRACTICES || []).find(p => p.id === id);
           if (!cfg) return console.warn("[practice] not found", id);
-          openModal(cfg);
+          openTherapyModal(cfg);
         }
       };
     
       let timer = null;
       let state = null;
     
-      function openModal(cfg) {
+      function openTherapyModal(cfg) {
         state = {
           cfg,
           running: false,
@@ -984,11 +1017,13 @@
         // Кнопки
         byId('therapyStartBtn').onclick = start;
         byId('therapyStopBtn').onclick  = stop;
-        byId('therapyStartBtn').textContent = "Запустить"; 
-    
+        byId('therapyStartBtn').textContent = "Запустить";
+
         // Показать модалку
-        byId('therapyPopup').classList.remove('hidden');
-        document.body.classList.add('modal-open');
+        const modal = byId('therapy-modal');
+        if (modal && typeof window.openModal === 'function') {
+          window.openModal(modal);
+        }
       }
     
     function start() {
@@ -1148,10 +1183,19 @@
       // Закрытие модалки
       window.closeTherapy = function(){
         stop();
-        byId('therapyPopup')?.classList.add('hidden');
-        document.body.classList.remove('modal-open');
+        state = null;
+        if (typeof window.closeModal === 'function') {
+          window.closeModal('#therapy-modal');
+        }
       };
+
+      const therapyModalEl = document.getElementById('therapy-modal');
+      therapyModalEl?.addEventListener('modal:close', () => {
+        stop();
+        state = null;
+      });
     })();
+            
     </script>
 
     
@@ -1214,8 +1258,9 @@
         });
         byId('testSubmitBtn').onclick = () => submit(cfg);
         byId('testCancelBtn').onclick = closeTest;
-        byId('testPopup').classList.remove('hidden');
-        document.body.classList.add('modal-open');
+        if (typeof window.openModal === 'function') {
+          window.openModal('#test-modal');
+        }
       }
     
       function submit(cfg){
@@ -1233,9 +1278,15 @@
       function setText(id, txt){ const el = byId(id); if (el) el.textContent = txt; }
       function byId(id){ return document.getElementById(id); }
       window.closeTest = function(){
-        byId('testPopup')?.classList.add('hidden');
-        document.body.classList.remove('modal-open');
+        if (typeof window.closeModal === 'function') {
+          window.closeModal('#test-modal');
+        }
       };
+
+      document.getElementById('test-modal')?.addEventListener('modal:close', () => {
+        const host = byId('testFormHost');
+        if (host) host.innerHTML = '';
+      });
     })();
     </script>
 
@@ -1591,24 +1642,15 @@
 
        // Stats functionality
         function openStats(){
-          if (typeof window.openStatsModal === 'function') {
-            window.openStatsModal();
+          if (typeof window.openModal === 'function') {
+            window.openModal('#stats-modal');
           }
         }
         function closeStats(){
-          if (typeof window.closeStatsModal === 'function') {
-            window.closeStatsModal();
+          if (typeof window.closeModal === 'function') {
+            window.closeModal('#stats-modal');
           }
         }
-
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape') {
-            const modal = document.getElementById('stats-modal');
-            if (modal && !modal.hasAttribute('hidden') && typeof window.closeStatsModal === 'function') {
-              window.closeStatsModal();
-            }
-          }
-        });
 
         window.addEventListener('resize', () => {
           const modal = document.getElementById('stats-modal');
@@ -2021,14 +2063,16 @@
             slider.addEventListener('input', updateSliderGlow);
             updateSliderGlow();
           }
-          document.getElementById('moodSliderPopup').classList.remove('hidden');
-          document.body.classList.add('modal-open');
+          if (typeof window.openModal === 'function') {
+            window.openModal('#mood-modal');
+          }
         }
 
         // закрыть модальное окно со слайдером
         function closeMoodSlider() {
-          document.getElementById('moodSliderPopup').classList.add('hidden');
-          document.body.classList.remove('modal-open');
+          if (typeof window.closeModal === 'function') {
+            window.closeModal('#mood-modal');
+          }
         }
 
         // считать значение слайдера и записать настроение
@@ -2116,6 +2160,7 @@
     <script src="/app-core.js" defer></script>
 </body>
 </html>
+
 
 
 
