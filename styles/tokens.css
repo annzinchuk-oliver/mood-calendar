@@ -298,3 +298,36 @@ html.theme-dark,
     --bucket-neg50: #1e3a8a;
   }
 }
+
+
+/* ТЁМНАЯ ТЕМА — более глубокая охра */
+:root.theme-dark,
+html[data-theme="dark"]{
+  /* вариант 1 — сбалансированный (рекомендую) */
+  --day-ochre-bg:   #CDAA4A;   /* было ~F0C75A → темнее и тише */
+  --day-ochre-hover:#B8943E;
+  --day-ochre-fg:   #0F1318;   /* тёмный текст внутри кружка */
+  --day-ochre-ring: rgba(0,0,0,.35);
+}
+
+/* применяем к жёлтому дню (оставь твои селекторы, если другие) */
+.calendar .day.is-yellow,
+.calendar .day.is-selected-yellow,
+.calendar .day.day-yellow,
+.calendar .day.day--yellow,
+.calendar .day.is-neutral,
+.calendar .day[data-mood="0"],
+.calendar .day[data-type="yellow"]{
+  background: var(--day-ochre-bg) !important;
+  color: var(--day-ochre-fg) !important;
+  border: 1px solid var(--day-ochre-ring) !important;
+}
+.calendar .day.is-yellow:hover,
+.calendar .day.is-selected-yellow:hover,
+.calendar .day.day-yellow:hover,
+.calendar .day.day--yellow:hover,
+.calendar .day.is-neutral:hover,
+.calendar .day[data-mood="0"]:hover,
+.calendar .day[data-type="yellow"]:hover{
+  background: var(--day-ochre-hover) !important;
+}
