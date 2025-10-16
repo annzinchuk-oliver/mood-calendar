@@ -580,78 +580,52 @@ body.popup-open{ overflow: hidden; }
 /* Пока открыт шит, нижняя навигация не «подсвечивает» края */
 body.modal-open .bottom-nav { visibility: hidden; }  /* а CTA у тебя уже скрывается */
 
-/* ===== Статистика: компактная модалка ===== */
+/* === Узкая модалка статистики === */
 #stats-modal .modal__dialog{
-  width: min(560px, 92vw);         /* было шире → делаем уже */
+  width: min(520px, 92vw);   /* было 560–720 → сужаем */
   max-height: 84vh;
   border-radius: 12px;
 }
-#stats-modal .modal__header{ padding: 8px 10px; }
 
-#stats-modal .modal__body{ padding: 10px; }
-
-/* Все верхнеуровневые блоки внутри модалки — центр и фикс.ширина */
+/* Одна внутренняя колонка фиксированной ширины */
 #stats-modal .modal__body > *{
-  max-width: 520px;                /* ключ к «небольшой» статистике */
-  margin-inline: auto;             /* центрируем */
+  max-width: 480px;          /* ширина контента */
+  margin-inline: auto;       /* центрируем */
 }
 
-/* Карточки плотнее */
+/* Карточки и отступы компактнее */
 #stats-modal .card{
   padding: 10px;
   border-radius: 10px;
 }
 #stats-modal .card + .card{ margin-top: 10px; }
 
-/* График ниже и компактнее */
+/* Табы — тоже по центру и в ту же ширину */
+#stats-modal .range-tabs{
+  display: flex; flex-wrap: wrap; gap: 8px;
+  justify-content: center;
+  max-width: 480px;
+  margin: 8px auto 4px;
+  padding: 0; background: transparent; border: 0;
+}
+
+/* Нижняя кнопка — в одну линию с контентом */
+#stats-modal .modal-footer-close{
+  background: transparent; border: 0; padding: 8px 0 2px;
+}
+#stats-modal .modal-footer-close .btn{
+  width: 100%; max-width: 480px; margin-inline: auto;
+  border-radius: 999px; padding: 10px 14px;
+}
+
+/* График чуть ниже */
 #today-hourly .chart-wrap{ height: 150px; }
 #today-hourly canvas{ width: 100% !important; height: 100% !important; display: block; }
 
-/* ===== Табы диапазона — строго по центру, без «капсул»-подложек ===== */
-#stats-modal .range-tabs{
-  background: transparent !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  padding: 6px 0 !important;
-  margin: 8px auto 4px !important; /* центр */
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;         /* центрируем сами кнопки */
-  max-width: 520px;                /* держим одну ширину со всей статой */
-}
-#stats-modal .range-tabs .tab{
-  padding: 8px 12px;
-  border-radius: 999px;
-}
-
-/* Нижняя кнопка "Закрыть" — такая же ширина и центр */
-#stats-modal .modal-footer-close{
-  background: transparent !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  padding: 8px 0 2px;
-}
-#stats-modal .modal-footer-close .btn{
-  width: 100%;
-  max-width: 520px;
-  margin-inline: auto;
-  border-radius: 999px;
-  padding: 10px 14px;
-}
-
-/* Агрегаты под графиком — сетка в ту же ширину */
-#stats-modal .aggregates{
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-  max-width: 520px;
-  margin: 0 auto;
-}
 @media (max-width: 420px){
   #stats-modal .modal__dialog{ width: 96vw; max-height: 88vh; }
+  #stats-modal .modal__body > *{ max-width: 92vw; } /* на телефонах — по краям */
   #today-hourly .chart-wrap{ height: 135px; }
-  #stats-modal .aggregates{ grid-template-columns: 1fr 1fr; }
 }
 
 /* Страница Помощи — сетка разделов */
