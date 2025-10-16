@@ -710,12 +710,28 @@ a, .link { color: var(--brand); text-decoration: none; }
   box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--palette-border) 50%, transparent);
 }
 
+/* Жёлтый день (охристый) */
+.calendar .day.is-yellow,
+.calendar .day.is-selected-yellow,
+.calendar .day.is-today-yellow {
+  background: var(--day-ochre-bg) !important;
+  color: var(--day-ochre-fg) !important;
+  border: 1px solid var(--day-ochre-ring) !important;
+}
+
+.calendar .day.is-yellow:hover,
+.calendar .day.is-selected-yellow:hover,
+.calendar .day.is-today-yellow:hover {
+  background: var(--day-ochre-hover) !important;
+  border-color: rgba(0,0,0,.35) !important;
+}
+
 .calendar .day.is-today:not(.has-mood),
 .calendar .day.today:not(.has-mood),
 .calendar .day.is-selected-yellow {
-  background: var(--badge-ochre-bg);
-  color: var(--badge-ochre-fg) !important;
-  border-color: var(--badge-ochre-ring) !important;
+  background: var(--day-ochre-bg);
+  color: var(--day-ochre-fg) !important;
+  border: 1px solid var(--day-ochre-ring) !important;
   box-shadow: none !important;
   outline: none !important;
 }
@@ -926,17 +942,14 @@ a, .link { color: var(--brand); text-decoration: none; }
 
 /* ===== Badges ===== */
 .badge-today {
-  --badge-bg-current: var(--badge-bg, var(--today-color, var(--badge-ochre-bg)));
-  --badge-fg-current: var(--badge-fg, var(--badge-ochre-fg));
   display: inline-flex;
   align-items: center;
   gap: .5rem;
   padding: 6px 12px;
   border-radius: 999px;
-  background: var(--badge-bg-current);
-  color: var(--badge-fg-current);
-  border: 1px solid color-mix(in srgb, var(--badge-bg-current) 82%, var(--badge-ochre-ring));
-  font-weight: 800;
+  background: var(--day-ochre-bg);
+  color: var(--day-ochre-fg);
+  border: 1px solid var(--day-ochre-ring);  font-weight: 800;
 }
 
 /* chart wrap */
