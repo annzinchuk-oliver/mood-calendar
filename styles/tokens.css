@@ -76,6 +76,12 @@ LIGHT THEME — базовые токены (по умолчанию)
   --badge-ochre-fg: #1e2329;
   --badge-ochre-ring: rgba(0, 0, 0, .18);
 
+  --day-ochre-bg: #F3C969;
+  --day-ochre-fg: #1f2328;
+  --day-ochre-ring: rgba(0,0,0,.18);
+  --day-ochre-hover: #efc253;
+
+
   --modal-bg: var(--card);
   --divider: rgba(15, 18, 26, .08);
 
@@ -183,6 +189,12 @@ html.theme-dark,
   --badge-ochre-bg: #f0c75a;
   --badge-ochre-fg: #1e2329;
   --badge-ochre-ring: rgba(0,0,0,.18);
+   
+  --day-ochre-bg: #F0C75A;
+  --day-ochre-fg: #11151a;
+  --day-ochre-ring: rgba(0,0,0,.28);
+  --day-ochre-hover: #e7bb46;
+
 
   --modal-bg: var(--surface-2);
   --divider: rgba(230,237,245,.12);
