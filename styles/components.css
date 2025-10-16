@@ -1019,3 +1019,66 @@ a, .link { color: var(--brand); text-decoration: none; }
 @media (max-width: 420px){
   #today-hourly .chart-wrap { height: 140px; }
 }
+/* ====== компактная модалка ====== */
+.modal__dialog{
+  width: min(600px, 92vw);   /* было 640–720px → делаем уже */
+  max-height: 84vh;
+  background: var(--modal-bg, var(--card));
+  border-radius: 12px;
+}
+.modal__header{ padding: 8px 10px; }
+.modal__body{ padding: 10px; }
+
+/* карточки плотнее */
+.card{ padding: 10px; border-radius: 10px; }
+
+/* график ниже */
+#today-hourly .chart-wrap{ height: 150px; }
+#today-hourly canvas{ width:100% !important; height:100% !important; display:block; }
+
+@media (max-width: 420px){
+  .modal__dialog{ width: 96vw; max-height: 88vh; }
+  #today-hourly .chart-wrap{ height: 135px; }
+}
+
+/* ====== убираем «чёрные рамки» у табов и нижней зоны ====== */
+/* фон контейнера табов делаем прозрачным и без скругления */
+.range-tabs{
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 8px 0 6px !important;
+  gap: 8px;
+  justify-content: flex-start; /* или center, как нравится */
+}
+
+/* сами табы оставляем «пилюлями» */
+.range-tabs .tab{
+  background: var(--chip-bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text);
+}
+.range-tabs .tab.active{
+  background: var(--accent-10);
+  border-color: var(--accent-20);
+}
+
+/* нижняя зона с кнопкой без тёмной подложки и без «капсулы» */
+.modal-footer-close{
+  position: sticky;
+  bottom: 0;
+  background: transparent !important; /* было var(--bg) → давало тёмную капсулу */
+  padding: 8px 0 2px;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+.btn.btn-large{
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--chip-bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text);
+}
