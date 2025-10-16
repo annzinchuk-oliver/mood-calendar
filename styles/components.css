@@ -198,36 +198,6 @@
 
 /* ---------- Colors for charts/bars ---------- */
 .bar--good    { background: var(--success); }
-.range-tabs{
-  position: sticky;     /* прилипают при прокрутке модалки */
-  top: 4px;
-  z-index: 2;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin: 4px 0 2px;
-  padding: 4px 0;
-  background: var(--modal-bg, var(--bg));
-  border-radius: 10px;
-}
-
-.range-tabs .tab{
-  padding: 6px 12px;
-  border-radius: 10px;
-  background: var(--chip-bg, rgba(127,127,127,.08));
-  color: var(--text, #222);
-  font-weight: 600;
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: all .15s ease;
-}
-
-.range-tabs .tab.active{
-  background: var(--accent-10, rgba(129, 61, 255, .12));
-  color: var(--accent, #8b5cf6);
-  border-color: var(--accent-20, rgba(129, 61, 255, .28));
-}
 .bar--neutral { background: var(--warning); }
 .bar--sad     { background: var(--info); }
 
@@ -339,52 +309,9 @@
 /* высота нижней навигации, чтобы правильно прижать CTA */
 :root { --nav-height: 72px; }
 
-
-
-/* ===== Modal (центр экрана) ===== */
-.modal[hidden] { display: none; }
-.modal {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-}
-
-.modal__backdrop {
-  position: absolute; inset: 0;
-  background: rgba(0,0,0,.45);
-}
-
-.modal__panel {
-  position: absolute;
-  left: 50%; top: 50%;
-  transform: translate(-50%, -50%);
-  width: min(720px, 92vw);
-  max-height: 85vh;
-  overflow: auto;
-  background: var(--surface-2);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-2);
-  box-shadow: var(--shadow-lg);
-  padding: var(--space-4);
-}
-
-.modal__close {
-  position: absolute; top: 8px; right: 10px;
-  background: transparent; border: 0; cursor: pointer;
-  font: 600 var(--fs-lg)/1 var(--font-sans);
-  color: var(--text-muted);
-}
-
-.modal__handle {
-  width: 48px; height: 4px; border-radius: 9999px;
-  background: var(--border);
-  margin: 6px auto 12px;
-}
-
 .calendar { 
   padding: 20px;
-  margin-bottom: 8px; 
+  margin-bottom: 8px;
 }
 
 .calendar-cta{
@@ -466,167 +393,8 @@ body.modal-open .calendar-cta{ display: none; }
   min-height: 100vh;
 }
 
-.popup-open .calendar-cta { display: none; }
-
-.mood-popup { background: rgba(0,0,0,.6); }
-
-.mood-popup-content{
-  background: var(--surface-2);
-  color: var(--text);
-  border: 1px solid var(--border);
-}
-
-.mood-btn{
-  background: var(--surface);
-  color: var(--text);
-  border-color: var(--border);
-}
-
-.mood-popup h3{ color: var(--text); }
-.mood-popup p { color: var(--text-muted); }
-
-/* Кнопки настроения — прозрачность и наведение */
-.mood-btn {
-  background: var(--surface);
-  color: var(--text);
-  border: 2px solid var(--border);   /* базовая рамка, реальный цвет задаём скриптом */
-  transition: background var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
-}
-.mood-btn:hover {
-  background: var(--hover);
-  box-shadow: var(--shadow-sm);
-}
-
-body.popup-open{ overflow: hidden; }
-/* Цветовые акценты рамок */
-/* Индикаторы для кнопок в pop-up записей настроения */
-#goodMoodBtn,
-#neutralMoodBtn,
-#sadMoodBtn { border-color: var(--border); }
-
-@supports (color: color-mix(in srgb, var(--mood-happy) 50%, var(--border))) {
-  /* усиливаем цвет рамки у кнопок настроения в поп‑апе до 80% */
-  #goodMoodBtn { border-color: color-mix(in srgb, var(--mood-happy) 80%, var(--border)); }
-  #neutralMoodBtn { border-color: color-mix(in srgb, var(--mood-neutral) 80%, var(--border)); }
-  #sadMoodBtn { border-color: color-mix(in srgb, var(--mood-sorrow) 80%, var(--border)); }
-}
-
-/* Для читаемости подписи времени в поп-апе */
-#timeDisplay { color: var(--text-muted); }
-
-/* Bottom sheet (статистика) */
-/* bottom-sheet для статистики */
-/* скрытое состояние — элемент вообще не участвует в раскладке */
-/* Sheet (bottom/center modal) */
-
-.sheet[hidden] { display: none; }
-
-.sheet {
-  z-index: 3000;
-  position: fixed;
-  inset: 0;
-  pointer-events: auto;
-}
-
-.sheet__backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,.45);
-  backdrop-filter: blur(2px);
-  z-index: 0;
-}
-
-.sheet__panel {
-  position: relative;
-  margin: 8vh auto 0;
-  width: min(400px, 92vw);
-  max-height: 80vh;
-   
-  overflow: hidden;              
-  background-clip: padding-box;
-  z-index: 1;
-
-  background: var(--surface-2);
-  border: 1px solid var(--line, rgba(127,127,127,.18));
-  box-shadow: var(--shadow-lg);
-  padding: 12px 16px;
-
-  transform: translateY(16px);
-  transition: transform .2s ease, opacity .2s ease;
-}
-
-.sheet:not([hidden]) .sheet__panel { transform: translateY(0); }
-
-.sheet__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding-bottom: 8px;
-   
-  position: sticky; 
-  top: 0;
-  z-index: 2;                    
-  background: var(--surface-2); 
-}
-.sheet__close { line-height: 1; }
-
-/* Скролл внутри содержимого статистики (не сдвигает хедер) */
-#statsBody {
-  max-height: calc(80vh - 56px);  /* подгон при другой высоте шапки */
-  overflow: auto;
-}
-
 /* Пока открыт шит, нижняя навигация не «подсвечивает» края */
 body.modal-open .bottom-nav { visibility: hidden; }  /* а CTA у тебя уже скрывается */
-
-/* === Узкая модалка статистики === */
-#stats-modal .modal__dialog{
-  width: min(520px, 92vw);   /* было 560–720 → сужаем */
-  max-height: 84vh;
-  border-radius: 12px;
-}
-
-/* Одна внутренняя колонка фиксированной ширины */
-#stats-modal .modal__body > *{
-  max-width: 480px;          /* ширина контента */
-  margin-inline: auto;       /* центрируем */
-}
-
-/* Карточки и отступы компактнее */
-#stats-modal .card{
-  padding: 10px;
-  border-radius: 10px;
-}
-#stats-modal .card + .card{ margin-top: 10px; }
-
-/* Табы — тоже по центру и в ту же ширину */
-#stats-modal .range-tabs{
-  display: flex; flex-wrap: wrap; gap: 8px;
-  justify-content: center;
-  max-width: 480px;
-  margin: 8px auto 4px;
-  padding: 0; background: transparent; border: 0;
-}
-
-/* Нижняя кнопка — в одну линию с контентом */
-#stats-modal .modal-footer-close{
-  background: transparent; border: 0; padding: 8px 0 2px;
-}
-#stats-modal .modal-footer-close .btn{
-  width: 100%; max-width: 480px; margin-inline: auto;
-  border-radius: 999px; padding: 10px 14px;
-}
-
-/* График чуть ниже */
-#today-hourly .chart-wrap{ height: 150px; }
-#today-hourly canvas{ width: 100% !important; height: 100% !important; display: block; }
-
-@media (max-width: 420px){
-  #stats-modal .modal__dialog{ width: 96vw; max-height: 88vh; }
-  #stats-modal .modal__body > *{ max-width: 92vw; } /* на телефонах — по краям */
-  #today-hourly .chart-wrap{ height: 135px; }
-}
 
 /* Страница Помощи — сетка разделов */
 .section-grid{
@@ -921,212 +689,6 @@ a, .link { color: var(--brand); text-decoration: none; }
   }
 }
 
-
-/* ===== Modal basics ===== */
-.modal[hidden] { display: none !important; }
-.modal {
-  position: fixed; inset: 0; z-index: 40;
-  display: grid; place-items: center;
-  background: rgba(0,0,0,.35);
-}
-.modal__dialog {
-  width: min(640px, 92vw);
-  max-height: 86vh;
-  overflow: auto;
-  background: var(--modal-bg, var(--bg, #fff));
-  color: var(--text, #111);
-  border-radius: 14px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.25);
-}
-.modal__header {
-  position: sticky; top: 0; z-index: 2;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 14px;
-  background: var(--modal-bg, var(--bg, #fff));
-  border-bottom: 1px solid var(--divider, var(--line, rgba(127,127,127,.18)));
-  color: var(--text);
-  opacity: .85;
-}
-.modal__title { font-weight: 700; }
-.modal__body { padding: 10px 12px 6px; display: grid; gap: 12px; }
-
-/* ===== Cards ===== */
-.card {
-  background: var(--card, #fff);
-  border: 1px solid var(--line, rgba(127,127,127,.18));
-  border-radius: 12px;
-  padding: 12px;
-  box-shadow: 0 6px 18px rgba(0,0,0,.28);
-}
-.card-title {
-  font-weight: 700;
-  margin-bottom: 8px;
-  color: var(--text);
-  opacity: .92;
-}
-.section-divider {
-  border: none;
-  height: 1px;
-  margin: 8px 0 4px;
-  background: var(--divider, var(--line, rgba(127,127,127,.18)));
-}
-
-/* ===== Badges ===== */
-.badge-today {
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: var(--day-ochre-bg);
-  color: var(--day-ochre-fg);
-  border: 1px solid var(--day-ochre-ring);  font-weight: 800;
-}
-
-/* chart wrap */
-.chart-wrap { padding: 6px 2px 2px; background: transparent; }
-.hint { color: var(--text-secondary, #6b7280); font-size: 12px; margin-top: 6px; }
-
-/* scale toggle chips */
-.scale-toggle { display: flex; gap: 6px; justify-content: flex-end; margin: 6px 0 2px; }
-.chip {
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-weight: 600;
-  border: 1px solid var(--line, rgba(127,127,127,.22));
-  background: var(--chip-bg, rgba(127,127,127,.08));
-  color: var(--text);
-  cursor: pointer;
-}
-.chip:hover { background: var(--chip-bg-hover, rgba(127,127,127,.12)); }
-.chip.is-active {
-  background: var(--accent-10, rgba(129,61,255,.12));
-  border-color: var(--accent-20, rgba(129,61,255,.28));
-  color: var(--text);
-}
-
-/* aggregates */
-.aggregates { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin: 6px 0; }
-.agg { border: 1px solid var(--line, rgba(127,127,127,.18)); border-radius: 10px; padding: 8px; }
-.agg .label { font-size: 12px; color: var(--text-secondary, #6b7280); }
-.agg .value { font-weight: 700; font-size: 18px; }
-
-/* tabs under chart */
-.range-tabs{
-  position: sticky; top: 4px; z-index: 2;
-  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
-  margin: 6px 0; padding: 4px 0;
-  background: var(--bg, #fff); border-radius: 12px;
-}
-.range-tabs .tab{
-  appearance: none;
-  border: 1px solid transparent;
-  background: var(--chip-bg, rgba(127,127,127,.08));
-  color: var(--text, #1f2328);
-  font: inherit;
-  font-weight: 600;
-  padding: 6px 12px;
-  border-radius: 999px;
-  cursor: pointer;
-  line-height: 1;
-}
-.range-tabs .tab:hover { background: var(--chip-bg-hover, rgba(127,127,127,.12)); }
-.range-tabs .tab.active{
-  background: var(--accent-10, rgba(129,61,255,.12));
-  border-color: var(--accent-20, rgba(129,61,255,.28));
-  color: var(--text);
-}
-
-/* bottom close button */
-.modal-footer-close{
-  position: sticky; bottom: 0; background: var(--bg, #fff);
-  padding: 8px 8px 10px; z-index: 2;
-}
-.btn.btn-large{
-  width: 100%; padding: 10px 14px; border-radius: 999px;
-  font-weight: 700; border: 1px solid var(--line, rgba(127,127,127,.18));
-  background: var(--chip-bg, rgba(127,127,127,.08));
-}
-
-/* responsive */
-@media (max-width: 520px){
-  .aggregates { grid-template-columns: 1fr; }
-}
-/* Контейнер модалки и карточек — не расползаться */
-.modal__dialog { width: min(640px, 92vw); }
-.card { max-width: 100%; }
-
-/* Холст графика — фиксируем комфортную высоту */
-#today-hourly .chart-wrap { height: 160px; }
-#today-hourly canvas { width: 100% !important; height: 100% !important; display: block; }
-
-@media (max-width: 420px){
-  #today-hourly .chart-wrap { height: 140px; }
-}
-/* ====== компактная модалка ====== */
-.modal__dialog{
-  width: min(600px, 92vw);   /* было 640–720px → делаем уже */
-  max-height: 84vh;
-  background: var(--modal-bg, var(--card));
-  border-radius: 12px;
-}
-.modal__header{ padding: 8px 10px; }
-.modal__body{ padding: 10px; }
-
-/* карточки плотнее */
-.card{ padding: 10px; border-radius: 10px; }
-
-/* график ниже */
-#today-hourly .chart-wrap{ height: 150px; }
-#today-hourly canvas{ width:100% !important; height:100% !important; display:block; }
-
-@media (max-width: 420px){
-  .modal__dialog{ width: 96vw; max-height: 88vh; }
-  #today-hourly .chart-wrap{ height: 135px; }
-}
-
-/* ====== убираем «чёрные рамки» у табов и нижней зоны ====== */
-/* фон контейнера табов делаем прозрачным и без скругления */
-.range-tabs{
-  background: transparent !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-  margin: 8px 0 6px !important;
-  gap: 8px;
-  justify-content: flex-start; /* или center, как нравится */
-}
-
-/* сами табы оставляем «пилюлями» */
-.range-tabs .tab{
-  background: var(--chip-bg);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  color: var(--text);
-}
-.range-tabs .tab.active{
-  background: var(--accent-10);
-  border-color: var(--accent-20);
-}
-
-/* нижняя зона с кнопкой без тёмной подложки и без «капсулы» */
-.modal-footer-close{
-  position: sticky;
-  bottom: 0;
-  background: transparent !important; /* было var(--bg) → давало тёмную капсулу */
-  padding: 8px 0 2px;
-  border: 0 !important;
-  border-radius: 0 !important;
-}
-.btn.btn-large{
-  width: 100%;
-  padding: 10px 14px;
-  background: var(--chip-bg);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  color: var(--text);
-}
-
 /* Жёлтый день = охра (покрываем все популярные варианты классов) */
 .calendar .day.is-yellow,
 .calendar .day.is-selected-yellow,
@@ -1161,3 +723,83 @@ a, .link { color: var(--brand); text-decoration: none; }
   color: #fff !important;
   text-shadow: 0 1px 0 rgba(0,0,0,.15);
 }
+
+/* ===== БАЗА МОДАЛКИ (общая для всех окон) ===== */
+.modal[hidden] { display: none !important; }
+.modal {
+  position: fixed; inset: 0; z-index: 1000;
+  display: grid; place-items: center;
+}
+.modal__backdrop {
+  position: absolute; inset: 0; background: rgba(0,0,0,.45);
+  backdrop-filter: blur(2px);
+}
+.modal__dialog {
+  position: relative;
+  background: var(--modal-bg, var(--card, #fff));
+  color: var(--text, #111);
+  width: min(520px, 92vw);
+  max-height: 86vh;
+  border-radius: 12px;
+  box-shadow: 0 16px 32px rgba(0,0,0,.25);
+  display: flex; flex-direction: column;
+}
+.modal__header { padding: 10px 12px; border-bottom: 1px solid var(--line, rgba(0,0,0,.08)); }
+.modal__title  { margin: 0; font-weight: 700; }
+.modal__body   { padding: 10px 12px; overflow: auto; }
+.modal__footer { padding: 8px 12px 12px; border-top: 1px solid var(--line, rgba(0,0,0,.08)); }
+
+/* Размеры по модификаторам (если понадобятся) */
+.modal--sm { width: min(480px, 92vw); }
+.modal--md { width: min(520px, 92vw); }
+.modal--lg { width: min(600px, 92vw); }
+
+/* Внутренняя колонка контента, чтобы ничего не расползалось */
+.modal__content { max-width: 480px; margin-inline: auto; display: grid; gap: 12px; }
+
+/* Заголовок второго уровня внутри модалки */
+.modal__subtitle { margin: 0 0 8px; color: var(--text-muted); font-size: 15px; }
+
+/* Кнопка */
+.btn.btn-primary {
+  width: 100%; padding: 10px 14px; border-radius: 999px;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  color: var(--on-brand, #fff);
+  border: none;
+}
+
+/* Табы по центру, без тёмных «капсул» */
+.range-tabs {
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  margin: 8px auto 6px; padding: 0; background: transparent; border: 0;
+}
+.range-tabs .tab {
+  padding: 8px 12px; border-radius: 999px;
+  background: var(--chip-bg, rgba(0,0,0,.06));
+  border: 1px solid var(--line, rgba(0,0,0,.12));
+}
+.range-tabs .tab.active {
+  background: var(--accent-10, rgba(99,102,241,.15));
+  border-color: var(--accent-20, rgba(99,102,241,.3));
+}
+
+/* График по высоте компактный */
+#today-hourly .chart-wrap { height: 150px; }
+#today-hourly canvas { width:100% !important; height:100% !important; display:block; }
+#today-hourly .hint { color: var(--text-muted); font-size: 12px; margin-top: 6px; text-align: center; }
+
+/* Компактные карточки агрегатов */
+.aggregates { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin: 6px 0; }
+.agg { border: 1px solid var(--line, rgba(0,0,0,.12)); border-radius: 10px; padding: 8px; text-align: center; }
+.agg .label { font-size: 12px; color: var(--text-muted); }
+.agg .value { font-weight: 700; font-size: 18px; }
+
+@media (max-width: 420px) {
+  .modal__dialog { width: min(96vw, 520px); max-height: 88vh; }
+  .modal__content { max-width: 92vw; }
+  #today-hourly .chart-wrap { height: 135px; }
+  .aggregates { grid-template-columns: 1fr; }
+}
+
+/* Дополнительные утилиты для модалок */
+.test-form-host { display: grid; gap: 12px; margin: 12px 0; }
