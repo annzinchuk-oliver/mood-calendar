@@ -392,7 +392,6 @@
 
 // ======== Статистика: состояние ========
 let overallRange = '3d';
-let yScaleMode = 'auto'; // 'auto' | 'fixed'
 let hourlyChart = null;
 
 function computeEvenLabelStep() {
@@ -406,6 +405,36 @@ let hourlyLabelStep = computeEvenLabelStep();
 let hourlyLabelStepListenerBound = false;
 
 const RANGE_LABELS = { '3d':'3 дня', '7d':'Неделя', '1m':'Месяц', 'all':'Все время' };
+
+// ===== Авто-диапазон для оси Y (как в режиме «Авто») =====
+function getAutoYRange(vals) {
+  const v = Array.isArray(vals) && vals.length ? vals.slice() : [0];
+  let min = Math.min(0, ...v);
+  let max = Math.max(0, ...v);
+
+  if (min === max) {
+    if (min === 0) {
+      min = -5;
+      max = 5;
+    } else {
+      const d = Math.max(5, Math.ceil(Math.abs(min) * 0.2));
+      min -= d;
+      max += d;
+    }
+  }
+
+  const span = max - min;
+  const pad = Math.max(5, Math.ceil(span * 0.12));
+  min = Math.floor((min - pad) / 5) * 5;
+  max = Math.ceil((max + pad) / 5) * 5;
+
+  const nice = [1, 2, 5, 10, 20, 25, 50];
+  const target = span / 6;
+  let step = nice.find((s) => s >= target) || 50;
+  if (step <= 0) step = 5;
+
+  return { min, max, step };
+}
 
 // ======== Диапазон дат для общей статистики ========
 /* ---------- DATA ADAPTER: берём из window.moodData или собираем из localStorage ---------- */
@@ -673,6 +702,8 @@ function renderTodayHourlyChart(){
   const axisColor = rootStyle.getPropertyValue('--axis-color').trim() || (isDark ? '#a9b3bf' : '#5f6368');
   const gridWeak = rootStyle.getPropertyValue('--grid-weak').trim() || (isDark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)');
   const gridZero = rootStyle.getPropertyValue('--grid-zero').trim() || (isDark ? 'rgba(255,255,255,.55)' : 'rgba(0,0,0,.55)');
+  const yValues = hourlyTotals.filter((_, h) => hourHasData[h]);
+  const yRange = getAutoYRange(yValues);
   // уничтожаем предыдущий график
   if (hourlyChart && typeof hourlyChart.destroy === 'function') hourlyChart.destroy();
 
@@ -737,10 +768,9 @@ function renderTodayHourlyChart(){
           }
         },
         y: {
-          beginAtZero: true,
-          min: yScaleMode==='fixed' ? -50 : undefined,
-          max: yScaleMode==='fixed' ?  50 : undefined,
-          ticks: { color: axisColor, stepSize: yScaleMode==='fixed' ? 10 : undefined },
+          min: yRange.min,
+          max: yRange.max,
+          ticks: { color: axisColor, stepSize: yRange.step },
           grid: {
             color: (ctx) => ctx.tick.value===0 ? gridZero : gridWeak,
             lineWidth: (ctx) => ctx.tick.value===0 ? 1 : .5
@@ -748,21 +778,6 @@ function renderTodayHourlyChart(){
         }
       }
     }
-  });
-}
-
-// переключатель масштаба
-function initScaleToggle(){
-  const root = document.querySelector('.scale-toggle');
-  if (!root) return;
-  root.addEventListener('click', (e) => {
-    const btn = e.target.closest('.chip');
-    if (!btn) return;
-    const mode = btn.dataset.scale; // 'auto' | 'fixed'
-    if (!mode || mode === yScaleMode) return;
-    yScaleMode = mode;
-    root.querySelectorAll('.chip').forEach(c => c.classList.toggle('is-active', c.dataset.scale===mode));
-    renderTodayHourlyChart(); // перерисовать с новым масштабом
   });
 }
 
@@ -833,7 +848,6 @@ function appBoot() {
 
     // 2) навешивание обработчиков на кнопки (без inline onclick)
     initOverallRangeTabs();
-    initScaleToggle();
     setupStatsModal();
 
     // 3) всё остальное, что раньше запускалось сразу
