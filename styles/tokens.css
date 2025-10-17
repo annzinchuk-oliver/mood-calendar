@@ -44,6 +44,8 @@
 LIGHT THEME — базовые токены (по умолчанию)
    ========================================================== */
 :root {
+     /* новый базовый жёлтый (охра) — один источник правды */
+  --yellow: #CDAA4A;
   /* фон/текст */
   --palette-surface: #ffffff;
   --palette-surface-variant: #f5f7fb;
@@ -234,13 +236,13 @@ html.theme-dark,
 
    
   /* шкала для слайдера (-3..+3) */
-  --score-pos3:  #22c55e;
-  --score-pos2:  color-mix(in srgb, #22c55e 75%, #ffffff 25%);
-  --score-pos1:  color-mix(in srgb, #22c55e 50%, #ffffff 50%);
-  --score-zero:  #eab308;
-  --score-neg1:  color-mix(in srgb, #2563eb 50%, #ffffff 50%);
-  --score-neg2:  color-mix(in srgb, #2563eb 75%, #ffffff 25%);
-  --score-neg3:  #2563eb;
+  --score-pos1: #1DB954;   /* + слабый    */
+  --score-pos2: #16A34A;   /* + средний   */
+  --score-pos3: #15803D;   /* + сильный   */
+  --score-zero:  var(--yellow);
+  --score-neg1: #F97316;   /* − слабый    */
+  --score-neg2: #EA580C;   /* − средний   */
+  --score-neg3: #DC2626;   /* − сильный   */
 
   /* заливки для календаря по шкале настроений */
   --calendar-fill-happy:   color-mix(in srgb, var(--palette-surface) 72%, var(--mood-happy) 28%);
