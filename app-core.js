@@ -764,8 +764,18 @@ function setupStatsModal() {
   if (!modal) return;
 
   modal.addEventListener('modal:open', () => {
-    if (typeof renderTodayHourlyChart === 'function') renderTodayHourlyChart();
-    if (typeof renderOverallStats === 'function') renderOverallStats();
+    const scheduleFrame = typeof requestAnimationFrame === 'function'
+      ? requestAnimationFrame
+      : (cb) => setTimeout(cb, 0);
+    scheduleFrame(() => {
+      if (typeof renderTodayHourlyChart === 'function') renderTodayHourlyChart();
+      if (typeof renderOverallStats === 'function') renderOverallStats();
+      setTimeout(() => {
+        if (hourlyChart && typeof hourlyChart.resize === 'function') {
+          hourlyChart.resize();
+        }
+      }, 30);
+    });
     if (!modal.dataset.swipeAttached && typeof enableStatsSwipe === 'function') {
       enableStatsSwipe(modal);
       modal.dataset.swipeAttached = 'true';
