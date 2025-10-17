@@ -24,7 +24,7 @@
 </head>
 <body>
     
-    <div class="app-container">
+    <div class="app-core app-container">
         
         <div id="installPrompt" class="install-prompt hidden">
             <p><strong>📱 Добавьте приложение на главный экран!</strong></p>
@@ -235,8 +235,7 @@
             </button>
             
         </div>
-    </div>
-    
+
 
 <!-- ===== Therapy Modal ===== -->
         <div id="therapy-modal" class="modal" hidden aria-hidden="true">
@@ -337,6 +336,23 @@
             </footer>
           </div>
         </div>
+
+    </div>
+
+    <script>
+(function setAppContentWidth(){
+  const root = document.documentElement;
+  const el = () => document.querySelector('.app-core') || document.body;
+
+  function apply(){
+    const w = Math.round(el().getBoundingClientRect().width || 520);
+    root.style.setProperty('--app-content-w', w + 'px');
+  }
+  apply();
+  window.addEventListener('resize', apply);
+  window.visualViewport?.addEventListener('resize', apply);
+})();
+    </script>
 
 
        <script>
@@ -1602,3 +1618,4 @@
     <script src="/app-core.js" defer></script>
 </body>
 </html>
+
