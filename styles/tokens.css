@@ -38,6 +38,13 @@
   --shadow-sm: 0 2px 6px rgba(0,0,0,.08);
   --shadow-md: 0 8px 24px rgba(0,0,0,.12);
   --shadow-lg: 0 18px 40px rgba(0,0,0,.18);
+   
+  /* App layout */
+  --app-content-w: 520px;        /* ширина основной колонки */
+  --modal-gutter: 16px;          /* безопасные отступы */
+
+  /* Calendar */
+  --calendar-text-contrasted: #111; /* светлая тема по умолчанию */
 }
 
 /* ==========================================================
@@ -62,7 +69,7 @@ LIGHT THEME — базовые токены (по умолчанию)
 
   --line: rgba(15, 18, 26, .08);
 
-  --calendar-text-contrasted: #0b121a;
+  --calendar-text-contrasted: #111;
     /* акцент (брендовый) */
   --brand: #7c4dff;
   --brand-2: color-mix(in srgb, #7c4dff 82%, #4b2bbd 18%);
