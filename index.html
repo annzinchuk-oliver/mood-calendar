@@ -171,8 +171,7 @@
         }
 
         .today-score {
-          --today-color: var(--bucket-zero);
-          --badge-bg: var(--today-color);
+          --today-color: var(--yellow);
         }
         
         .today-score.hidden{ display:none; }
@@ -676,7 +675,7 @@
 
          <div class="calendar-cta">
             <!-- Ряд из 5 смайлов для быстрого выбора настроения -->
-            <button id="recordMoodBtn" class="btn btn--primary btn--xl" onclick="openMoodSlider()">
+            <button id="recordMoodBtn" type="button" class="btn btn--primary btn--xl" data-open-modal="#mood-modal">
                 Записать настроение
             </button>
             <!-- Кнопка статистики остаётся внизу -->
@@ -1299,6 +1298,47 @@
 
     <script>
 
+        // единый контроллер модалок
+        (function modalController(){
+          function openModal(sel) {
+            const el = typeof sel === 'string' ? document.querySelector(sel) : sel;
+            if (!el) return;
+            const wasHidden = el.hidden !== false;
+            el.hidden = false;
+            el.setAttribute('aria-hidden', 'false');
+            if (wasHidden) {
+              el.dispatchEvent(new CustomEvent('modal:open'));
+            }
+          }
+          function closeModal(sel) {
+            const el = typeof sel === 'string' ? document.querySelector(sel) : sel;
+            if (!el) return;
+            const wasHidden = el.hidden === false;
+            el.hidden = true;
+            el.setAttribute('aria-hidden', 'true');
+            if (wasHidden) {
+              el.dispatchEvent(new CustomEvent('modal:close'));
+            }
+          }
+          document.addEventListener('click', (e) => {
+            const openBtn = e.target.closest('[data-open-modal]');
+            if (openBtn) { e.preventDefault(); openModal(openBtn.getAttribute('data-open-modal')); return; }
+            const closeBtn = e.target.closest('[data-close-modal]');
+            if (closeBtn) { e.preventDefault(); closeModal(closeBtn.closest('.modal')); return; }
+            const backdrop = e.target.closest('.modal__backdrop');
+            if (backdrop) { closeModal(backdrop.parentElement); }
+          });
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+              const top = document.querySelector('.modal:not([hidden])');
+              if (top) closeModal(top);
+            }
+          });
+          // экспорт (если где-то вызываешь напрямую)
+          window.openModal = openModal;
+          window.closeModal = closeModal;
+        })();
+
         // Application state
         let currentDate = new Date();
         let selectedDate = new Date();
@@ -1351,7 +1391,7 @@
           checkNotificationPermission();
           scheduleNotifications();
           switchPage('calendar');
-          document.getElementById('addMoodBtn')?.addEventListener('click', openMoodSlider);
+          document.getElementById('recordMoodBtn')?.addEventListener('click', openMoodSlider);
 
           setupChatInput();
           maybeProactiveChat();
@@ -1397,48 +1437,6 @@
           const saved = localStorage.getItem('theme');
           applyTheme(saved === 'dark' ? 'dark' : 'light');
         })();
-
-        function applyBadgeStyles(el, colorValue) {
-          if (!el) return;
-          if (colorValue) {
-            el.style.setProperty('--today-color', colorValue);
-            el.style.setProperty('--badge-bg', colorValue);
-          }
-          const computedBg = getComputedStyle(el).backgroundColor;
-          const pick = typeof window.pickTextOn === 'function'
-            ? window.pickTextOn(computedBg)
-            : '#111111';
-          el.style.setProperty('--badge-fg', pick);
-        }
-
-        function renderTodayScore() {
-          const el = document.getElementById('todayScoreBadge');
-          if (!el) return;
-
-          const today = new Date(); today.setHours(0,0,0,0);
-          const key = getDateKey(today);
-          const avg = dailyScores?.[key];
-
-          let varName = '--score-zero';
-          if (typeof avg === 'number') {
-            if (avg >= 2.5)      varName = '--score-pos3';
-            else if (avg >= 1.5) varName = '--score-pos2';
-            else if (avg >= 0.5) varName = '--score-pos1';
-            else if (avg > -0.5) varName = '--score-zero';
-            else if (avg > -1.5) varName = '--score-neg1';
-            else if (avg > -2.5) varName = '--score-neg2';
-            else                 varName = '--score-neg3';
-          }
-
-            applyBadgeStyles(el, `var(${varName})`);
-            
-            const show = Number.isFinite(avg)
-              ? `${avg > 0 ? '+' : ''}${Math.round(avg * 10) / 10}`
-              : '0';
-            
-            el.textContent = `Сегодня: ${show} / 50`;
-            el.classList.remove('hidden');
-        }
 
         function switchPage(page) {
           currentPage = page;
@@ -2001,15 +1999,26 @@
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           const key = getDateKey(today);
-          const total = typeof dailyTotals?.[key] === 'number' ? dailyTotals[key] : 0;
+          const avg = dailyScores?.[key];
 
-          const paletteColor = typeof window.Palette?.moodColor === 'function'
-            ? window.Palette.moodColor(total)
-            : null;
-          applyBadgeStyles(el, paletteColor || 'var(--badge-ochre-bg)');
+          let varName;
+          if      (avg >  2.5) varName = '--score-pos3';
+          else if (avg >  0.5) varName = '--score-pos2';
+          else if (avg >  0.0) varName = '--score-pos1';
+          else if (avg < -2.5) varName = '--score-neg3';
+          else if (avg < -0.5) varName = '--score-neg2';
+          else if (avg < -0.0) varName = '--score-neg1';
+          else                  varName = '--yellow';
 
-          const sign = total > 0 ? '+' : '';
-          el.textContent = `Сегодня: ${sign}${total} / 50`;
+          el.style.setProperty('--today-color', `var(${varName})`);
+
+          const darkText = (varName === '--yellow');
+          el.style.color = darkText ? '#111' : '#fff';
+
+          const show = Number.isFinite(avg)
+            ? `${avg > 0 ? '+' : ''}${Math.round(avg * 10) / 10}`
+            : '0';
+          el.textContent = `Сегодня: ${show} / 50`;
           el.classList.remove('hidden');
         }
 
@@ -2160,6 +2169,7 @@
     <script src="/app-core.js" defer></script>
 </body>
 </html>
+
 
 
 
