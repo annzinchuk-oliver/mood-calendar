@@ -1354,10 +1354,25 @@
             return;
           }
 
+          const total = Number(totalRaw) || 0;
+
+          dayDiv.classList.remove('is-neutral');
+          delete dayDiv.dataset.mood;
+
           dayDiv.classList.add('has-mood');
+          dayDiv.dataset.total = String(total);
+          dayDiv.dataset.score = String(total);
+
           dayDiv.style.removeProperty('background');
           dayDiv.style.removeProperty('background-image');
-          dayDiv.style.setProperty('background-color', window.Palette.moodColor(totalRaw), 'important');
+
+          if (total === 0) {
+            dayDiv.classList.add('is-neutral');
+            dayDiv.dataset.mood = '0';
+            dayDiv.style.removeProperty('background-color');
+            return;
+          }
+          dayDiv.style.setProperty('background-color', window.Palette.moodColor(total), 'important');
         }
 
         // Mood types
@@ -2176,6 +2191,7 @@
     <script src="/app-core.js" defer></script>
 </body>
 </html>
+
 
 
 
