@@ -831,3 +831,58 @@ a, .link { color: var(--brand); text-decoration: none; }
 
 /* Дополнительные утилиты для модалок */
 .test-form-host { display: grid; gap: 12px; margin: 12px 0; }
+
+
+/* ===== Модалка настроения (узкая и аккуратная) ===== */
+#mood-modal .modal__dialog{
+  width: min(440px, 92vw) !important;   /* было шире → сужаем */
+  max-height: 84vh;
+  border-radius: 12px;
+}
+
+/* внутренняя колонка, чтобы контент не расползался */
+#mood-modal .modal__content{
+  max-width: 400px;
+  margin-inline: auto;
+}
+
+/* компактные отступы */
+#mood-modal .modal__header{ padding: 10px 12px; }
+#mood-modal .modal__body{ padding: 12px; }
+#mood-modal .modal__footer{ padding: 10px 12px 14px; }
+
+/* полоса/смайлы — в одну линию и не трогают края */
+#mood-modal .mood-row{ 
+  display: grid; 
+  grid-template-columns: 28px 1fr 28px; 
+  align-items: center; 
+  gap: 10px; 
+}
+
+/* кнопка подтверждения — средняя */
+#mood-modal .btn-confirm{
+  padding: 8px 16px;
+  border-radius: 999px;
+  width: auto;
+  min-width: 180px;
+  margin: 8px auto 0;
+  display: inline-flex;
+  justify-content: center;
+}
+
+/* Нижняя «Закрыть» — не во всю ширину, по центру */
+#mood-modal .modal__footer .btn{
+  width: auto;
+  min-width: 200px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  margin-inline: auto;
+  display: inline-flex;
+  justify-content: center;
+}
+
+/* телефон — можно ещё немного сузить */
+@media (max-width: 390px){
+  #mood-modal .modal__dialog{ width: 96vw !important; }
+  #mood-modal .modal__content{ max-width: 92vw; }
+}
