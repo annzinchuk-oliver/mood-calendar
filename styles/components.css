@@ -2,7 +2,118 @@
    Design System — Components
    Требует tokens.css (переменные)
    =============================== */
+/* ====== App header ====== */
+.app-header {
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  padding: 16px 20px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-radius: 16px;
+  box-shadow: 0 10px 26px rgba(79, 70, 229, .2);
+}
 
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-right: 8px;
+}
+
+/* ====== Theme toggle (капсула «Тема») ====== */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--palette-surface-variant);
+  border: 1px solid rgba(0, 0, 0, .08);
+  margin-right: 8px;
+}
+
+.theme-toggle__knob {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, .12);
+  background: var(--palette-surface);
+  color: var(--text-primary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.theme-toggle__knob:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 25%, transparent);
+}
+
+.theme-toggle__knob:active {
+  transform: scale(.98);
+}
+
+.theme-toggle__icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.theme-toggle__label {
+  display: inline;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .theme-toggle {
+  border-color: rgba(255, 255, 255, .06);
+}
+
+[data-theme="dark"] .theme-toggle__knob {
+  background: var(--palette-surface-variant);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, .08);
+}
+
+/* ====== Calendar layout ====== */
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.weekday {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 12px 4px;
+}
+
+.calendar .day {
+  animation: dayFadeIn .3s ease;
+}
+
+@keyframes dayFadeIn {
+  from {
+    opacity: .0;
+    transform: scale(.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 /* ---------- Buttons ---------- */
 .btn {
   display: inline-flex; align-items: center; justify-content: center;
