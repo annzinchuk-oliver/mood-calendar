@@ -985,3 +985,46 @@ a, .link { color: var(--brand); text-decoration: none; }
 #mood-modal .modal__dialog{
   width: min(calc(var(--app-content-w, 520px) - 40px), calc(100svw - 2*var(--modal-gutter)));
 }
+
+/* ===== Центральная колонка приложения ===== */
+:root{
+  /* фолбэк, если JS ещё не успел выставить ширину */
+  --app-content-w: 520px;
+  --page-gutter: 16px;
+}
+
+.app-core{
+  width: min(var(--app-content-w), 100%);
+  max-width: var(--app-content-w);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+}
+
+/* любые «широкие» блоки должны ограничиваться колонкой */
+.app-core > header,
+.app-core > main,
+.app-core > section,
+.app-core > footer{ width: 100%; }
+
+/* кнопочные блоки (внизу) — не шире колонки */
+.actions, .buttons, .cta-wrap{ width: 100%; margin-inline: auto; }
+
+/* календарь не выходит за колонку и не тянет ячейки */
+.calendar{ width: 100%; max-width: 100%; }
+.calendar .grid{ width: 100%; }
+.calendar-grid{ width: 100%; }
+
+/* компактные клетки, исходя из ширины колонки */
+.calendar .day{
+  /* высоту держим квадратом относительно свободной колонки */
+  aspect-ratio: 1 / 1;
+  /* минимальная и максимальная, чтобы не стать огромными на десктопе */
+  min-width: 38px;
+  max-width: 56px;
+  /* защита от «растянули на всю ширину» */
+  max-inline-size: 100%;
+}
+
+/* кнопки снизу — нормальная ширина, без растяжки на окно */
+.btn{ max-width: 100%; }
+.actions .btn{ width: 100%; }
