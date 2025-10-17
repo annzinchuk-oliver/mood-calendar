@@ -40,8 +40,17 @@
   --shadow-lg: 0 18px 40px rgba(0,0,0,.18);
    
   /* App layout */
-  --app-content-w: 520px;        /* ширина основной колонки */
+  --app-content-w: 420px;        /* ширина центральной колонки по умолчанию */
+  --page-gutter: 16px;           /* поля слева/справа */
   --modal-gutter: 16px;          /* безопасные отступы */
+
+     /* Calendar sizing */
+  --day-gap: 8px;                /* расстояние между клетками */
+  --day-min: 44px;               /* минимальная сторона клетки */
+  --day-max: 52px;               /* максимальная сторона клетки */
+
+  --card-radius: 14px;
+  --surface: #fff;
 
   /* Calendar */
   --calendar-text-contrasted: #111; /* светлая тема по умолчанию */
@@ -131,6 +140,7 @@ html.theme-dark,
 [data-theme="dark"] {
 
   /* тёмная тема — мягче и читабельнее */
+  --surface: #121316;
   --palette-surface: #171c22;
   --palette-surface-variant: #0f1318;
   --text: #e7edf5;
@@ -198,7 +208,6 @@ html.theme-dark,
    ========================================================== */
 :root, [data-theme] {
 
-  --surface: var(--bg);
   --surface-2: var(--card);
   --text-muted: var(--text-muted);
 
@@ -254,6 +263,7 @@ html.theme-dark,
 /* Авто-тёмная, если не указан data-theme явно */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
+    --surface: #121316;
     --palette-surface: #151a23;
     --palette-surface-variant: #1a202b;
     --text: #e8edf4; 
