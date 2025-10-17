@@ -41,6 +41,26 @@
   window.visualViewport?.addEventListener('resize', setVH);
 })();
 
+// === выставляем реальную ширину основной колонки в CSS-переменную
+(function setAppContentWidth(){
+  function getMainEl() {
+    // попробуем найти «центральную колонку»
+    return document.querySelector(
+      '.container, .page, .main, .content, .app-core, #app, [data-app-root]'
+    ) || document.body;
+  }
+  function updateVar(){
+    const el = getMainEl();
+    const w  = Math.round(el.getBoundingClientRect().width);
+    // не даём быть слишком узкой/широкой
+    const clamped = Math.max(380, Math.min(w, 760)); // при желании подправь пределы
+    document.documentElement.style.setProperty('--app-content-w', clamped + 'px');
+  }
+  updateVar();
+  window.addEventListener('resize', updateVar);
+  window.visualViewport?.addEventListener('resize', updateVar);
+})();
+
 
 (function (window, document) {
   'use strict';
