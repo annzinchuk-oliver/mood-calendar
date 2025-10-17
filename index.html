@@ -1349,30 +1349,36 @@
         const DAILY_MIN = -50;
         const DAILY_MAX = 50;
         
-        function paintDayCell(dayDiv, totalRaw) {
-          if (!(totalRaw === 0 || typeof totalRaw === 'number')) {
+        function paintDayByTotal(cell, entriesForThisDay) {
+          const entries = Array.isArray(entriesForThisDay) ? entriesForThisDay : [];
+
+          cell.classList.remove('day--pos', 'day--neg', 'day--zero', 'is-neutral', 'has-mood');
+          delete cell.dataset.total;
+          delete cell.dataset.score;
+          delete cell.dataset.mood;
+
+          cell.style.removeProperty('background');
+          cell.style.removeProperty('background-color');
+          cell.style.removeProperty('background-image');
+          cell.style.removeProperty('color');
+
+          if (!entries.length) {
             return;
           }
 
-          const total = Number(totalRaw) || 0;
+          const total = entries.reduce((acc, entry) => acc + (Number(entry?.score) || 0), 0);
 
-          dayDiv.classList.remove('is-neutral');
-          delete dayDiv.dataset.mood;
+          cell.classList.add('has-mood');
+          cell.dataset.total = String(total);
+          cell.dataset.score = String(total);
 
-          dayDiv.classList.add('has-mood');
-          dayDiv.dataset.total = String(total);
-          dayDiv.dataset.score = String(total);
-
-          dayDiv.style.removeProperty('background');
-          dayDiv.style.removeProperty('background-image');
-
-          if (total === 0) {
-            dayDiv.classList.add('is-neutral');
-            dayDiv.dataset.mood = '0';
-            dayDiv.style.removeProperty('background-color');
-            return;
+          if (total > 0) {
+            cell.classList.add('day--pos');
+          } else if (total < 0) {
+            cell.classList.add('day--neg');
+          } else {
+            cell.classList.add('day--zero', 'is-neutral');
           }
-          dayDiv.style.setProperty('background-color', window.Palette.moodColor(total), 'important');
         }
 
         // Mood types
@@ -1891,6 +1897,14 @@
             return `${year}-${month}-${day}`;
         }
 
+        function getEntriesForDate(year, monthIndex, dayOfMonth) {
+          const lookup = new Date(year, monthIndex, dayOfMonth);
+          lookup.setHours(0, 0, 0, 0);
+          const key = getDateKey(lookup);
+          const entries = moodData[key];
+          return Array.isArray(entries) ? entries : [];
+        }
+
         // AI analysis functions
         function getSadStreak(daysWindow = 10) {
             const today = new Date();
@@ -1986,17 +2000,20 @@
 
             const dayDiv = document.createElement('div');
             dayDiv.className = 'day';
+            dayDiv.dataset.year = String(current.getFullYear());
+            dayDiv.dataset.month = String(current.getMonth());
+            dayDiv.dataset.day = String(current.getDate());
             if (!isCurrentMonth) {
               dayDiv.classList.add('is-outside', 'other-month');
             }
             if (isToday) dayDiv.classList.add('today');
 
-            const total = dailyTotals[dateKey];
+            const entriesForDay = getEntriesForDate(current.getFullYear(), current.getMonth(), current.getDate());
+            paintDayByTotal(dayDiv, entriesForDay);
 
-            if (typeof total === 'number') {
-              paintDayCell(dayDiv, total);
-            } else if (isToday) {
-              paintDayCell(dayDiv, 0);
+            if (dayDiv.classList.contains('day--zero')) {
+              dayDiv.style.setProperty('background', 'var(--ochre-soft)', 'important');
+              dayDiv.style.setProperty('color', 'var(--day-ink-on-ochre)', 'important');
             }
 
             dayDiv.textContent = current.getDate();
@@ -2191,6 +2208,7 @@
     <script src="/app-core.js" defer></script>
 </body>
 </html>
+
 
 
 
