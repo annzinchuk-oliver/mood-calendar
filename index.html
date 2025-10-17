@@ -1991,6 +1991,12 @@
           renderTodayScore();
         }
 
+        function calcTodayStats(entriesToday) {
+          const sum = entriesToday.reduce((acc, entry) => acc + (Number(entry?.score) || 0), 0);
+          const avg = entriesToday.length ? sum / entriesToday.length : 0;
+          return { sum, avg };
+        }
+
         function renderTodayScore() {
           const el = document.getElementById('todayScoreBadge');
           if (!el) return;
@@ -1998,7 +2004,8 @@
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           const key = getDateKey(today);
-          const avg = dailyScores?.[key];
+          const entriesToday = Array.isArray(moodData[key]) ? moodData[key] : [];
+          const { sum, avg } = calcTodayStats(entriesToday);
 
           let varName;
           if      (avg >  2.5) varName = '--score-pos3';
@@ -2014,10 +2021,11 @@
           const darkText = (varName === '--yellow');
           el.style.color = darkText ? '#111' : '#fff';
 
-          const show = Number.isFinite(avg)
-            ? `${avg > 0 ? '+' : ''}${Math.round(avg * 10) / 10}`
-            : '0';
-          el.textContent = `Сегодня: ${show} / 50`;
+          const DAILY_LIMIT = typeof DAILY_MAX === 'number' ? DAILY_MAX : 50;
+          let sumRounded = Math.round(sum * 10) / 10;
+          if (!Number.isFinite(sumRounded)) sumRounded = 0;
+          const sumPretty = sumRounded > 0 ? `+${sumRounded}` : `${sumRounded === 0 ? 0 : sumRounded}`;
+          el.textContent = `Сегодня: ${sumPretty} / ${DAILY_LIMIT}`;
           el.classList.remove('hidden');
         }
 
@@ -2168,6 +2176,7 @@
     <script src="/app-core.js" defer></script>
 </body>
 </html>
+
 
 
 
