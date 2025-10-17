@@ -74,16 +74,6 @@ LIGHT THEME — базовые токены (по умолчанию)
   --chip-bg: rgba(15, 18, 26, .05);
   --chip-bg-hover: rgba(15, 18, 26, .09);
 
-  --badge-ochre-bg: #f2cc47;
-  --badge-ochre-fg: #1e2329;
-  --badge-ochre-ring: rgba(0, 0, 0, .18);
-
-  --day-ochre-bg: #F3C969;
-  --day-ochre-fg: #1f2328;
-  --day-ochre-ring: rgba(0,0,0,.18);
-  --day-ochre-hover: #efc253;
-
-
   --modal-bg: var(--card);
   --divider: rgba(15, 18, 26, .08);
 
@@ -187,16 +177,6 @@ html.theme-dark,
   --accent-20: color-mix(in srgb, var(--accent) 28%, transparent);
   --chip-bg: rgba(255,255,255,.06);
   --chip-bg-hover: rgba(255,255,255,.10);
-
-  --badge-ochre-bg: #f0c75a;
-  --badge-ochre-fg: #1e2329;
-  --badge-ochre-ring: rgba(0,0,0,.18);
-   
-  --day-ochre-bg: #F0C75A;
-  --day-ochre-fg: #11151a;
-  --day-ochre-ring: rgba(0,0,0,.28);
-  --day-ochre-hover: #e7bb46;
-
 
   --modal-bg: var(--surface-2);
   --divider: rgba(230,237,245,.12);
@@ -302,34 +282,28 @@ html.theme-dark,
 }
 
 
-/* ТЁМНАЯ ТЕМА — более глубокая охра */
-:root.theme-dark,
-html[data-theme="dark"]{
-  /* вариант 1 — сбалансированный (рекомендую) */
-  --day-ochre-bg:   #CDAA4A;   /* было ~F0C75A → темнее и тише */
-  --day-ochre-hover:#B8943E;
-  --day-ochre-fg:   #0F1318;   /* тёмный текст внутри кружка */
-  --day-ochre-ring: rgba(0,0,0,.35);
+/* Охристая палитра — отдельные токены для светлой и тёмной тем */
+:root {
+  /* для бейджа — насыщенная охра под белый текст */
+  --ochre-strong: #B67F1B;     /* тёплая охра */
+  --ochre-strong-ring: rgba(0,0,0,.22);
+
+  /* для дня в календаре — мягче, под тёмный текст */
+  --ochre-soft:   #D8B25A;     /* мягкая охра */
+  --ochre-soft-ring: rgba(0,0,0,.18);
+
+  /* цвет цифры в кружке при мягкой охре */
+  --day-ink-on-ochre: #111;
 }
 
-/* применяем к жёлтому дню (оставь твои селекторы, если другие) */
-.calendar .day.is-yellow,
-.calendar .day.is-selected-yellow,
-.calendar .day.day-yellow,
-.calendar .day.day--yellow,
-.calendar .day.is-neutral,
-.calendar .day[data-mood="0"],
-.calendar .day[data-type="yellow"]{
-  background: var(--day-ochre-bg) !important;
-  color: var(--day-ochre-fg) !important;
-  border: 1px solid var(--day-ochre-ring) !important;
-}
-.calendar .day.is-yellow:hover,
-.calendar .day.is-selected-yellow:hover,
-.calendar .day.day-yellow:hover,
-.calendar .day.day--yellow:hover,
-.calendar .day.is-neutral:hover,
-.calendar .day[data-mood="0"]:hover,
-.calendar .day[data-type="yellow"]:hover{
-  background: var(--day-ochre-hover) !important;
+/* Тёмная тема — те же оттенки хорошо читаются */
+:root.theme-dark,
+html[data-theme="dark"] {
+  --ochre-strong: #B67F1B;
+  --ochre-strong-ring: rgba(0,0,0,.28);
+
+  --ochre-soft:   #C79D3A;     /* чуть приглушённее, чтобы не «светился» */
+  --ochre-soft-ring: rgba(0,0,0,.30);
+
+  --day-ink-on-ochre: #0F1318; /* чуть темнее, чем чёрный */
 }
