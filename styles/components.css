@@ -748,6 +748,11 @@ a, .link { color: var(--brand); text-decoration: none; }
   box-shadow: 0 16px 32px rgba(0,0,0,.25);
   display: flex; flex-direction: column;
 }
+.modal#stats-modal .modal__dialog,
+#stats-modal .modal__dialog {
+  width: min(520px, 92vw) !important;
+  max-height: 84vh !important;
+}
 .modal__header { padding: 10px 12px; border-bottom: 1px solid var(--line, rgba(0,0,0,.08)); }
 .modal__title  { margin: 0; font-weight: 700; }
 .modal__body   { padding: 10px 12px; overflow: auto; }
@@ -782,15 +787,34 @@ a, .link { color: var(--brand); text-decoration: none; }
   background: var(--chip-bg, rgba(0,0,0,.06));
   border: 1px solid var(--line, rgba(0,0,0,.12));
 }
+.modal#stats-modal .range-tabs .tab,
+#stats-modal .range-tabs .tab {
+  color: var(--text) !important;
+}
 .range-tabs .tab.active {
   background: var(--accent-10, rgba(99,102,241,.15));
   border-color: var(--accent-20, rgba(99,102,241,.3));
+}
+.modal#stats-modal .range-tabs .tab.active,
+#stats-modal .range-tabs .tab.active {
+  color: var(--text) !important;
 }
 
 /* График по высоте компактный */
 #today-hourly .chart-wrap { height: 150px; }
 #today-hourly canvas { width:100% !important; height:100% !important; display:block; }
 #today-hourly .hint { color: var(--text-muted); font-size: 12px; margin-top: 6px; text-align: center; }
+
+#stats-modal .modal__body > * {
+  max-width: 480px;
+  margin-inline: auto;
+}
+
+#stats-modal .card {
+  padding: 10px;
+  border-radius: 10px;
+}
+
 
 /* Компактные карточки агрегатов */
 .aggregates { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin: 6px 0; }
