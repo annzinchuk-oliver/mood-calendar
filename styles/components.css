@@ -33,22 +33,23 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  gap: 8px;
+  padding: 0;
   border-radius: 999px;
-  background: var(--palette-surface-variant);
-  border: 1px solid rgba(0, 0, 0, .08);
-  margin-right: 8px;
+  background: transparent;
+  border: none;
+  margin: 0;
 }
 
 .theme-toggle__knob {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 6px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, .12);
-  background: var(--palette-surface);
-  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, .18);
+  background: rgba(255,255,255,.08);
+  color: #fff;
   font-weight: 600;
   cursor: pointer;
   transition: transform .12s ease, box-shadow .12s ease;
@@ -71,17 +72,13 @@
 .theme-toggle__label {
   display: inline;
   font-size: 14px;
-  color: var(--text-primary);
-}
-
-[data-theme="dark"] .theme-toggle {
-  border-color: rgba(255, 255, 255, .06);
+  color: #fff;
 }
 
 [data-theme="dark"] .theme-toggle__knob {
-  background: var(--palette-surface-variant);
-  color: var(--text-primary);
-  border-color: rgba(255, 255, 255, .08);
+  background: rgba(255,255,255,.12);
+  color: #fff;
+  border-color: rgba(255,255,255,.24);
 }
 
 /* ====== Calendar layout ====== */
@@ -815,7 +812,7 @@ a, .link { color: var(--brand); text-decoration: none; }
 .modal[hidden] { display: none !important; }
 .modal {
   position: fixed; inset: 0; z-index: 1000;
-  display: grid; place-items: center;
+  padding: 16px;
 }
 .modal__backdrop {
   position: absolute; inset: 0; background: rgba(0,0,0,.45);
@@ -823,15 +820,25 @@ a, .link { color: var(--brand); text-decoration: none; }
 }
 .modal__dialog {
   position: relative;
+  width: min(var(--app-content-w), calc(100svw - 32px));
+  max-height: calc(100svh - 32px);
   color: var(--text, #111);
-  border-radius: 12px;
+  background: var(--surface);
+  border-radius: var(--card-radius);
   box-shadow: 0 16px 32px rgba(0,0,0,.25);
   display: flex; flex-direction: column;
 }
 .modal__header { padding: 10px 12px; border-bottom: 1px solid var(--line, rgba(0,0,0,.08)); }
 .modal__title  { margin: 0; font-weight: 700; }
 .modal__body   { padding: 10px 12px; overflow: auto; }
-.modal__footer { padding: 8px 12px 12px; border-top: 1px solid var(--line, rgba(0,0,0,.08)); }
+.modal__footer {
+  padding: 8px 12px 12px;
+  border-top: 1px solid var(--line, rgba(0,0,0,.08));
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+.modal__footer .btn{ width:auto; min-width:200px; border-radius:999px; }
 
 /* Внутренняя колонка контента, чтобы ничего не расползалось */
 .modal__content { max-width: 480px; margin-inline: auto; display: grid; gap: 12px; }
@@ -952,47 +959,18 @@ a, .link { color: var(--brand); text-decoration: none; }
   #mood-modal .modal__content{ max-width: 92vw; }
 }
 
-:root { --modal-gutter: 16px; }
-
-/* Бампер по краям экрана */
-.modal{
-  position: fixed; inset: 0; z-index: 1000;
-  display: grid; place-items: center;
-  padding: env(safe-area-inset-top,0) var(--modal-gutter)
-           env(safe-area-inset-bottom,0) var(--modal-gutter);
-}
-
-/* Рамка окна: ширина = ширина основной колонки, но не вылезает за экран */
-.modal__dialog{
-  width: min(var(--app-content-w, 520px), calc(100svw - 2*var(--modal-gutter)));
-  max-width: calc(100svw - 2*var(--modal-gutter));
-  max-height: calc(100svh - 2*var(--modal-gutter));                                 
-  background: var(--modal-bg, var(--card, #fff));
-  border-radius: 12px;
-  box-shadow: 0 16px 32px rgba(0,0,0,.25);
-  display: flex; flex-direction: column;
-}
-
 /* Контент внутри — чуть уже, чтобы был воздух */
-.modal__body > *{ max-width: calc(var(--app-content-w, 520px) - 40px); margin-inline: auto; }
+.modal__body > *{ max-width: calc(var(--app-content-w) - 40px); margin-inline: auto; }
 .modal__body{ overflow:auto; }
 
-/* Центрируем нижнюю кнопку, убираем «уезд» */
-.modal__footer{ display:flex; justify-content:center; gap:8px; }
-.modal__footer .btn{ width:auto; min-width:200px; border-radius:999px; }
 
 /* Для модалки настроения можно сделать чуть уже, но всё равно по колонке */
 #mood-modal .modal__dialog{
-  width: min(calc(var(--app-content-w, 520px) - 40px), calc(100svw - 2*var(--modal-gutter)));
+  width: min(calc(var(--app-content-w) - 40px), calc(100svw - 32px));
 }
-
-/* ===== Центральная колонка приложения ===== */
-:root{
-  /* фолбэк, если JS ещё не успел выставить ширину */
-  --app-content-w: 520px;
-  --page-gutter: 16px;
-}
-
+/* =========================
+   Центральный контейнер
+   ========================= */
 .app-core{
   width: min(var(--app-content-w), 100%);
   max-width: var(--app-content-w);
@@ -1007,24 +985,111 @@ a, .link { color: var(--brand); text-decoration: none; }
 .app-core > footer{ width: 100%; }
 
 /* кнопочные блоки (внизу) — не шире колонки */
-.actions, .buttons, .cta-wrap{ width: 100%; margin-inline: auto; }
+.actions,
+.buttons,
+.cta-wrap,
+.calendar-cta{ width: 100%; margin-inline: auto; }
 
-/* календарь не выходит за колонку и не тянет ячейки */
-.calendar{ width: 100%; max-width: 100%; }
-.calendar .grid{ width: 100%; }
-.calendar-grid{ width: 100%; }
-
-/* компактные клетки, исходя из ширины колонки */
-.calendar .day{
-  /* высоту держим квадратом относительно свободной колонки */
-  aspect-ratio: 1 / 1;
-  /* минимальная и максимальная, чтобы не стать огромными на десктопе */
-  min-width: 38px;
-  max-width: 56px;
-  /* защита от «растянули на всю ширину» */
-  max-inline-size: 100%;
+/* =========================
+   Шапка (фиолетовая полоса)
+   ========================= */
+.app-header{
+  background: linear-gradient(135deg, #6E4CF6, #7E57FF);
+  color: #fff;
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 10px 26px rgba(79,70,229,.18);
 }
 
-/* кнопки снизу — нормальная ширина, без растяжки на окно */
-.btn{ max-width: 100%; }
-.actions .btn{ width: 100%; }
+/* «Сегодня» — капсула */
+.badge-today{
+  background: #B67F1B;
+  color: #fff;
+  border: 1px solid rgba(0,0,0,.22);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-weight: 800;
+}
+
+/* переключатель темы-капсула, компактный */
+.theme-toggle{
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+}
+.theme-toggle__knob{
+  background: rgba(255,255,255,.08);
+  color:#fff;
+  border: 1px solid rgba(255,255,255,.18);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .theme-toggle__knob{
+  background: rgba(255,255,255,.12);
+  color:#fff;
+  border-color: rgba(255,255,255,.24);
+}
+
+/* =========================
+   Календарь
+   ========================= */
+.calendar{ width: 100%; max-width: 100%; }
+.calendar .weekdays{
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: var(--day-gap);
+  margin: 10px 0 12px;
+}
+.calendar .weekday{
+  text-align: center; font-size: 13px; font-weight: 600; color: var(--text-secondary);
+}
+
+.calendar-grid{
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: var(--day-gap);
+  width: 100%;
+}
+
+/* Клетка дня — компактный «пузырь», как раньше */
+.calendar .day{
+  aspect-ratio: 1 / 1;
+  min-width: var(--day-min);
+  max-width: var(--day-max);
+  max-inline-size: 100%;
+   
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.12);
+  background: var(--surface);
+  color: var(--text-primary);
+  display: grid; place-items: center;
+  font-weight: 600; font-size: 14px;
+}
+
+/* выделение текущего/выбранного дня */
+.calendar .day.is-selected{ box-shadow: 0 0 0 2px #FF4343 inset; }
+.calendar .day.is-today   { box-shadow: 0 0 0 2px rgba(0,0,0,.2) inset; }
+
+/* цвета по сумме (мы их уже добавляли ранее) */
+.calendar .day.day--pos  { background:#34D399; color:#0b1115; border-color:rgba(0,0,0,.18); }
+.calendar .day.day--neg  { background:#5B8BFF; color:#0b1115; border-color:rgba(0,0,0,.18); }
+.calendar .day.day--zero { background:var(--ochre-soft); color:var(--calendar-text-contrasted); border-color:var(--ochre-soft-ring); }
+
+/* тёмная тема: цифры в занятых днях всегда белые */
+[data-theme="dark"] .calendar .day.has-mood,
+[data-theme="dark"] .calendar .day.day--pos,
+[data-theme="dark"] .calendar .day.day--neg,
+[data-theme="dark"] .calendar .day.day--zero{
+  color: #fff;
+}
+
+/* =========================
+   Кнопки снизу
+   ========================= */
+.actions,
+.calendar-cta{ width:100%; margin: 14px auto 22px; display:flex; flex-direction:column; gap:12px; }
+.actions .btn,
+.calendar-cta .btn{ width: 100%; max-width: 100%; border-radius: 999px; padding: 14px 18px; font-weight: 700; }
