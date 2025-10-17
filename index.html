@@ -492,33 +492,6 @@
             height: 100% !important;
         }
 
-        .scale-toggle {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: var(--bg-secondary);
-            border-radius: 999px;
-            padding: 4px;
-            border: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
-        }
-
-        .scale-toggle__btn {
-            border: none;
-            background: transparent;
-            color: var(--text-secondary);
-            font-size: 13px;
-            font-weight: 600;
-            padding: 6px 12px;
-            border-radius: 999px;
-            cursor: pointer;
-            transition: background-color .2s ease, color .2s ease;
-        }
-
-        .scale-toggle__btn.active {
-            background: color-mix(in srgb, var(--brand) 18%, transparent);
-            color: var(--text-primary);
-        }
-
         .hourly-aggregates {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -699,11 +672,6 @@
                 <div class="card-title">Настроение сегодня по часам</div>
                 <div class="chart-wrap">
                   <canvas id="hourly-chart" height="200"></canvas>
-                </div>
-
-                <div class="scale-toggle">
-                  <button type="button" class="chip is-active" data-scale="auto">Авто</button>
-                  <button type="button" class="chip" data-scale="fixed">±50</button>
                 </div>
 
                 <div class="aggregates">
@@ -2208,6 +2176,7 @@
     <script src="/app-core.js" defer></script>
 </body>
 </html>
+
 
 
 
