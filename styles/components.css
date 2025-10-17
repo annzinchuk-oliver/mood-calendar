@@ -868,13 +868,9 @@ a, .link { color: var(--brand); text-decoration: none; }
   #mood-modal .modal__content{ max-width: 92vw; }
 }
 
-/* --- Границы экрана для всех модалок --- */
-:root{
-  /* отступ от краёв экрана (можешь поменять на 12–24px) */
-  --modal-gutter: 16px;
-}
+:root { --modal-gutter: 16px; }
 
-/* у модалки всегда есть внутренний «паддинг» от краёв вьюпорта */
+/* Бампер по краям экрана */
 .modal{
   position: fixed; inset: 0; z-index: 1000;
   display: grid; place-items: center;
@@ -882,19 +878,26 @@ a, .link { color: var(--brand); text-decoration: none; }
            env(safe-area-inset-bottom,0) var(--modal-gutter);
 }
 
-/* рамка окна: ширина/высота ограничены вьюпортом */
+/* Рамка окна: ширина = ширина основной колонки, но не вылезает за экран */
 .modal__dialog{
-  max-width: calc(100svw - 2*var(--modal-gutter));  /* не шире экрана */
-  max-height: calc(var(--app-vh, 100svh) - 2*var(--modal-gutter)); /* не выше экрана */
-  width: auto;                                       /* убираем жёсткие width */
+  width: min(var(--app-content-w, 520px), calc(100svw - 2*var(--modal-gutter)));
+  max-width: calc(100svw - 2*var(--modal-gutter));
+  max-height: calc(100svh - 2*var(--modal-gutter));                                 
   background: var(--modal-bg, var(--card, #fff));
   border-radius: 12px;
   box-shadow: 0 16px 32px rgba(0,0,0,.25);
   display: flex; flex-direction: column;
 }
 
-/* прокрутка идёт внутри тела, а не за экран */
-.modal__body{ overflow: auto; }
+/* Контент внутри — чуть уже, чтобы был воздух */
+.modal__body > *{ max-width: calc(var(--app-content-w, 520px) - 40px); margin-inline: auto; }
+.modal__body{ overflow:auto; }
 
-/* чтобы большие кнопки не распирали окно */
-.modal__footer .btn{ max-width: 100%; }
+/* Центрируем нижнюю кнопку, убираем «уезд» */
+.modal__footer{ display:flex; justify-content:center; gap:8px; }
+.modal__footer .btn{ width:auto; min-width:200px; border-radius:999px; }
+
+/* Для модалки настроения можно сделать чуть уже, но всё равно по колонке */
+#mood-modal .modal__dialog{
+  width: min(calc(var(--app-content-w, 520px) - 40px), calc(100svw - 2*var(--modal-gutter)));
+}
