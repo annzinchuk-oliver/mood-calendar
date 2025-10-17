@@ -5,7 +5,7 @@
   // РОВНО ТВОИ HEX (от тёмного к светлому)
   const BLUE_STEPS  = ['#104fcd', '#1259e7', '#296aee', '#437df0', '#5e8ff2']; // -50..-10
   const GREEN_STEPS = ['#1b9744', '#20b351', '#25d05e', '#3adc70', '#56e184']; // +50..+10
-  const NEUTRAL_YELLOW = '#fced9f'; // 0
+  const NEUTRAL_YELLOW = '#CDAA4A'; // 0
 
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
