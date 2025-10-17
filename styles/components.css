@@ -520,6 +520,16 @@ a, .link { color: var(--brand); text-decoration: none; }
   border-color: var(--day-border) !important;
 }
 
+/* цвета дня по сумме */
+.calendar .day.day--pos  { background: #34D399 !important; color: #0b1115 !important; border-color: rgba(0,0,0,.18) !important; }
+.calendar .day.day--neg  { background: #5B8BFF !important; color: #0b1115 !important; border-color: rgba(0,0,0,.18) !important; }
+.calendar .day.day--zero { background: var(--ochre-soft, #D8B25A) !important; color: var(--day-ink-on-ochre, #111) !important; border-color: var(--ochre-soft-ring, rgba(0,0,0,.18)) !important; }
+
+/* если есть рамка у выбранного дня — оставим её, но фон выше по специфичности */
+.calendar .day.day--zero.is-selected,
+.calendar .day.day--pos.is-selected,
+.calendar .day.day--neg.is-selected { box-shadow: 0 0 0 2px var(--accent, #ff4433) inset; }
+
 /* тонкая внутренняя окантовка для читабельности */
 .day--happy, .day--pleased, .day--neutral, .day--sad, .day--sorrow {
   box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--palette-border) 50%, transparent);
