@@ -30,6 +30,18 @@
   }
 })();
 
+// точная высота экрана: учитываем клавиатуру/URL-бар
+(function setViewportVar(){
+  const setVH = () => {
+    const h = window.visualViewport ? visualViewport.height : window.innerHeight;
+    document.documentElement.style.setProperty('--app-vh', h + 'px');
+  };
+  setVH();
+  window.addEventListener('resize', setVH);
+  window.visualViewport?.addEventListener('resize', setVH);
+})();
+
+
 (function (window, document) {
   'use strict';
   
