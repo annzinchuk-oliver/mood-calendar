@@ -729,28 +729,15 @@ a, .link { color: var(--brand); text-decoration: none; }
 }
 .modal__dialog {
   position: relative;
-  background: var(--modal-bg, var(--card, #fff));
   color: var(--text, #111);
-  width: min(520px, 92vw);
-  max-height: 86vh;
   border-radius: 12px;
   box-shadow: 0 16px 32px rgba(0,0,0,.25);
   display: flex; flex-direction: column;
-}
-.modal#stats-modal .modal__dialog,
-#stats-modal .modal__dialog {
-  width: min(520px, 92vw) !important;
-  max-height: 84vh !important;
 }
 .modal__header { padding: 10px 12px; border-bottom: 1px solid var(--line, rgba(0,0,0,.08)); }
 .modal__title  { margin: 0; font-weight: 700; }
 .modal__body   { padding: 10px 12px; overflow: auto; }
 .modal__footer { padding: 8px 12px 12px; border-top: 1px solid var(--line, rgba(0,0,0,.08)); }
-
-/* Размеры по модификаторам (если понадобятся) */
-.modal--sm { width: min(480px, 92vw); }
-.modal--md { width: min(520px, 92vw); }
-.modal--lg { width: min(600px, 92vw); }
 
 /* Внутренняя колонка контента, чтобы ничего не расползалось */
 .modal__content { max-width: 480px; margin-inline: auto; display: grid; gap: 12px; }
@@ -812,8 +799,6 @@ a, .link { color: var(--brand); text-decoration: none; }
 .agg .value { font-weight: 700; font-size: 18px; }
 
 @media (max-width: 420px) {
-  .modal__dialog { width: min(96vw, 520px); max-height: 88vh; }
-  .modal__content { max-width: 92vw; }
   #today-hourly .chart-wrap { height: 135px; }
   .aggregates { grid-template-columns: 1fr; }
 }
@@ -824,8 +809,6 @@ a, .link { color: var(--brand); text-decoration: none; }
 
 /* ===== Модалка настроения (узкая и аккуратная) ===== */
 #mood-modal .modal__dialog{
-  width: min(440px, 92vw) !important;   /* было шире → сужаем */
-  max-height: 84vh;
   border-radius: 12px;
 }
 
@@ -872,6 +855,36 @@ a, .link { color: var(--brand); text-decoration: none; }
 
 /* телефон — можно ещё немного сузить */
 @media (max-width: 390px){
-  #mood-modal .modal__dialog{ width: 96vw !important; }
   #mood-modal .modal__content{ max-width: 92vw; }
 }
+
+/* --- Границы экрана для всех модалок --- */
+:root{
+  /* отступ от краёв экрана (можешь поменять на 12–24px) */
+  --modal-gutter: 16px;
+}
+
+/* у модалки всегда есть внутренний «паддинг» от краёв вьюпорта */
+.modal{
+  position: fixed; inset: 0; z-index: 1000;
+  display: grid; place-items: center;
+  padding: env(safe-area-inset-top,0) var(--modal-gutter)
+           env(safe-area-inset-bottom,0) var(--modal-gutter);
+}
+
+/* рамка окна: ширина/высота ограничены вьюпортом */
+.modal__dialog{
+  max-width: calc(100svw - 2*var(--modal-gutter));  /* не шире экрана */
+  max-height: calc(var(--app-vh, 100svh) - 2*var(--modal-gutter)); /* не выше экрана */
+  width: auto;                                       /* убираем жёсткие width */
+  background: var(--modal-bg, var(--card, #fff));
+  border-radius: 12px;
+  box-shadow: 0 16px 32px rgba(0,0,0,.25);
+  display: flex; flex-direction: column;
+}
+
+/* прокрутка идёт внутри тела, а не за экран */
+.modal__body{ overflow: auto; }
+
+/* чтобы большие кнопки не распирали окно */
+.modal__footer .btn{ max-width: 100%; }
