@@ -196,3 +196,46 @@
   --border: rgba(255,255,255,.16);
   --hover: rgba(255,255,255,.08);
 }
+
+/* === TOKENS: базовые, если вдруг отсутствуют === */
+:root {
+  /* ширина приложения (как раньше «колонка») */
+  --app-w: clamp(360px, 92vw, 480px);
+  --page-gutter: 16px;
+
+  /* типографика и радиусы */
+  --fs-sm: 14px;
+  --fs-md: 15px;
+  --fs-xl: 20px;
+  --radius-3: 16px;
+  --day-radius: 12px;
+
+  /* нейтральные поверхности/текст */
+  --surface: #fff;
+  --surface-1: var(--surface);
+  --surface-2: var(--surface);
+  --text: #111;
+  --text-secondary: #6b7280;
+
+  /* охра для «сегодня» и нулевого дня */
+  --ochre: #C79D3A;           /* тёплая охра */
+  --ochre-soft: #C79D3A;      /* мягкая */
+  --bucket-zero: #F0C75A;     /* 0 (нейтральный) */
+
+  /* лёгкие тени и анимации */
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, .08);
+  --shadow-lg: 0 18px 40px rgba(0, 0, 0, .18);
+  --ease: cubic-bezier(.22,1,.36,1);
+}
+
+/* темная тема: важные контрастные моменты */
+[data-theme="dark"] {
+  --surface: #121418;
+  --surface-1: #171a1f;
+  --surface-2: #1b1f26;
+  --text: #e9eef7;
+  --text-secondary: #a4acb9;
+
+  /* цифры на ячейках календаря должны читаться */
+  --calendar-text-contrasted: #fff;
+}
