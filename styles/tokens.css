@@ -324,3 +324,69 @@ html[data-theme="dark"] {
 
   --day-ink-on-ochre: #0F1318; /* чуть темнее, чем чёрный */
 }
+
+/* === Layout === */
+:root{
+  /* ширина центральной колонки: от 360 до 480, обычно ~92vw */
+  --app-w: clamp(360px, 92vw, 480px);
+  --page-gutter: 16px;
+
+  /* календарь */
+  --day-gap: 10px;
+  --day-radius: 12px;
+
+  /* цвета/подложки */
+  --surface: #ffffff;
+  --text-primary: #111214;
+  --text-secondary: #6b7280;
+
+  /* «сегодня» (охра) */
+  --ochre-soft: #D8B25A;
+  --ochre-soft-ring: rgba(0,0,0,.18);
+
+  /* фирменный фиолетовый */
+  --brand-1: #6E4CF6;
+  --brand-2: #7E57FF;
+
+  /* кнопки */
+  --btn-primary: #6E4CF6;
+  --btn-primary-ink: #fff;
+  --btn-ring: rgba(0,0,0,.14);
+
+  /* контрастный текст в занятых днях */
+  --calendar-text-contrasted: #111;
+
+  /* совместимость с существующими переменными */
+  --brand: var(--brand-1);
+  --on-brand: var(--btn-primary-ink);
+  --surface-1: var(--surface);
+  --surface-2: var(--surface);
+  --border: rgba(0,0,0,.12);
+  --hover: rgba(0,0,0,.04);
+  --text: var(--text-primary);
+  --text-muted: var(--text-secondary);
+  --card: var(--surface);
+  --bg: var(--surface);
+  --palette-border: rgba(0,0,0,.12);
+}
+
+[data-theme="dark"]{
+  --surface: #121316;
+  --text-primary: #f7f7f7;
+  --text-secondary: #a1a1aa;
+
+  --ochre-soft: #C79D3A;
+  --ochre-soft-ring: rgba(0,0,0,.3);
+
+  --calendar-text-contrasted: #fff;
+
+  --surface-1: var(--surface);
+  --surface-2: #1b1c20;
+  --border: rgba(255,255,255,.16);
+  --hover: rgba(255,255,255,.08);
+  --text: var(--text-primary);
+  --text-muted: var(--text-secondary);
+  --card: var(--surface);
+  --bg: #18191c;
+  --palette-border: rgba(255,255,255,.14);
+}
