@@ -1093,3 +1093,94 @@ a, .link { color: var(--brand); text-decoration: none; }
 .calendar-cta{ width:100%; margin: 14px auto 22px; display:flex; flex-direction:column; gap:12px; }
 .actions .btn,
 .calendar-cta .btn{ width: 100%; max-width: 100%; border-radius: 999px; padding: 14px 18px; font-weight: 700; }
+
+
+/* === Центральная колонка (держит ширину всего приложения) === */
+.app-core{
+  width: min(var(--app-w), 100%);
+  max-width: var(--app-w);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+}
+
+/* === Фиолетовая шапка === */
+.app-header{
+  background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+  color: #fff;
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 10px 26px rgba(79,70,229,.18);
+  margin-top: 8px; margin-bottom: 16px;
+}
+.badge-today{
+  background: #B67F1B; color: #fff;
+  border: 1px solid rgba(0,0,0,.22);
+  border-radius: 999px; padding: 6px 12px; font-weight: 800;
+}
+.theme-toggle{ display:flex; align-items:center; gap:8px; }
+.theme-toggle .pill,
+.theme-toggle__knob{
+  background: rgba(255,255,255,.08); color:#fff;
+  border: 1px solid rgba(255,255,255,.18);
+  padding: 6px 12px; border-radius: 999px; font-weight: 600;
+}
+
+/* === Календарь === */
+.calendar{ width:100%; max-width:100%; }
+.calendar .weekdays{
+  display:grid; grid-template-columns:repeat(7,1fr);
+  gap: var(--day-gap);
+  margin: 8px 0 10px;
+}
+.calendar .weekday{
+  text-align:center; font-size:13px; font-weight:600; color:var(--text-secondary);
+}
+.calendar .grid,
+.calendar-grid{
+  display:grid; grid-template-columns:repeat(7,1fr);
+  gap: var(--day-gap);
+}
+
+/* Клетка дня — «пузырёк», как раньше */
+.calendar .day{
+  aspect-ratio: 1 / 1;            /* квадрат */
+  border-radius: var(--day-radius);
+  border: 1px solid rgba(0,0,0,.12);
+  background: var(--surface);
+  color: var(--text-primary);
+  display:grid; place-items:center;
+  font-weight:600; font-size:14px;
+}
+
+/* подсветки: выбранный/сегодня */
+.calendar .day.is-selected{ box-shadow: 0 0 0 2px #FF4343 inset; }
+.calendar .day.is-today   { box-shadow: 0 0 0 2px rgba(0,0,0,.18) inset; }
+
+/* цвета по сумме дня */
+.calendar .day.day--pos  { background:#34D399; color:#0b1115; border-color:rgba(0,0,0,.18); }
+.calendar .day.day--neg  { background:#5B8BFF; color:#0b1115; border-color:rgba(0,0,0,.18); }
+.calendar .day.day--zero { background:var(--ochre-soft); color:var(--calendar-text-contrasted); border-color:var(--ochre-soft-ring); }
+
+/* в тёмной теме — цифры занятых дней всегда белые */
+[data-theme="dark"] .calendar .day.day--pos,
+[data-theme="dark"] .calendar .day.day--neg,
+[data-theme="dark"] .calendar .day.day--zero{
+  color:#fff;
+}
+
+/* === Кнопки снизу === */
+.actions,
+.calendar-cta{
+  width:100%; margin: 16px auto 22px;
+  display:flex; flex-direction:column; gap:12px;
+}
+.btn{
+  border-radius: 999px; padding: 14px 18px; font-weight: 700;
+  border: 1px solid var(--btn-ring); background: var(--surface); color: var(--text-primary);
+}
+.btn--primary{
+  background: var(--btn-primary); color: var(--btn-primary-ink);
+  border-color: transparent;
+  box-shadow: 0 6px 14px rgba(110,76,246,.25);
+}
