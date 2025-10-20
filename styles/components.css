@@ -1,202 +1,17 @@
-/* ===============================
-   Design System — Components
-   Требует tokens.css (переменные)
-   =============================== */
-/* ====== App header ====== */
-.app-header {
-  background: linear-gradient(135deg, var(--brand), var(--brand-2));
-  padding: 16px 20px;
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  border-radius: 16px;
-  box-shadow: 0 10px 26px rgba(79, 70, 229, .2);
-}
-
-.header-left {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-right: 8px;
-}
-
-/* ====== Theme toggle (капсула «Тема») ====== */
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 0;
-  border-radius: 999px;
-  background: transparent;
-  border: none;
+/* ====== RESET/UTILS (если был) ====== */
+*, *::before, *::after { box-sizing: border-box; }
+html, body {
   margin: 0;
-}
-
-.theme-toggle__knob {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, .18);
-  background: rgba(255,255,255,.08);
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform .12s ease, box-shadow .12s ease;
-}
-
-.theme-toggle__knob:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 25%, transparent);
-}
-
-.theme-toggle__knob:active {
-  transform: scale(.98);
-}
-
-.theme-toggle__icon {
-  font-size: 16px;
-  line-height: 1;
-}
-
-.theme-toggle__label {
-  display: inline;
-  font-size: 14px;
-  color: #fff;
-}
-
-[data-theme="dark"] .theme-toggle__knob {
-  background: rgba(255,255,255,.12);
-  color: #fff;
-  border-color: rgba(255,255,255,.24);
-}
-
-/* ====== Calendar layout ====== */
-.weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.weekday {
-  text-align: center;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  padding: 12px 4px;
-}
-
-.calendar .day {
-  animation: dayFadeIn .3s ease;
-}
-
-@keyframes dayFadeIn {
-  from {
-    opacity: .0;
-    transform: scale(.98);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-/* ---------- Buttons ---------- */
-.btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  gap: var(--space-2);
-  padding: 10px 16px;
-  border-radius: var(--radius-pill);
-  border: 1.5px solid var(--border);
-  background: var(--surface-2);
+  padding: 0;
+  font-family: var(--font-sans);
   color: var(--text);
-  font: 600 var(--fs-sm)/1 var(--font-sans);
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition:
-    background var(--dur-2) var(--ease),
-    transform var(--dur-1) var(--ease),
-    border-color var(--dur-2) var(--ease),
-    box-shadow var(--dur-2) var(--ease);
-}
-.btn:hover { background: var(--hover); transform: translateY(-1px); }
-.btn:active { transform: translateY(0); }
-.btn:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--brand) 40%, transparent);
-  outline-offset: 2px;
-}
-
-/* Primary button styling uses semantic tokens.
-   We set a safe fallback for the border colour and use the
-   --on-brand token for text to adapt across themes.  When the
-   browser supports `color-mix`, we enhance the border colour. */
-.btn--primary {
-  /* Fallback border uses the generic border token */
-  border-color: var(--border);
-  background: linear-gradient(135deg, var(--brand), var(--brand-2));
-  color: var(--on-brand);
-}
-.btn--primary:hover { filter: brightness(1.03); }
-
-@supports (color: color-mix(in srgb, black, white)) {
-  .btn--primary {
-    border-color: color-mix(in srgb, var(--brand) 25%, var(--border));
-  }
-}
-
-.btn--ghost { background: transparent; border-color: var(--border); }
-
-.btn.active {
-  border-color: var(--brand);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 25%, transparent);
-}
-
-/* размер/форма */
-.btn--icon   { width: 44px; height: 44px; padding: 0; border-radius: var(--radius-2); font-size: 20px; }
-.btn--circle { width: 44px; height: 44px; padding: 0; border-radius: 50%; }
-
-/* Пилюли-фильтры (страница Статистика) */
-.filter-btn {
-  display:inline-flex; align-items:center; justify-content:center;
-  padding: 8px 12px;
-  border-radius: var(--radius-pill);
-  border: 1.5px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  font: 600 var(--fs-sm)/1 var(--font-sans);
-  transition:
-    background var(--dur-2) var(--ease),
-    border-color var(--dur-2) var(--ease),
-    color var(--dur-2) var(--ease);
-}
-.filter-btn:hover { background: var(--hover); }
-.filter-btn.active {
-  background: linear-gradient(135deg, var(--brand), var(--brand-2));
-  border-color: transparent; color: #fff;
-}
-
-/* Кнопка в установочном баннере */
-.install-btn {
-  display:inline-flex; align-items:center; justify-content:center; gap: var(--space-2);
-  padding: 10px 16px;
-  border-radius: var(--radius-pill);
-  border: 1.5px solid color-mix(in srgb, var(--brand) 25%, var(--border));
-  background: linear-gradient(135deg, var(--brand), var(--brand-2));
-  color:#fff;
-  font: 600 var(--fs-sm)/1 var(--font-sans);
-  box-shadow: var(--shadow-sm);
-  cursor:pointer;
-}
+  background: var(--bg);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+ }
+img, picture, video, canvas, svg { display: block; max-width: 100%; }
+button, input, textarea { font: inherit; }
+a { color: inherit; text-decoration: none; }
 
 /* ---------- Cards ---------- */
 .card {
@@ -293,21 +108,267 @@
 }
 @keyframes pulse { 0%,100% {opacity:1} 50% {opacity:.6} }
 
-/* ---------- Chips ---------- */
-.chip {
-  display: inline-flex; align-items:center; justify-content:center;
-  padding: 6px 10px;
-  border-radius: var(--radius-1);
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  font: 600 var(--fs-sm)/1 var(--font-sans);
+
+.app-container{
+  margin-bottom: 0;                                   /* убираем белый зазор */
+  padding-bottom: calc(var(--nav-height) + 24px);     /* запас под нижнюю навигацию */
+  min-height: 100vh;
 }
 
-/* ---------- Colors for charts/bars ---------- */
-.bar--good    { background: var(--success); }
-.bar--neutral { background: var(--warning); }
-.bar--sad     { background: var(--info); }
+/* Страница Помощи — сетка разделов */
+.section-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px;
+}
+.section-emoji{ font-size:28px; }
+.section-title{ font-weight:700; }
+.section-sub{ font-size:13px; color: var(--text-muted); }
+
+.stat-value--good { color: var(--mood-good); }
+.stat-value--neutral { color: var(--mood-neutral); }
+.stat-value--sad { color: var(--mood-sad); }
+/* Контейнеры списка для терапии/тестов */
+.content-list{
+  gap: 12px;
+  padding: 16px;
+}
+
+/* Терапия: кольцевой таймер */
+.thermo { display:flex; justify-content:center; margin: 8px 0 12px; }
+.ring{ --size:180px; width:var(--size); height:var(--size); border-radius:50%;
+  background: conic-gradient(var(--brand) 0deg, rgba(0,0,0,.08) 0);
+  display:flex; align-items:center; justify-content:center; transition: background .2s linear;
+}
+.ring-inner{ width:calc(var(--size) - 18px); height:calc(var(--size) - 18px); border-radius:50%;
+  background: var(--surface-2); border:1px solid var(--border);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow: var(--shadow-sm) inset;
+}
+.phase{ font-weight:700; color:var(--text); font-size:16px; margin-bottom:4px; }
+.time{ font-size:40px; font-weight:800; color:var(--text); letter-spacing:1px; }
+.therapy-hint{ text-align:center; color:var(--text-muted); font-size:14px; margin:8px 0 12px; }
+.therapy-actions{ display:flex; gap:8px; justify-content:center; margin-bottom:4px; }
+
+/* Тесты: мелкие штрихи */
+.test-question { font-weight:700; margin-bottom:8px; color: var(--text); }
+.test-options  { display:grid; gap:8px; }
+
+/* --- Ссылки/фиолетовый текст: делаем читаемый hover под тему --- */
+a, .link { color: var(--brand); text-decoration: none; }
+:root[data-theme="light"] a:hover,
+[data-theme="light"] .link:hover { color: #4338ca; }     /* на тон темнее для света */
+:root[data-theme^="dark"] a:hover,
+[data-theme^="dark"] .link:hover { color: #a5b4fc; }     /* на тон светлее для тьмы */
+
+[data-theme="dark"] {
+  --slider-mid: #e9edf3;
+}
+
+.mood-range-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 12px;
+}
+
+.mood-emoji {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.mood-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 14px;
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+              var(--slider-blue) 0%,
+              var(--slider-mid) 50%,
+              var(--slider-green) 100%);
+  outline: none;
+  border: 1px solid rgba(0,0,0,.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+}
+
+/* Chrome/Safari */
+.mood-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.15);
+  box-shadow:
+    0 2px 6px rgba(0,0,0,.15),
+    0 0 0 var(--glow-size) var(--thumb-glow);
+  cursor: pointer;
+  transition: box-shadow .12s ease;
+}
+
+/* Firefox */
+.mood-range::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.15);
+  box-shadow:
+    0 2px 6px rgba(0,0,0,.15),
+    0 0 0 var(--glow-size) var(--thumb-glow);
+  cursor: pointer;
+  transition: box-shadow .12s ease;
+}
+.mood-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Stats card layout */
+.stats-card {
+  border-radius: 12px;
+  background: var(--card, var(--surface-2));
+  padding: 12px 14px;
+}
+
+/* Бейдж "Сегодня: …" — насыщенная охра с белым текстом */
+.badge-today{
+  background: var(--ochre-strong) !important;
+  color: #fff !important;
+  border: 1px solid var(--ochre-strong-ring);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-weight: 800;
+}
+
+/* Дополнительные утилиты для модалок */
+.test-form-host { display: grid; gap: 12px; margin: 12px 0; }
+/* =========================
+   Центральный контейнер
+   ========================= */
+.app-core{
+  width: min(var(--app-content-w), 100%);
+  max-width: var(--app-content-w);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+}
+
+/* любые «широкие» блоки должны ограничиваться колонкой */
+.app-core > header,
+.app-core > main,
+.app-core > section,
+.app-core > footer{ width: 100%; }
+
+/* «Сегодня» — капсула */
+.badge-today{
+  background: #B67F1B;
+  color: #fff;
+  border: 1px solid rgba(0,0,0,.22);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-weight: 800;
+}
+
+/* === Центральная колонка (держит ширину всего приложения) === */
+.app-core{
+  width: min(var(--app-w), 100%);
+  max-width: var(--app-w);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+}
+.badge-today{
+  background: #B67F1B; color: #fff;
+  border: 1px solid rgba(0,0,0,.22);
+  border-radius: 999px; padding: 6px 12px; font-weight: 800;
+}
+
+/* ====== HEADER ====== */
+/* ===============================
+   Design System — Components
+   Требует tokens.css (переменные)
+   =============================== */
+/* ====== App header ====== */
+.app-header {
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  padding: 16px 20px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-radius: 16px;
+  box-shadow: 0 10px 26px rgba(79, 70, 229, .2);
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-right: 8px;
+}
+
+/* ====== Theme toggle (капсула «Тема») ====== */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0;
+  border-radius: 999px;
+  background: transparent;
+  border: none;
+  margin: 0;
+}
+
+.theme-toggle__knob {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+   
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.theme-toggle__knob:focus-visible {
+  outline: none;
+ box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 25%, transparent);
+}
+
+.theme-toggle__knob:active {
+  transform: scale(.98);
+}
+
+.theme-toggle__icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.theme-toggle__label {
+  display: inline;
+  font-size: 14px;
+  color: #fff;
+}
+
+[data-theme="dark"] .theme-toggle__knob {
+  background: rgba(255,255,255,.12);
+  color: #fff;
+  border-color: rgba(255,255,255,.24);
+}
 
 /* ---------- Hourly grid blocks ---------- */
 .hourly-chart__header {
@@ -318,77 +379,102 @@
   flex-wrap: wrap;
   margin-bottom: 12px;
 }
-
-.hourly-chart {
-  position: relative;
-  width: 100%;
-  height: 240px;
-}
-
-.hourly-chart canvas {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-.hourly-aggregates {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.aggregate-item {
-  background: var(--surface);
-  border-radius: var(--radius-1);
-  padding: 12px;
-  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+.stats-card .card-header {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.modal__header { padding: 10px 12px; border-bottom: 1px solid var(--line, rgba(0,0,0,.08)); }
+
+/* компактные отступы */
+#mood-modal .modal__header{ padding: 10px 12px; }
+
+/* =========================
+   Шапка (фиолетовая полоса)
+   ========================= */
+.app-header{
+  background: linear-gradient(135deg, #6E4CF6, #7E57FF);
+  color: #fff;
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 10px 26px rgba(79,70,229,.18);
 }
 
-.aggregate-label {
-  font-size: 12px;
-  color: var(--text-muted);
+/* переключатель темы-капсула, компактный */
+.theme-toggle{
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
 }
-
-.aggregate-value {
-  font-size: 16px;
+.theme-toggle__knob{
+  background: rgba(255,255,255,.08);
+  color:#fff;
+  border: 1px solid rgba(255,255,255,.18);
+  padding: 6px 12px;
+  border-radius: 999px;
   font-weight: 600;
-  color: var(--text);
 }
 
-/* ---------- Nav & Send button (из чата/календаря) ---------- */
-.nav-btn {
-  background: var(--surface);
-  border: 2px solid var(--border);
-  color: var(--text);
-  width: 44px; height: 44px;
-  border-radius: 12px;
-  font-size: 20px;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all .2s ease;
-}
-.nav-btn:hover, .nav-btn:active {
-  background: var(--hover);
-  border-color: var(--border-strong);
-  transform: scale(1.1);
+[data-theme="dark"] .theme-toggle__knob{
+  background: rgba(255,255,255,.12);
+  color:#fff;
+  border-color: rgba(255,255,255,.24);
 }
 
-.send-button {
-  background: var(--success);
-  border: none; border-radius: 50%;
-  width: 44px; height: 44px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; color: #fff; font-size: 18px;
-  transition: all .2s ease;
+/* === Фиолетовая шапка === */
+.app-header{
+  background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+  color: #fff;
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 10px 26px rgba(79,70,229,.18);
+  margin-top: 8px; margin-bottom: 16px;
 }
-.send-button:hover:not(:disabled) { filter: brightness(1.05); transform: scale(1.05); }
-.send-button:disabled { background: var(--text-muted); cursor: not-allowed; opacity: .5; }
+.theme-toggle{ display:flex; align-items:center; gap:8px; }
+.theme-toggle .pill,
+.theme-toggle__knob{
+  background: rgba(255,255,255,.08); color:#fff;
+  border: 1px solid rgba(255,255,255,.18);
+  padding: 6px 12px; border-radius: 999px; font-weight: 600;
+}
 
-/* высота нижней навигации, чтобы правильно прижать CTA */
-:root { --nav-height: 72px; }
+/* ====== CALENDAR ====== */
+
+/* ====== Calendar layout ====== */
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.weekday {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 12px 4px;
+}
+
+.calendar .day {
+  animation: dayFadeIn .3s ease;
+}
+
+@keyframes dayFadeIn {
+  from {
+    opacity: .0;
+    transform: scale(.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 
 .calendar { 
   padding: 20px;
@@ -412,8 +498,6 @@
 }
 
 .calendar-cta .btn{ width: 100%;}
-body.modal-open .calendar-cta{ display: none; }
-.btn--xl { padding: 14px 18px; font-size: var(--fs-md); }
 
 /* === Calendar mood inline buttons === */
 /* Новый ряд из пяти кнопок для записи настроения. Заполняет ширину контейнера.
@@ -447,113 +531,6 @@ body.modal-open .calendar-cta{ display: none; }
   background: var(--hover);
   box-shadow: var(--shadow-sm);
 }
-
-/* Цветовая индикация: сначала задаём безопасную базовую рамку,
-   затем улучшаем, если браузер поддерживает color-mix. */
-#happyMoodBtn,
-#pleasedMoodBtn,
-#neutralMoodInlineBtn,
-#sadMoodInlineBtn,
-#sorrowMoodBtn {
-  border-color: var(--border);
-}
-
-@supports (color: color-mix(in srgb, var(--mood-happy) 50%, var(--border))) {
-  /* усиливаем цвет рамки: 80% цвета настроения + 20% основного бордера */
-  #happyMoodBtn { border-color: color-mix(in srgb, var(--mood-happy) 80%, var(--border)); }
-  #pleasedMoodBtn { border-color: color-mix(in srgb, var(--mood-pleased) 80%, var(--border)); }
-  #neutralMoodInlineBtn { border-color: color-mix(in srgb, var(--mood-neutral) 80%, var(--border)); }
-  #sadMoodInlineBtn { border-color: color-mix(in srgb, var(--mood-sad) 80%, var(--border)); }
-  #sorrowMoodBtn { border-color: color-mix(in srgb, var(--mood-sorrow) 80%, var(--border)); }
-}
-
-
-.app-container{
-  margin-bottom: 0;                                   /* убираем белый зазор */
-  padding-bottom: calc(var(--nav-height) + 24px);     /* запас под нижнюю навигацию */
-  min-height: 100vh;
-}
-
-/* Пока открыт шит, нижняя навигация не «подсвечивает» края */
-body.modal-open .bottom-nav { visibility: hidden; }  /* а CTA у тебя уже скрывается */
-
-/* Страница Помощи — сетка разделов */
-.section-grid{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  padding: 16px;
-}
-.section-card{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:8px;
-  padding:16px;
-  text-align:center;
-  cursor:pointer;
-}
-.section-card:hover{ transform: translateY(-2px); transition: transform .2s var(--ease); }
-.section-emoji{ font-size:28px; }
-.section-title{ font-weight:700; }
-.section-sub{ font-size:13px; color: var(--text-muted); }
-
-.stat-value--good { color: var(--mood-good); }
-.stat-value--neutral { color: var(--mood-neutral); }
-.stat-value--sad { color: var(--mood-sad); }
-/* Контейнеры списка для терапии/тестов */
-.content-list{
-  display: grid;
-  gap: 12px;
-  padding: 16px;
-}
-
-/* Терапия: кольцевой таймер */
-.thermo { display:flex; justify-content:center; margin: 8px 0 12px; }
-.ring{ --size:180px; width:var(--size); height:var(--size); border-radius:50%;
-  background: conic-gradient(var(--brand) 0deg, rgba(0,0,0,.08) 0);
-  display:flex; align-items:center; justify-content:center; transition: background .2s linear;
-}
-.ring-inner{ width:calc(var(--size) - 18px); height:calc(var(--size) - 18px); border-radius:50%;
-  background: var(--surface-2); border:1px solid var(--border);
-  display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow: var(--shadow-sm) inset;
-}
-.phase{ font-weight:700; color:var(--text); font-size:16px; margin-bottom:4px; }
-.time{ font-size:40px; font-weight:800; color:var(--text); letter-spacing:1px; }
-.therapy-hint{ text-align:center; color:var(--text-muted); font-size:14px; margin:8px 0 12px; }
-.therapy-actions{ display:flex; gap:8px; justify-content:center; margin-bottom:4px; }
-
-/* Тесты: мелкие штрихи */
-.test-question { font-weight:700; margin-bottom:8px; color: var(--text); }
-.test-options  { display:grid; gap:8px; }
-.test-card     { padding:12px 16px; }
-
-/* --- Better disabled buttons (light/dark) --- */
-.btn:disabled,
-.btn[disabled]{
-  opacity: 1;                          /* не делаем полупрозрачной */
-  color: var(--text-muted);            /* читаемый текст */
-  background: var(--surface);          /* нейтральный фон */
-  border-color: var(--border-strong);  /* контрастная рамка */
-  box-shadow: none;
-  cursor: not-allowed;
-}
-.btn--primary:disabled,
-.btn--primary[disabled]{
-  background: var(--hover);            /* без градиента, не фиолетовый */
-  color: var(--text-muted);
-  border-color: var(--border);
-}
-
-/* --- Hover не меняет цвет текста кнопки --- */
-.btn:hover { color: inherit; }
-
-/* --- Ссылки/фиолетовый текст: делаем читаемый hover под тему --- */
-a, .link { color: var(--brand); text-decoration: none; }
-:root[data-theme="light"] a:hover,
-[data-theme="light"] .link:hover { color: #4338ca; }     /* на тон темнее для света */
-:root[data-theme^="dark"] a:hover,
-[data-theme^="dark"] .link:hover { color: #a5b4fc; }     /* на тон светлее для тьмы */
 
 .calendar-grid {
   display: grid;
@@ -637,149 +614,6 @@ a, .link { color: var(--brand); text-decoration: none; }
   border-color: var(--day-border);
 }
 
-/* -------- Mood slider -------- */
-:root {
-  --slider-green: #16a34a;
-  --slider-blue:  #1d4ed8;
-  --slider-mid:   #ffffff;
-
-  /* управление свечением ручки */
-  --thumb-glow: rgba(0,0,0,0);
-  --glow-size: 0px;
-  --thumb-pos: rgba(22,163,74,.45);
-  --thumb-neg: rgba(29,78,216,.45);
-}
-
-[data-theme="dark"] {
-  --slider-mid: #e9edf3;
-}
-
-.mood-range-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 16px 0 12px;
-}
-
-.mood-emoji {
-  font-size: 28px;
-  line-height: 1;
-}
-
-.mood-range {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 14px;
-  border-radius: 999px;
-  background: linear-gradient(90deg,
-              var(--slider-blue) 0%,
-              var(--slider-mid) 50%,
-              var(--slider-green) 100%);
-  outline: none;
-  border: 1px solid rgba(0,0,0,.12);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
-}
-
-/* Chrome/Safari */
-.mood-range::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: #fff;
-  border: 1px solid rgba(0,0,0,.15);
-  box-shadow:
-    0 2px 6px rgba(0,0,0,.15),
-    0 0 0 var(--glow-size) var(--thumb-glow);
-  cursor: pointer;
-  transition: box-shadow .12s ease;
-}
-
-/* Firefox */
-.mood-range::-moz-range-thumb {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: #fff;
-  border: 1px solid rgba(0,0,0,.15);
-  box-shadow:
-    0 2px 6px rgba(0,0,0,.15),
-    0 0 0 var(--glow-size) var(--thumb-glow);
-  cursor: pointer;
-  transition: box-shadow .12s ease;
-}
-
-.mood-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.link-btn {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-weight: 600;
-  cursor: pointer;
-  padding: 4px 8px;
-}
-
-.link-btn:hover {
-  color: var(--text-primary);
-  text-decoration: underline;
-}
-
-/* Stats card layout */
-.stats-card {
-  border-radius: 12px;
-  background: var(--card, var(--surface-2));
-  padding: 12px 14px;
-}
-.stats-card .card-header {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 8px;
-}
-.stats-card .card-body {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.stats-card .row {
-  display: grid;
-  gap: 12px;
-}
-.stats-card .row.two-col {
-  grid-template-columns: repeat(2, 1fr);
-}
-.stats-card .row.three-col {
-  grid-template-columns: repeat(3, 1fr);
-}
-.stats-card .metric .label {
-  color: var(--text-secondary);
-  font-size: 12px;
-}
-.stats-card .metric .value {
-  font-weight: 700;
-  font-size: 20px;
-  color: var(--text);
-}
-.stats-card .footnote {
-  margin-top: 8px;
-  color: var(--text-secondary);
-  font-size: 12px;
-  text-align: center;
-}
-@media (max-width: 420px) {
-  .stats-card .row.three-col {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
 /* Нейтральный/нулевой день = мягкая охра */
 .calendar .day.is-neutral,
 .calendar .day.day--neutral,
@@ -798,242 +632,16 @@ a, .link { color: var(--brand); text-decoration: none; }
   border: 1px solid var(--ochre-soft-ring) !important;
 }
 
-/* Бейдж "Сегодня: …" — насыщенная охра с белым текстом */
-.badge-today{
-  background: var(--ochre-strong) !important;
-  color: #fff !important;
-  border: 1px solid var(--ochre-strong-ring);
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-weight: 800;
-}
-
-/* ===== БАЗА МОДАЛКИ (общая для всех окон) ===== */
-.modal[hidden] { display: none !important; }
-.modal {
-  position: fixed; inset: 0; z-index: 1000;
-  padding: 16px;
-}
-.modal__backdrop {
-  position: absolute; inset: 0; background: rgba(0,0,0,.45);
-  backdrop-filter: blur(2px);
-}
-.modal__dialog {
-  position: relative;
-  width: min(var(--app-content-w), calc(100svw - 32px));
-  max-height: calc(100svh - 32px);
-  color: var(--text, #111);
-  background: var(--surface);
-  border-radius: var(--card-radius);
-  box-shadow: 0 16px 32px rgba(0,0,0,.25);
-  display: flex; flex-direction: column;
-}
-.modal__header { padding: 10px 12px; border-bottom: 1px solid var(--line, rgba(0,0,0,.08)); }
-.modal__title  { margin: 0; font-weight: 700; }
-.modal__body   { padding: 10px 12px; overflow: auto; }
-.modal__footer {
-  padding: 8px 12px 12px;
-  border-top: 1px solid var(--line, rgba(0,0,0,.08));
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-}
-.modal__footer .btn{ width:auto; min-width:200px; border-radius:999px; }
-
-/* Внутренняя колонка контента, чтобы ничего не расползалось */
-.modal__content { max-width: 480px; margin-inline: auto; display: grid; gap: 12px; }
-
-/* Заголовок второго уровня внутри модалки */
-.modal__subtitle { margin: 0 0 8px; color: var(--text-muted); font-size: 15px; }
-
-/* Кнопка */
-.btn.btn-primary {
-  width: 100%; padding: 10px 14px; border-radius: 999px;
-  background: linear-gradient(135deg, var(--brand), var(--brand-2));
-  color: var(--on-brand, #fff);
-  border: none;
-}
-
-/* Табы по центру, без тёмных «капсул» */
-.range-tabs {
-  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
-  margin: 8px auto 6px; padding: 0; background: transparent; border: 0;
-}
-.range-tabs .tab {
-  padding: 8px 12px; border-radius: 999px;
-  background: var(--chip-bg, rgba(0,0,0,.06));
-  border: 1px solid var(--line, rgba(0,0,0,.12));
-}
-.modal#stats-modal .range-tabs .tab,
-#stats-modal .range-tabs .tab {
-  color: var(--text) !important;
-}
-.range-tabs .tab.active {
-  background: var(--accent-10, rgba(99,102,241,.15));
-  border-color: var(--accent-20, rgba(99,102,241,.3));
-}
-.modal#stats-modal .range-tabs .tab.active,
-#stats-modal .range-tabs .tab.active {
-  color: var(--text) !important;
-}
-
 /* График по высоте компактный */
 #today-hourly .chart-wrap { height: 150px; }
 #today-hourly canvas { width:100% !important; height:100% !important; display:block; }
 #today-hourly .hint { color: var(--text-muted); font-size: 12px; margin-top: 6px; text-align: center; }
-
-#stats-modal .modal__body > * {
-  max-width: 480px;
-  margin-inline: auto;
-}
-
-#stats-modal .card {
-  padding: 10px;
-  border-radius: 10px;
-}
-
-
-/* Компактные карточки агрегатов */
-.aggregates { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin: 6px 0; }
-.agg { border: 1px solid var(--line, rgba(0,0,0,.12)); border-radius: 10px; padding: 8px; text-align: center; }
-.agg .label { font-size: 12px; color: var(--text-muted); }
-.agg .value { font-weight: 700; font-size: 18px; }
-
-@media (max-width: 420px) {
-  #today-hourly .chart-wrap { height: 135px; }
-  .aggregates { grid-template-columns: 1fr; }
-}
-
-/* Дополнительные утилиты для модалок */
-.test-form-host { display: grid; gap: 12px; margin: 12px 0; }
-
-
-/* ===== Модалка настроения (узкая и аккуратная) ===== */
-#mood-modal .modal__dialog{
-  border-radius: 12px;
-}
-
-/* внутренняя колонка, чтобы контент не расползался */
-#mood-modal .modal__content{
-  max-width: 400px;
-  margin-inline: auto;
-}
-
-/* компактные отступы */
-#mood-modal .modal__header{ padding: 10px 12px; }
-#mood-modal .modal__body{ padding: 12px; }
-#mood-modal .modal__footer{ padding: 10px 12px 14px; }
-
-/* полоса/смайлы — в одну линию и не трогают края */
-#mood-modal .mood-row{ 
-  display: grid; 
-  grid-template-columns: 28px 1fr 28px; 
-  align-items: center; 
-  gap: 10px; 
-}
-
-/* кнопка подтверждения — средняя */
-#mood-modal .btn-confirm{
-  padding: 8px 16px;
-  border-radius: 999px;
-  width: auto;
-  min-width: 180px;
-  margin: 8px auto 0;
-  display: inline-flex;
-  justify-content: center;
-}
-
-/* Нижняя «Закрыть» — не во всю ширину, по центру */
-#mood-modal .modal__footer .btn{
-  width: auto;
-  min-width: 200px;
-  padding: 10px 16px;
-  border-radius: 999px;
-  margin-inline: auto;
-  display: inline-flex;
-  justify-content: center;
-}
-
-/* телефон — можно ещё немного сузить */
-@media (max-width: 390px){
-  #mood-modal .modal__content{ max-width: 92vw; }
-}
-
-/* Контент внутри — чуть уже, чтобы был воздух */
-.modal__body > *{ max-width: calc(var(--app-content-w) - 40px); margin-inline: auto; }
-.modal__body{ overflow:auto; }
-
-
-/* Для модалки настроения можно сделать чуть уже, но всё равно по колонке */
-#mood-modal .modal__dialog{
-  width: min(calc(var(--app-content-w) - 40px), calc(100svw - 32px));
-}
-/* =========================
-   Центральный контейнер
-   ========================= */
-.app-core{
-  width: min(var(--app-content-w), 100%);
-  max-width: var(--app-content-w);
-  margin-inline: auto;
-  padding-inline: var(--page-gutter);
-}
-
-/* любые «широкие» блоки должны ограничиваться колонкой */
-.app-core > header,
-.app-core > main,
-.app-core > section,
-.app-core > footer{ width: 100%; }
 
 /* кнопочные блоки (внизу) — не шире колонки */
 .actions,
 .buttons,
 .cta-wrap,
 .calendar-cta{ width: 100%; margin-inline: auto; }
-
-/* =========================
-   Шапка (фиолетовая полоса)
-   ========================= */
-.app-header{
-  background: linear-gradient(135deg, #6E4CF6, #7E57FF);
-  color: #fff;
-  border-radius: 16px;
-  padding: 14px 16px;
-  display: flex; align-items: center; justify-content: space-between;
-  box-shadow: 0 10px 26px rgba(79,70,229,.18);
-}
-
-/* «Сегодня» — капсула */
-.badge-today{
-  background: #B67F1B;
-  color: #fff;
-  border: 1px solid rgba(0,0,0,.22);
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-weight: 800;
-}
-
-/* переключатель темы-капсула, компактный */
-.theme-toggle{
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 0;
-  margin: 0;
-  background: transparent;
-  border: none;
-}
-.theme-toggle__knob{
-  background: rgba(255,255,255,.08);
-  color:#fff;
-  border: 1px solid rgba(255,255,255,.18);
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-weight: 600;
-}
-
-[data-theme="dark"] .theme-toggle__knob{
-  background: rgba(255,255,255,.12);
-  color:#fff;
-  border-color: rgba(255,255,255,.24);
-}
 
 /* =========================
    Календарь
@@ -1094,38 +702,6 @@ a, .link { color: var(--brand); text-decoration: none; }
 .actions .btn,
 .calendar-cta .btn{ width: 100%; max-width: 100%; border-radius: 999px; padding: 14px 18px; font-weight: 700; }
 
-
-/* === Центральная колонка (держит ширину всего приложения) === */
-.app-core{
-  width: min(var(--app-w), 100%);
-  max-width: var(--app-w);
-  margin-inline: auto;
-  padding-inline: var(--page-gutter);
-}
-
-/* === Фиолетовая шапка === */
-.app-header{
-  background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
-  color: #fff;
-  border-radius: 16px;
-  padding: 14px 16px;
-  display: flex; align-items: center; justify-content: space-between;
-  box-shadow: 0 10px 26px rgba(79,70,229,.18);
-  margin-top: 8px; margin-bottom: 16px;
-}
-.badge-today{
-  background: #B67F1B; color: #fff;
-  border: 1px solid rgba(0,0,0,.22);
-  border-radius: 999px; padding: 6px 12px; font-weight: 800;
-}
-.theme-toggle{ display:flex; align-items:center; gap:8px; }
-.theme-toggle .pill,
-.theme-toggle__knob{
-  background: rgba(255,255,255,.08); color:#fff;
-  border: 1px solid rgba(255,255,255,.18);
-  padding: 6px 12px; border-radius: 999px; font-weight: 600;
-}
-
 /* === Календарь === */
 .calendar{ width:100%; max-width:100%; }
 .calendar .weekdays{
@@ -1175,6 +751,212 @@ a, .link { color: var(--brand); text-decoration: none; }
   width:100%; margin: 16px auto 22px;
   display:flex; flex-direction:column; gap:12px;
 }
+
+/* ====== BUTTONS ====== */
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: var(--space-2);
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  font: 600 var(--fs-sm)/1 var(--font-sans);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition:
+    background var(--dur-2) var(--ease),
+    transform var(--dur-1) var(--ease),
+    border-color var(--dur-2) var(--ease),
+    box-shadow var(--dur-2) var(--ease);
+}
+.btn:hover { background: var(--hover); transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--brand) 40%, transparent);
+  outline-offset: 2px;
+}
+
+/* Primary button styling uses semantic tokens.
+   We set a safe fallback for the border colour and use the
+   --on-brand token for text to adapt across themes.  When the
+   browser supports `color-mix`, we enhance the border colour. */
+.btn--primary {
+  /* Fallback border uses the generic border token */
+  border-color: var(--border);
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  color: var(--on-brand);
+}
+.btn--primary:hover { filter: brightness(1.03); }
+
+@supports (color: color-mix(in srgb, black, white)) {
+  .btn--primary {
+    border-color: color-mix(in srgb, var(--brand) 25%, var(--border));
+  }
+}
+
+.btn--ghost { background: transparent; border-color: var(--border); }
+
+.btn.active {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 25%, transparent);
+}
+
+/* размер/форма */
+.btn--icon   { width: 44px; height: 44px; padding: 0; border-radius: var(--radius-2); font-size: 20px; }
+.btn--circle { width: 44px; height: 44px; padding: 0; border-radius: 50%; }
+
+/* Пилюли-фильтры (страница Статистика) */
+.filter-btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  padding: 8px 12px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: 600 var(--fs-sm)/1 var(--font-sans);
+  transition:
+    background var(--dur-2) var(--ease),
+    border-color var(--dur-2) var(--ease),
+    color var(--dur-2) var(--ease);
+}
+.filter-btn:hover { background: var(--hover); }
+.filter-btn.active {
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  border-color: transparent; color: #fff;
+}
+
+/* Кнопка в установочном баннере */
+.install-btn {
+  display:inline-flex; align-items:center; justify-content:center; gap: var(--space-2);
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid color-mix(in srgb, var(--brand) 25%, var(--border));
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  color:#fff;
+  font: 600 var(--fs-sm)/1 var(--font-sans);
+  box-shadow: var(--shadow-sm);
+  cursor:pointer;
+}
+
+/* ---------- Chips ---------- */
+.chip {
+  display: inline-flex; align-items:center; justify-content:center;
+  padding: 6px 10px;
+  border-radius: var(--radius-1);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: 600 var(--fs-sm)/1 var(--font-sans);
+}
+
+/* ---------- Nav & Send button (из чата/календаря) ---------- */
+.nav-btn {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  color: var(--text);
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s ease;
+}
+.nav-btn:hover, .nav-btn:active {
+  background: var(--hover);
+  border-color: var(--border-strong);
+  transform: scale(1.1);
+}
+
+.send-button {
+  background: var(--success);
+  border: none; border-radius: 50%;
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: #fff; font-size: 18px;
+  transition: all .2s ease;
+}
+.send-button:hover:not(:disabled) { filter: brightness(1.05); transform: scale(1.05); }
+.send-button:disabled { background: var(--text-muted); cursor: not-allowed; opacity: .5; }
+.btn--xl { padding: 14px 18px; font-size: var(--fs-md); }
+
+/* Цветовая индикация: сначала задаём безопасную базовую рамку,
+   затем улучшаем, если браузер поддерживает color-mix. */
+#happyMoodBtn,
+#pleasedMoodBtn,
+#neutralMoodInlineBtn,
+#sadMoodInlineBtn,
+#sorrowMoodBtn {
+  border-color: var(--border);
+}
+
+@supports (color: color-mix(in srgb, var(--mood-happy) 50%, var(--border))) {
+  /* усиливаем цвет рамки: 80% цвета настроения + 20% основного бордера */
+  #happyMoodBtn { border-color: color-mix(in srgb, var(--mood-happy) 80%, var(--border)); }
+  #pleasedMoodBtn { border-color: color-mix(in srgb, var(--mood-pleased) 80%, var(--border)); }
+  #neutralMoodInlineBtn { border-color: color-mix(in srgb, var(--mood-neutral) 80%, var(--border)); }
+  #sadMoodInlineBtn { border-color: color-mix(in srgb, var(--mood-sad) 80%, var(--border)); }
+  #sorrowMoodBtn { border-color: color-mix(in srgb, var(--mood-sorrow) 80%, var(--border)); }
+}
+
+/* --- Better disabled buttons (light/dark) --- */
+.btn:disabled,
+.btn[disabled]{
+  opacity: 1;                          /* не делаем полупрозрачной */
+  color: var(--text-muted);            /* читаемый текст */
+  background: var(--surface);          /* нейтральный фон */
+  border-color: var(--border-strong);  /* контрастная рамка */
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.btn--primary:disabled,
+.btn--primary[disabled]{
+  background: var(--hover);            /* без градиента, не фиолетовый */
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+/* --- Hover не меняет цвет текста кнопки --- */
+.btn:hover { color: inherit; }
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.link-btn:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
+}
+.modal__footer .btn{ width:auto; min-width:200px; border-radius:999px; }
+   
+
+   
+/* кнопка подтверждения — средняя */
+#mood-modal .btn-confirm{
+  padding: 8px 16px;
+  border-radius: 999px;
+  width: auto;
+  min-width: 180px;
+  margin: 8px auto 0;
+  display: inline-flex;
+  justify-content: center;
+}
+
+/* Нижняя «Закрыть» — не во всю ширину, по центру */
+#mood-modal .modal__footer .btn{
+  width: auto;
+  min-width: 200px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  margin-inline: auto;
+  display: inline-flex;
+  justify-content: center;
+}
 .btn{
   border-radius: 999px; padding: 14px 18px; font-weight: 700;
   border: 1px solid var(--btn-ring); background: var(--surface); color: var(--text-primary);
@@ -1183,4 +965,217 @@ a, .link { color: var(--brand); text-decoration: none; }
   background: var(--btn-primary); color: var(--btn-primary-ink);
   border-color: transparent;
   box-shadow: 0 6px 14px rgba(110,76,246,.25);
+}
+
+/* ====== MODALS ====== */
+.section-card{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  padding:16px;
+  text-align:center;
+  cursor:pointer;
+}
+.section-card:hover{ transform: translateY(-2px); transition: transform .2s var(--ease); }
+.test-card     { padding:12px 16px; }
+.stats-card .card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.stats-card .row {
+  display: grid;
+  gap: 12px;
+}
+.stats-card .row.two-col {
+  grid-template-columns: repeat(2, 1fr);
+}
+.stats-card .row.three-col {
+  grid-template-columns: repeat(3, 1fr);
+}
+.stats-card .metric .label {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+.stats-card .metric .value {
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--text);
+}
+.stats-card .footnote {
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* ===== БАЗА МОДАЛКИ (общая для всех окон) ===== */
+.modal[hidden] { display: none !important; }
+.modal {
+  position: fixed; inset: 0; z-index: 1000;
+  padding: 16px;
+}
+.modal__backdrop {
+  position: absolute; inset: 0; background: rgba(0,0,0,.45);
+  backdrop-filter: blur(2px);
+}
+.modal__dialog {
+  position: relative;
+  width: min(var(--app-content-w), calc(100svw - 32px));
+  max-height: calc(100svh - 32px);
+  color: var(--text, #111);
+  background: var(--surface);
+  border-radius: var(--card-radius);
+  box-shadow: 0 16px 32px rgba(0,0,0,.25);
+  display: flex; flex-direction: column;
+}
+.modal__title  { margin: 0; font-weight: 700; }
+.modal__body   { padding: 10px 12px; overflow: auto; }
+.modal__footer {
+  padding: 8px 12px 12px;
+  border-top: 1px solid var(--line, rgba(0,0,0,.08));
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Внутренняя колонка контента, чтобы ничего не расползалось */
+.modal__content { max-width: 480px; margin-inline: auto; display: grid; gap: 12px; }
+
+/* Заголовок второго уровня внутри модалки */
+.modal__subtitle { margin: 0 0 8px; color: var(--text-muted); font-size: 15px; }
+
+#stats-modal .modal__body > * {
+  max-width: 480px;
+  margin-inline: auto;
+}
+
+#stats-modal .card {
+  padding: 10px;
+  border-radius: 10px;
+}
+
+/* ===== Модалка настроения (узкая и аккуратная) ===== */
+#mood-modal .modal__dialog{
+  border-radius: 12px;
+}
+
+/* внутренняя колонка, чтобы контент не расползался */
+#mood-modal .modal__content{
+  max-width: 400px;
+  margin-inline: auto;
+}
+
+#mood-modal .modal__body{ padding: 12px; }
+#mood-modal .modal__footer{ padding: 10px 12px 14px; }
+
+/* полоса/смайлы — в одну линию и не трогают края */
+#mood-modal .mood-row{ 
+  display: grid; 
+  grid-template-columns: 28px 1fr 28px; 
+  align-items: center; 
+  gap: 10px;
+}
+
+/* Контент внутри — чуть уже, чтобы был воздух */
+.modal__body > *{ max-width: calc(var(--app-content-w) - 40px); margin-inline: auto; }
+.modal__body{ overflow:auto; }
+
+
+/* Для модалки настроения можно сделать чуть уже, но всё равно по колонке */
+#mood-modal .modal__dialog{
+  width: min(calc(var(--app-content-w) - 40px), calc(100svw - 32px));
+}
+
+/* ---------- Colors for charts/bars ---------- */
+.bar--good    { background: var(--success); }
+.bar--neutral { background: var(--warning); }
+.bar--sad     { background: var(--info); }
+
+.hourly-chart {
+  position: relative;
+  width: 100%;
+  height: 240px;
+}
+
+.hourly-chart canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.hourly-aggregates {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.aggregate-item {
+  background: var(--surface);
+  border-radius: var(--radius-1);
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.aggregate-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.aggregate-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Табы по центру, без тёмных «капсул» */
+.range-tabs {
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  margin: 8px auto 6px; padding: 0; background: transparent; border: 0;
+
+.range-tabs .tab {
+  padding: 8px 12px; border-radius: 999px;
+  background: var(--chip-bg, rgba(0,0,0,.06));
+  border: 1px solid var(--line, rgba(0,0,0,.12));
+}
+.modal#stats-modal .range-tabs .tab,
+#stats-modal .range-tabs .tab {
+  color: var(--text) !important;
+}
+   
+.range-tabs .tab.active {
+  background: var(--accent-10, rgba(99,102,241,.15));
+  border-color: var(--accent-20, rgba(99,102,241,.3));
+}
+
+.modal#stats-modal .range-tabs .tab.active,
+#stats-modal .range-tabs .tab.active {
+  color: var(--text) !important;
+}
+
+/* Компактные карточки агрегатов */
+.aggregates { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin: 6px 0; }
+.agg { border: 1px solid var(--line, rgba(0,0,0,.12)); border-radius: 10px; padding: 8px; text-align: center; }
+.agg .label { font-size: 12px; color: var(--text-muted); }
+.agg .value { font-weight: 700; font-size: 18px; }
+   
+/* ====== MEDIA ====== */
+@media (max-width: 420px) {
+  .stats-card .row.three-col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 420px) {
+  #today-hourly .chart-wrap { height: 135px; }
+  .aggregates { grid-template-columns: 1fr; }
+   
+
+/* телефон — можно ещё немного сузить */
+@media (max-width: 390px){
+  #mood-modal .modal__content{ max-width: 92vw; }
 }
