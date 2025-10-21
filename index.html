@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="app-version" content="dev • 2025-10-07 15:21:38">
     <title>Календарь Настроения</title>
     
@@ -17,8 +17,8 @@
     <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi0JrQsNC70LXQvdC00LDRgNGMINCd0LDRgdGC0YDQvtC10L3QuNGPIiwic2hvcnRfbmFtZSI6ItCa0LDQu9C10L3QtNCw0YDRjCIsImRlc2NyaXB0aW9uIjoi0J7RgtGB0LvQtdC20LjQstCw0LnRgtC1INGB0LLQvtC1INC90LDRgdGC0YDQvtC10L3QuNC1INC60LDQttC00YvQuSDQtNC10L3RjCIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZmZmZmZmIiwidGhlbWVfY29sb3IiOiIjNEY0NkU1IiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0Nzdmcgdmlld0JveD0nMCAwIDEwMCAxMDAnIGZpbGw9JyUyMzRGNDZFNScgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyUzRSUzQ3JlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIHJ4PScxMCcvJTNFJTNDdGV4dCB4PSc1MCcgeT0nNTAnIGZvbnQtc2l6ZT0nNDAnIGZpbGw9J3doaXRlJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBkeT0nLjNlbSclM0Xwn5OBJTNFL3RleHQlM0UlM0Mvc3ZnJTNFIiwic2l6ZXMiOiIxOTJ4MTkyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
     
     
-    <link rel="stylesheet" href="styles/tokens.css?v=__BUILD__">
-    <link rel="stylesheet" href="styles/components.css?v=__BUILD__">
+    <link rel="stylesheet" href="styles/tokens.css?v=2025-10-17a">
+    <link rel="stylesheet" href="styles/components.css?v=2025-10-17a">
     
     
 </head>
@@ -69,7 +69,7 @@
                     <div class="weekday">Пт</div>
                     <div class="weekday">Сб</div>
                 </div>
-                <div id="calendarDays" class="calendar-grid"></div>
+                <div id="calendarDays" class="month-grid"></div>
              </div>
 
          <div class="calendar-cta">
@@ -706,6 +706,24 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js" defer></script>
 
     <script>
+
+        // Неразрушающее навешивание классов-хуков для календаря
+        (function wireCalendarClasses() {
+          const root = document.getElementById('calendar') || document.querySelector('.calendar');
+          if (!root) return;
+
+          root.classList.add('calendar');
+
+          const weekdays = root.querySelector('.weeknames, .weekdays, [data-weekdays]');
+          if (weekdays) weekdays.classList.add('weekdays');
+
+          const grid =
+            root.querySelector('.days, .month-grid, .grid, [data-days]') ||
+            root.querySelector('ul.days, table tbody');
+          if (grid) grid.classList.add('month-grid');
+
+          root.querySelectorAll('.day, .date, .cell, [data-day]').forEach((el) => el.classList.add('day'));
+        })();
 
         // единый контроллер модалок
         (function modalController(){
@@ -1618,5 +1636,6 @@
     <script src="/app-core.js" defer></script>
 </body>
 </html>
+
 
 
