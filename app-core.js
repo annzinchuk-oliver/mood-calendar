@@ -862,3 +862,209 @@ if (document.readyState === 'loading') {
 } else {
   appBoot();
 }
+
+
+/* ===== ensure theme toggle without eval ===== */
+(function initThemeSafe(){
+  const toggle = document.getElementById('themeToggle');
+  if (!toggle) return;
+
+  const LEGACY_KEY = 'moodCalendar.v1';
+  let legacyState = {};
+  try {
+    const raw = localStorage.getItem(LEGACY_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') legacyState = parsed;
+    }
+  } catch (err) {
+    legacyState = {};
+  }
+  if (!legacyState || typeof legacyState !== 'object') legacyState = {};
+
+  const store = window.App?.store;
+
+  function currentTheme() {
+    if (store?.getState) {
+      const uiTheme = store.getState()?.ui?.theme;
+      if (uiTheme && uiTheme !== 'auto') return uiTheme;
+    }
+    if (typeof state !== 'undefined' && state && typeof state === 'object' && typeof state.theme === 'string') {
+      return state.theme;
+    }
+    if (legacyState.theme === 'dark' || legacyState.theme === 'light') return legacyState.theme;
+    if (document.documentElement.dataset.theme === 'dark') return 'dark';
+    if (document.body.classList.contains('theme-dark') || document.documentElement.classList.contains('theme-dark')) {
+      return 'dark';
+    }
+    return 'light';
+  }
+
+  function applyThemeSafe(theme) {
+    const t = theme === 'dark' ? 'dark' : 'light';
+    document.body.classList.toggle('theme-dark', t === 'dark');
+    document.documentElement.classList.toggle('theme-dark', t === 'dark');
+    document.documentElement.dataset.theme = t;
+    toggle.setAttribute('aria-pressed', String(t === 'dark'));
+  }
+
+  function persistTheme(theme) {
+    const t = theme === 'dark' ? 'dark' : 'light';
+    legacyState.theme = t;
+    if (typeof state !== 'undefined' && state && typeof state === 'object') {
+      state.theme = t;
+    }
+    if (store?.update) {
+      try { store.update('ui.theme', t); } catch (err) { /* noop */ }
+    }
+    try {
+      localStorage.setItem(LEGACY_KEY, JSON.stringify(legacyState));
+    } catch (err) {
+      /* ignore */
+    }
+  }
+
+  const initialTheme = currentTheme();
+  applyThemeSafe(initialTheme);
+  if (!legacyState.theme) {
+    legacyState.theme = initialTheme;
+    try { localStorage.setItem(LEGACY_KEY, JSON.stringify(legacyState)); } catch (err) { /* noop */ }
+  }
+
+  if (store?.subscribe) {
+    store.subscribe((appState) => {
+      const t = appState?.ui?.theme;
+      if (!t) return;
+      applyThemeSafe(t === 'dark' ? 'dark' : 'light');
+    });
+  }
+
+  toggle.addEventListener('click', () => {
+    const next = currentTheme() === 'dark' ? 'light' : 'dark';
+    persistTheme(next);
+    applyThemeSafe(next);
+  });
+})();
+
+/* ===== ensure modals open/close ===== */
+(function initModals(){
+  const moodModal = document.getElementById('moodModal') || document.getElementById('mood-modal');
+  const statsModal = document.getElementById('statsModal') || document.getElementById('stats-modal');
+  const openMoodBtn = document.getElementById('openMood') || document.getElementById('recordMoodBtn');
+  const openStatsBtn = document.getElementById('openStats') || document.querySelector('[data-open-modal="#stats-modal"], [data-open-modal="#statsModal"]');
+  const closeMoodBtn = document.getElementById('closeMood') || (moodModal ? moodModal.querySelector('[data-close-modal]') : null);
+  const closeStatsBtn = document.getElementById('closeStats') || (statsModal ? statsModal.querySelector('[data-close-modal]') : null);
+  const moodSlider = document.getElementById('moodSlider') || document.getElementById('moodRange');
+
+  function openModalSafe(target) {
+    const modal = typeof target === 'string' ? document.querySelector(target) : target;
+    if (!modal) return;
+    if (typeof modal.showModal === 'function') {
+      if (!modal.open) modal.showModal();
+      return;
+    }
+    if (typeof window.openModal === 'function') {
+      window.openModal(modal);
+      return;
+    }
+    modal.hidden = false;
+    modal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeModalSafe(target, reason) {
+    const modal = typeof target === 'string' ? document.querySelector(target) : target;
+    if (!modal) return;
+    if (typeof modal.close === 'function') {
+      try { modal.close(reason); } catch (err) { /* noop */ }
+      return;
+    }
+    if (typeof window.closeModal === 'function') {
+      window.closeModal(modal);
+      return;
+    }
+    modal.hidden = true;
+    modal.setAttribute('aria-hidden', 'true');
+  }
+
+  if (openMoodBtn && moodModal) {
+    openMoodBtn.addEventListener('click', () => {
+      if (moodSlider) moodSlider.value = '0';
+      if (!openMoodBtn.hasAttribute('data-open-modal')) {
+        openModalSafe(moodModal);
+      }
+    });
+  }
+  if (closeMoodBtn && moodModal) {
+    closeMoodBtn.addEventListener('click', (e) => {
+      if (closeMoodBtn.hasAttribute('data-close-modal')) return;
+      e.preventDefault();
+      closeModalSafe(moodModal, 'cancel');
+    });
+  }
+
+  if (openStatsBtn && statsModal) {
+    openStatsBtn.addEventListener('click', () => {
+      if (typeof renderTodayHourlyChart === 'function') {
+        try { renderTodayHourlyChart(); } catch (err) { /* noop */ }
+      }
+      if (typeof renderOverallStats === 'function') {
+        try { renderOverallStats(); } catch (err) { /* noop */ }
+      }
+      if (!openStatsBtn.hasAttribute('data-open-modal')) {
+        openModalSafe(statsModal);
+      }
+    });
+  }
+  if (closeStatsBtn && statsModal) {
+    closeStatsBtn.addEventListener('click', (e) => {
+      if (closeStatsBtn.hasAttribute('data-close-modal')) return;
+      e.preventDefault();
+      closeModalSafe(statsModal, 'close');
+    });
+  }
+})();
+
+/* ===== ensure month nav re-renders calendar ===== */
+(function initMonthNav(){
+  const prevBtn = document.getElementById('prevMonth');
+  const nextBtn = document.getElementById('nextMonth');
+
+  function rerender() {
+    if (typeof renderMonth === 'function') {
+      try { renderMonth(); return; } catch (err) { /* noop */ }
+    }
+    if (typeof updateCalendar === 'function') {
+      try { updateCalendar(); } catch (err) { /* noop */ }
+    }
+  }
+
+  if (prevBtn && !prevBtn.dataset.bound) {
+    prevBtn.addEventListener('click', (event) => {
+      if (prevBtn.hasAttribute('onclick')) return;
+      event.preventDefault();
+      if (typeof navigateMonth === 'function') {
+        navigateMonth(-1);
+      } else if (typeof viewMonth !== 'undefined' && viewMonth instanceof Date) {
+        viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1);
+      }
+      rerender();
+    });
+    prevBtn.dataset.bound = '1';
+  }
+
+  if (nextBtn && !nextBtn.dataset.bound) {
+    nextBtn.addEventListener('click', (event) => {
+      if (nextBtn.hasAttribute('onclick')) return;
+      event.preventDefault();
+      if (typeof navigateMonth === 'function') {
+        navigateMonth(1);
+      } else if (typeof viewMonth !== 'undefined' && viewMonth instanceof Date) {
+        viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1);
+      }
+      rerender();
+    });
+    nextBtn.dataset.bound = '1';
+  }
+
+  rerender();
+})();
