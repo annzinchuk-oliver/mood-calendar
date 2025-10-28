@@ -239,3 +239,44 @@
   /* цифры на ячейках календаря должны читаться */
   --calendar-text-contrasted: #fff;
 }
+
+
+/* === design tokens fallback / merge === */
+:root {
+  --primary: #6b4cf6;
+  --primary-press: #5b3de9;
+  --primary-soft: #eee8ff;
+
+  --pos: #27c59a;
+  --neg: #3d6ef7;
+  --zero: var(--ochre);
+
+  --border-color: #e6e7ea;
+  --shadow-card: 0 6px 24px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.06);
+
+  --radius-xs: 6px;
+  --radius-s: 10px;
+  --radius-m: 14px;
+  --radius-l: 18px;
+
+  --space-7: 28px;
+
+  --font-stack: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+.theme-dark {
+  --primary: #7b63ff;
+  --primary-press: #6d53ff;
+  --primary-soft: #2a2550;
+
+  --border-color: #1f2630;
+  --shadow-card: 0 10px 32px rgba(0,0,0,.45), 0 2px 12px rgba(0,0,0,.35);
+
+  --ochre: #b88b2d;
+  --pos: #23b48c;
+  --neg: #648cff;
+}
+
+html, body {
+  font-family: var(--font-stack, var(--font-sans));
+}
