@@ -1663,3 +1663,509 @@ a, .link { color: var(--brand); text-decoration: none; }
     font-size: 14px;
   }
 }
+
+@@ -1641,25 +1641,479 @@ a, .link { color: var(--brand); text-decoration: none; }
+}
+}
+
+
+/* Мелкий адаптив */
+/* Мелкий адаптив */
+@media (max-width: 420px) {
+@media (max-width: 420px) {
+  .metric__value { font-size: 16px; }
+  .metric__value { font-size: 16px; }
+  .metrics { grid-template-columns: 1fr; }
+  .metrics { grid-template-columns: 1fr; }
+
+
+  .agg {
+  .agg {
+    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
+  }
+  }
+
+
+  .badge.badge--today {
+  .badge.badge--today {
+    font-size: 13px;
+    font-size: 13px;
+    padding: 8px 12px;
+    padding: 8px 12px;
+  }
+  }
+  .capsule {
+  .capsule {
+    font-size: 13px;
+    font-size: 13px;
+    padding: 6px 10px;
+    padding: 6px 10px;
+  }
+  }
+
+
+  .day {
+  .day {
+    height: 42px;
+    height: 42px;
+    font-size: 14px;
+    font-size: 14px;
+  }
+  }
+}
+}
+/* ===== App shell layout (узкая колонка по центру) ===== */
+
+.app-core {
+  /* ширина центральной «колонки приложения» */
+  max-width: var(--app-w, 420px);
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+
+  /* чтобы не прилипало к краям больших экранов */
+  padding-bottom: 72px; /* место под нижнюю навигацию */
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  font-family: var(--font-sans);
+}
+
+/* верхняя плашка со счётчиком и переключателем темы */
+.app-header {
+  background: var(--brand-1);
+  color: var(--on-brand);
+  border-radius: var(--radius-2);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-3) var(--space-4);
+  margin: var(--space-2) var(--space-4) var(--space-4);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* капсула «Сегодня: +X / 50» */
+.badge-today {
+  background: var(--ochre-soft);
+  color: var(--day-ink-on-ochre, #111);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 0 0 2px var(--ochre-soft-ring);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 6px 10px;
+  min-width: max-content;
+}
+[data-theme="dark"] .badge-today {
+  background: var(--ochre-soft);
+  color: var(--day-ink-on-ochre, #111);
+  box-shadow: 0 0 0 2px var(--ochre-soft-ring);
+}
+
+/* переключатель темы («🌙 Тема ☀️») */
+.theme-toggle {
+  background: rgba(0,0,0,.2);
+  color: #fff;
+  border-radius: var(--radius-pill);
+  padding: 6px 10px;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.25);
+  font-size: var(--fs-sm);
+  line-height: 1.2;
+}
+[data-theme="dark"] .theme-toggle {
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.18);
+}
+
+.theme-toggle__knob {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  cursor: pointer;
+}
+
+/* иконки луны/солнца внутри переключателя */
+.theme-toggle__icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+.theme-toggle__label {
+  font-size: var(--fs-sm);
+}
+
+/* показать блок только когда есть данные */
+.hidden { display: none !important; }
+
+/* ===== Навигация по месяцу под шапкой ===== */
+
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-4);
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.month-nav__title-group {
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+}
+
+.month-title {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+/* стрелки «←» и «→» */
+.btn--icon {
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-lg);
+  line-height: 1;
+}
+.btn--icon:active {
+  background: var(--hover);
+}
+
+/* ===== Календарь ===== */
+
+.calendar {
+  padding: 0 var(--space-4) var(--space-4);
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  font-size: var(--fs-sm);
+  line-height: 1.2;
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.weekday {
+  padding-bottom: var(--space-1);
+}
+
+/* контейнер с днями месяца */
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(var(--day-min), 1fr));
+  gap: var(--day-gap);
+}
+
+/* каждая ячейка дня */
+.day {
+  min-width: var(--day-min);
+  min-height: var(--day-min);
+  max-width: var(--day-max);
+  max-height: var(--day-max);
+
+  background: var(--day-bg);
+  border: 1px solid var(--day-border);
+  border-radius: var(--day-radius, 12px);
+
+  color: var(--calendar-text-contrasted);
+  font-size: var(--fs-md);
+  line-height: 1.2;
+  font-weight: 500;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0,0,0,.06);
+}
+
+/* зелёные/жёлтые/синие дни из бакетов настроения */
+.day[data-bucket^="pos"] {
+  background: var(--bucket-pos20);
+  border-color: rgba(0,0,0,.08);
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(0,0,0,.15);
+}
+.day[data-bucket="pos40"],
+.day[data-bucket="pos50"] {
+  background: var(--bucket-pos50);
+}
+
+.day[data-bucket="zero"] {
+  background: var(--bucket-zero);
+  color: #111;
+  box-shadow: 0 0 0 2px var(--ochre-soft-ring);
+}
+
+.day[data-bucket^="neg"] {
+  background: var(--bucket-neg20);
+  border-color: rgba(0,0,0,.08);
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(0,0,0,.15);
+}
+.day[data-bucket="neg40"],
+.day[data-bucket="neg50"] {
+  background: var(--bucket-neg50);
+}
+
+/* красная рамка у выбранного дня */
+.day.is-selected {
+  outline: 2px solid #ff0000;
+  outline-offset: -2px;
+  box-shadow: 0 0 0 3px rgba(255,0,0,.4);
+}
+
+/* «сегодня» (если не перекрыто бакетом) */
+.day.is-today:not([data-bucket]) {
+  background: var(--ochre-soft);
+  color: var(--day-ink-on-ochre, #111);
+  box-shadow: 0 0 0 2px var(--ochre-soft-ring);
+  font-weight: 600;
+}
+
+/* дни из соседних месяцев (обычно серые) */
+.day.is-outside {
+  opacity: .35;
+}
+
+/* ===== CTA-блок под календарём ===== */
+
+.calendar-cta {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.btn--primary.btn--xl {
+  background: var(--btn-primary);
+  color: var(--btn-primary-ink);
+  border-radius: var(--radius-2);
+  border: 0;
+  box-shadow: 0 0 0 2px var(--btn-ring), var(--shadow-md);
+  font-size: var(--fs-md);
+  font-weight: 500;
+  line-height: 1.2;
+  width: 100%;
+  padding: var(--space-4) var(--space-3);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+.btn--primary.btn--xl:active {
+  filter: brightness(.9);
+}
+
+/* ===== Нижняя навигация ===== */
+
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  /* центрируем ту же самую «колонку» */
+  display: flex;
+  justify-content: center;
+  pointer-events: none; /* контейнер сквозной, кликаются только кнопки */
+  z-index: 60;
+}
+.bottom-nav::before {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 80px;
+  background: var(--surface);
+  box-shadow: 0 -6px 20px rgba(0,0,0,.18);
+  pointer-events: none;
+  z-index: -1;
+}
+.bottom-nav > * {
+  pointer-events: auto;
+}
+
+/* «бар» с тремя кнопками */
+.bottom-nav .nav-item {
+  background: transparent;
+  border: 0;
+  flex: 1;
+  min-width: 0;
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  line-height: 1.2;
+  text-align: center;
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: var(--app-w, 420px);
+  background-color: transparent;
+}
+.bottom-nav .nav-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+.bottom-nav .nav-item.active {
+  color: var(--brand-1);
+  font-weight: 600;
+}
+[data-theme="dark"] .bottom-nav::before {
+  background: var(--surface-2);
+  box-shadow: 0 -8px 24px rgba(0,0,0,.9);
+}
+
+/* ===== Базовые модалки ===== */
+
+.modal[hidden] {
+  display: none;
+}
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--modal-gutter);
+  background: rgba(0,0,0,.4);
+}
+
+.modal__backdrop {
+  position: absolute;
+  inset: 0;
+}
+
+.modal__dialog {
+  position: relative;
+  z-index: 1;
+  background: var(--modal-bg);
+  color: var(--text);
+  border-radius: var(--radius-2);
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 90dvh;
+}
+
+.modal--sm { max-width: 360px; }
+.modal--md { max-width: 420px; }
+
+.modal__header {
+  padding: var(--space-4) var(--space-4) var(--space-2);
+  border-bottom: 1px solid var(--divider);
+}
+.modal__title {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.modal__body {
+  padding: var(--space-2) var(--space-4) var(--space-4);
+  overflow-y: auto;
+  flex: 1;
+}
+.modal__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.modal__footer {
+  border-top: 1px solid var(--divider);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  justify-content: center;
+}
+
+.modal__subtitle {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* спец для модалки настроения */
+.mood-range-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.mood-emoji {
+  font-size: 28px;
+  line-height: 1;
+}
+.mood-range {
+  flex: 1;
+  appearance: none;
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg,#3b82f6 0%, #3b82f6 0%, #22c55e 100%);
+  outline: none;
+}
+.mood-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 2px solid var(--brand-1);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+}
+
+/* кнопки внутри модалок */
+.mood-actions .btn,
+.modal__footer .btn-primary {
+  background: var(--btn-primary);
+  color: var(--btn-primary-ink);
+  border-radius: var(--radius-2);
+  border: 0;
+  box-shadow: 0 0 0 2px var(--btn-ring), var(--shadow-md);
+  font-size: var(--fs-md);
+  font-weight: 500;
+  line-height: 1.2;
+  width: 100%;
+  padding: var(--space-3) var(--space-3);
+  text-align: center;
+}
