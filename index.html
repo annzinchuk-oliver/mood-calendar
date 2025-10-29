@@ -22,324 +22,317 @@
     
     
 </head>
-<body>
-    
-    <div class="app-core">
-        
-        <div id="installPrompt" class="install-prompt hidden">
-            <p><strong>📱 Добавьте приложение на главный экран!</strong></p>
-            <p style="font-size: 14px; margin-top: 8px; color: #64748b;">
-                Нажмите меню браузера → "Добавить на главный экран"
-            </p>
-            <button id="enableNotifications" class="btn btn--ghost">🔔 Включить уведомления</button>
-        </div>
-
-        <header class="app-header">
-          <div class="header-left"></div>
-
-          <div class="header-right">
-            <div id="todayScoreBadge" class="today-score badge-today hidden" aria-live="polite"></div>
-
-            <div class="theme-toggle" role="group" aria-label="Переключить тему">
-              <button id="themeToggle" class="theme-toggle__knob" type="button" aria-pressed="false" title="Сменить тему">
-                <span class="theme-toggle__icon theme-toggle__icon--moon" aria-hidden="true">🌙</span>
-                <span class="theme-toggle__label">Тема</span>
-                <span class="theme-toggle__icon theme-toggle__icon--sun" aria-hidden="true">☀️</span>
-              </button>
-            </div>
-          </div>
-        </header>
-        
-        <div class="calendar-page" id="calendarPage">
-          <div class="month-nav">
-                <button class="btn btn--ghost btn--icon" onclick="navigateMonth(-1)">←</button>
-                <div class="month-nav__title-group">
-                    <div class="month-title" id="monthTitle"></div>
-                </div>
-                <button class="btn btn--ghost btn--icon" onclick="navigateMonth(1)">→</button>
-          </div>
-
-            <div class="calendar">
-                 <div class="weekdays">
-                    <div class="weekday">Вс</div>
-                    <div class="weekday">Пн</div>
-                    <div class="weekday">Вт</div>
-                    <div class="weekday">Ср</div>
-                    <div class="weekday">Чт</div>
-                    <div class="weekday">Пт</div>
-                    <div class="weekday">Сб</div>
-                </div>
-                <div id="calendarDays" class="month-grid"></div>
-             </div>
-
-         <div class="calendar-cta">
-            <!-- Ряд из 5 смайлов для быстрого выбора настроения -->
-            <button id="recordMoodBtn" type="button" class="btn btn--primary btn--xl" data-open-modal="#mood-modal">
-                Записать настроение
-            </button>
-            <!-- Кнопка статистики остаётся внизу -->
-          <button type="button" class="btn btn--primary btn--xl" data-open-modal="#stats-modal">📊 Статистика</button>
-        </div>
-      </div>
-
-      <!-- Модалка: Статистика -->
-      <div id="stats-modal" class="modal" hidden aria-hidden="true">
-        <div class="modal__backdrop" data-close-modal></div>
-
-        <div class="modal__dialog modal--md" role="dialog" aria-modal="true" aria-labelledby="stats-title">
-          <header class="modal__header">
-            <h3 id="stats-title" class="modal__title">Статистика</h3>
-          </header>
-
-          <div class="modal__body">
-            <div class="modal__content">
-              <!-- Сегодня по часам -->
-              <section class="card" id="today-hourly">
-                <div class="card-title">Настроение сегодня по часам</div>
-                <div class="chart-wrap">
-                  <canvas id="hourly-chart" height="200"></canvas>
-                </div>
-
-                <div class="aggregates">
-                  <div class="agg"><div class="label">Среднее за день</div><div class="value" id="agg-avg">0.0</div></div>
-                  <div class="agg"><div class="label">Сумма за день</div><div class="value" id="agg-sum">0</div></div>
-                  <div class="agg"><div class="label">Пиковый час</div><div class="value" id="agg-peak">—</div></div>
-                </div>
-
-                <p class="hint">Наведите или коснитесь столбика, чтобы увидеть детали</p>
-              </section>
-
-              <hr class="section-divider" />
-
-              <!-- Табы диапазона ДЛЯ ОБЩЕЙ СТАТИСТИКИ -->
-              <div id="overall-range-tabs" class="range-tabs" role="tablist" aria-label="Диапазон общей статистики">
-                <button type="button" class="tab active" data-range="3d"  role="tab" aria-selected="true">3 дня</button>
-                <button type="button" class="tab"        data-range="7d"  role="tab" aria-selected="false">Неделя</button>
-                <button type="button" class="tab"        data-range="1m"  role="tab" aria-selected="false">Месяц</button>
-                <button type="button" class="tab"        data-range="all" role="tab" aria-selected="false">Все время</button>
-              </div>
-
-              <!-- Общая статистика -->
-              <section class="card" id="overall-stats">
-                <div class="card-title">
-                  Общая статистика (<span id="overall-range-label">3 дня</span>)
-                </div>
-                <div id="overall-stats-body"></div>
-              </section>
-            </div>
-          </div>
-
-          <footer class="modal__footer">
-            <button type="button" class="btn btn-primary" data-close-modal>Закрыть</button>
-          </footer>
-        </div>
-      </div>
-
-        <div class="chat-page" id="chatPage">
-          <div class="chat-header">
-            <h2>ИИ Чат</h2>
-            <p>Спросите совет или поделитесь, как вы сейчас.</p>
-          </div>
-        
-          <div id="chatMessages" class="chat-messages"></div>
-        
-          <div class="chat-input-container">
-            <textarea id="chatInput" class="chat-input" placeholder="Напишите сообщение..." rows="1"></textarea>
-            <button id="sendButton" class="send-button" onclick="sendMessage()" disabled>➤</button>
-          </div>
-          <div class="chat-disclaimer">Это не медицинская помощь. При рисках — звоните в экстренные службы.</div>
-        </div>
-                <!-- ===== Страница ПОМОЩЬ ===== -->
-        <div class="help-page" id="helpPage" style="display:none;">
-          <div class="chat-header">
-            <h2>Помощь</h2>
-            <p>Выберите раздел:</p>
-          </div>
-        
-          <div class="section-grid">
-            <button class="card section-card" onclick="switchPage('therapy')">
-              <div class="section-emoji">🧘‍♀️</div>
-              <div class="section-title">Терапия</div>
-              <div class="section-sub">Дыхательные и успокаивающие практики</div>
-            </button>
-        
-            <button class="card section-card" onclick="switchPage('tests')">
-              <div class="section-emoji">🧩</div>
-              <div class="section-title">Тесты</div>
-              <div class="section-sub">Оценка настроения, выгорания, личности</div>
-            </button>
-          </div>
-        </div>
-        
-        <!-- ===== Страница ТЕРАПИЯ ===== -->
-        <div class="therapy-page" id="therapyPage" style="display:none;">
-          <div class="chat-header">
-            <h2>Терапевтические практики</h2>
-            <p>Простые техники на каждый день</p>
-          </div>
-        
-          <div class="content-list">
-            <div class="card">
-              <h3 style="margin-bottom:8px;">Дыхание 4–7–8</h3>
-              <p>Вдох 4 сек → задержка 7 сек → выдох 8 сек. Повторить 4–6 кругов.</p>
-                    <button class="btn btn--primary" onclick="PracticeEngine.openById('478')">Запустить</button>
-            </div>
-        
-            <div class="card">
-              <h3 style="margin-bottom:8px;">Заземление 5-4-3-2-1</h3>
-              <p>Назовите: 5 что видите, 4 что ощущаете, 3 звука, 2 запаха, 1 вкус.</p>
-                     <button class="btn btn--primary" onclick="PracticeEngine.openById('54321')">Запустить</button>
-            </div>
-          </div>
-            
-        </div>
-        
-        <!-- ===== Страница ТЕСТЫ ===== -->
-        <div class="tests-page" id="testsPage" style="display:none;">
-          <div class="chat-header">
-            <h2>Психологические тесты</h2>
-            <p>Быстрые скрининги и опросники</p>
-          </div>
-        
-          <div class="content-list">
-            <div class="card">
-              <h3 style="margin-bottom:8px;">PHQ-2 (скрининг депрессии)</h3>
-              <p>2 вопроса, ~30 секунд. Не заменяет диагноз.</p>
-              <button class="btn btn--primary" style="margin-top:12px;" onclick="openTest('phq2')">Пройти</button>
-            </div>
-        
-            <div class="card">
-              <h3 style="margin-bottom:8px;">GAD-2 (скрининг тревоги)</h3>
-              <p>2 вопроса, ~30 секунд. Не заменяет диагноз.</p>
-              <button class="btn btn--primary" style="margin-top:12px;" onclick="openTest('gad2')">Пройти</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Bottom Navigation -->
-        <div class="bottom-nav">
-            
-            <button class="nav-item active" id="navCalendar" onclick="switchPage('calendar')">
-                <div class="nav-icon">📅</div>
-                <div>Календарь</div>
-            </button>
-            
-            <button class="nav-item" id="navChat" onclick="switchPage('chat')">
-                <div class="nav-icon">🤖</div>
-                <div>ИИ Чат</div>
-            </button>
-
-            <button class="nav-item" id="navHelp" onclick="switchPage('help')">
-              <div class="nav-icon">🆘</div>
-              <div>Помощь</div>
-            </button>
-            
-        </div>
-
-
-<!-- ===== Therapy Modal ===== -->
-        <div id="therapy-modal" class="modal" hidden aria-hidden="true">
-          <div class="modal__backdrop" data-close-modal></div>
-
-          <div class="modal__dialog modal--md" role="dialog" aria-modal="true" aria-labelledby="therapyTitle">
-            <header class="modal__header">
-              <h3 id="therapyTitle" class="modal__title">Терапия</h3>
-            </header>
-
-            <div class="modal__body">
-              <div class="modal__content">
-                <p id="therapySubtitle" class="modal__subtitle">Описание практики</p>
-
-                <div class="thermo">
-                  <div class="ring" id="thermoRing">
-                    <div class="ring-inner">
-                      <div id="thermoPhase" class="phase">Готовы?</div>
-                      <div id="thermoTime" class="time">00</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div id="therapyHint" class="therapy-hint"></div>
-
-                <div class="therapy-actions">
-                  <button class="btn btn--primary" id="therapyStartBtn">▶ Запустить</button>
-                  <button class="btn" id="therapyStopBtn">⏹ Остановить</button>
-                </div>
-              </div>
-            </div>
-
-            <footer class="modal__footer">
-              <button type="button" class="btn btn-primary" data-close-modal>Закрыть</button>
-            </footer>
-          </div>
-        </div>
-
-        <!-- ===== Test Modal ===== -->
-        <div id="test-modal" class="modal" hidden aria-hidden="true">
-          <div class="modal__backdrop" data-close-modal></div>
-
-          <div class="modal__dialog modal--md" role="dialog" aria-modal="true" aria-labelledby="testTitle">
-            <header class="modal__header">
-              <h3 id="testTitle" class="modal__title">Тест</h3>
-            </header>
-
-            <div class="modal__body">
-              <div class="modal__content">
-                <p id="testDesc" class="modal__subtitle">Короткий скрининг</p>
-
-                <div id="testFormHost" class="test-form-host"></div>
-
-                <div class="therapy-actions" style="margin-top:4px;">
-                  <button class="btn btn--primary" id="testSubmitBtn">Готово</button>
-                  <button class="btn" id="testCancelBtn">Отмена</button>
-                </div>
-              </div>
-            </div>
-
-            <footer class="modal__footer">
-              <button type="button" class="btn btn-primary" data-close-modal>Закрыть</button>
-            </footer>
-          </div>
-        </div>
-
-        <div id="mood-modal" class="modal" hidden aria-hidden="true">
-          <div class="modal__backdrop" data-close-modal></div>
-
-          <div class="modal__dialog modal--sm" role="dialog" aria-modal="true" aria-labelledby="mood-modal-title">
-            <header class="modal__header">
-              <h3 id="mood-modal-title" class="modal__title">Как вы себя чувствуете?</h3>
-            </header>
-
-            <div class="modal__body">
-              <div class="modal__content">
-                <div class="mood-range-row">
-                  <span class="mood-emoji" aria-hidden="true" title="Плохо">😢</span>
-
-                  <input
-                    id="moodSlider"
-                    type="range"
-                    min="-5" max="5" step="1" value="0"
-                    class="mood-range"
-                    aria-label="Ползунок настроения от −5 до +5">
-
-                  <span class="mood-emoji" aria-hidden="true" title="Хорошо">😄</span>
-                </div>
-
-                <div class="mood-actions">
-                  <button class="btn btn--primary" onclick="confirmMoodScore()">Подтвердить</button>
-                </div>
-              </div>
-            </div>
-
-            <footer class="modal__footer">
-              <button type="button" class="btn btn-primary" data-close-modal>Закрыть</button>
-            </footer>
-          </div>
-        </div>
-
+<body data-theme="light">
+  <div class="pwa-hint hidden install-prompt" id="installPrompt" style="padding:12px 16px; max-width:420px; margin:0 auto;">
+    <div style="font-size:14px; font-weight:600; display:flex; align-items:center; gap:6px;">
+      <span>📱 Добавьте приложение на главный экран!</span>
     </div>
+    <div style="font-size:12px; line-height:1.4; margin-top:4px;">
+      Нажмите меню браузера → "Добавить на главный экран"
+    </div>
+    <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
+      <button id="enableNotifications"
+              style="font-size:12px; line-height:1.2; padding:4px 8px; border:1px solid #888; border-radius:4px; background:#fff; cursor:pointer;">
+        🔔 Включить уведомления
+      </button>
+    </div>
+  </div>
 
-    <script>
+  <main class="app-core" id="appRoot">
+    <section class="app-header">
+      <div class="header-left">
+        <div class="badge-today hidden" id="todayScoreBadge" aria-live="polite">
+          Сегодня: <span id="todayScoreValue">0</span> / <span id="todayScoreLimit">50</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="theme-toggle theme-toggle__knob" id="themeToggle" type="button" aria-pressed="false" title="Сменить тему">
+          <span class="theme-toggle__icon theme-toggle__icon--moon" aria-hidden="true">🌙</span>
+          <span class="theme-toggle__label">Тема</span>
+          <span class="theme-toggle__icon theme-toggle__icon--sun" aria-hidden="true">☀️</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="calendar-page" id="calendarPage">
+      <section class="month-nav">
+        <button class="btn--icon" id="prevMonth" type="button" aria-label="Предыдущий месяц">←</button>
+        <div class="month-nav__title-group">
+          <div class="month-title" id="monthTitle"></div>
+        </div>
+        <button class="btn--icon" id="nextMonth" type="button" aria-label="Следующий месяц">→</button>
+      </section>
+
+      <section class="calendar">
+        <div class="weekdays" id="weekdaysRow">
+          <div class="weekday">Вс</div>
+          <div class="weekday">Пн</div>
+          <div class="weekday">Вт</div>
+          <div class="weekday">Ср</div>
+          <div class="weekday">Чт</div>
+          <div class="weekday">Пт</div>
+          <div class="weekday">Сб</div>
+        </div>
+        <div class="month-grid" id="daysGrid"></div>
+      </section>
+
+      <section class="calendar-cta">
+        <button id="recordMoodBtn" type="button" class="btn btn--primary btn--xl" data-open-modal="#mood-modal">
+          Записать настроение
+        </button>
+        <button type="button" class="btn btn--primary btn--xl" data-open-modal="#stats-modal">
+          <span style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:16px;">📊</span>
+            <span>Статистика</span>
+          </span>
+        </button>
+      </section>
+    </section>
+
+    <section class="chat-page" id="chatPage">
+      <div class="chat-header">
+        <h2>ИИ Чат</h2>
+        <p>Спросите совет или поделитесь, как вы сейчас.</p>
+      </div>
+
+      <div id="chatMessages" class="chat-messages"></div>
+
+      <div class="chat-input-container">
+        <textarea id="chatInput" class="chat-input" placeholder="Напишите сообщение..." rows="1"></textarea>
+        <button id="sendButton" class="send-button" onclick="sendMessage()" disabled>➤</button>
+      </div>
+      <div class="chat-disclaimer">Это не медицинская помощь. При рисках — звоните в экстренные службы.</div>
+    </section>
+
+    <section class="help-page" id="helpPage" style="display:none;">
+      <div class="chat-header">
+        <h2>Помощь</h2>
+        <p>Выберите раздел:</p>
+      </div>
+
+      <div class="section-grid">
+        <button class="card section-card" onclick="switchPage('therapy')">
+          <div class="section-emoji">🧘‍♀️</div>
+          <div class="section-title">Терапия</div>
+          <div class="section-sub">Дыхательные и успокаивающие практики</div>
+        </button>
+
+        <button class="card section-card" onclick="switchPage('tests')">
+          <div class="section-emoji">🧩</div>
+          <div class="section-title">Тесты</div>
+          <div class="section-sub">Оценка настроения, выгорания, личности</div>
+        </button>
+      </div>
+    </section>
+
+    <section class="therapy-page" id="therapyPage" style="display:none;">
+      <div class="chat-header">
+        <h2>Терапевтические практики</h2>
+        <p>Простые техники на каждый день</p>
+      </div>
+
+      <div class="content-list">
+        <div class="card">
+          <h3 style="margin-bottom:8px;">Дыхание 4–7–8</h3>
+          <p>Вдох 4 сек → задержка 7 сек → выдох 8 сек. Повторить 4–6 кругов.</p>
+          <button class="btn btn--primary" onclick="PracticeEngine.openById('478')">Запустить</button>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:8px;">Заземление 5-4-3-2-1</h3>
+          <p>Назовите: 5 что видите, 4 что ощущаете, 3 звука, 2 запаха, 1 вкус.</p>
+          <button class="btn btn--primary" onclick="PracticeEngine.openById('54321')">Запустить</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="tests-page" id="testsPage" style="display:none;">
+      <div class="chat-header">
+        <h2>Психологические тесты</h2>
+        <p>Быстрые скрининги и опросники</p>
+      </div>
+
+      <div class="content-list">
+        <div class="card">
+          <h3 style="margin-bottom:8px;">PHQ-2 (скрининг депрессии)</h3>
+          <p>2 вопроса, ~30 секунд. Не заменяет диагноз.</p>
+          <button class="btn btn--primary" style="margin-top:12px;" onclick="openTest('phq2')">Пройти</button>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:8px;">GAD-2 (скрининг тревоги)</h3>
+          <p>2 вопроса, ~30 секунд. Не заменяет диагноз.</p>
+          <button class="btn btn--primary" style="margin-top:12px;" onclick="openTest('gad2')">Пройти</button>
+        </div>
+      </div>
+    </section>
+
+    <nav class="bottom-nav">
+      <button class="nav-item active" id="navCalendar" type="button" onclick="switchPage('calendar')">
+        <div class="nav-icon">📅</div>
+        <div class="nav-label">Календарь</div>
+      </button>
+
+      <button class="nav-item" id="navChat" type="button" onclick="switchPage('chat')">
+        <div class="nav-icon">🤖</div>
+        <div class="nav-label">ИИ Чат</div>
+      </button>
+
+      <button class="nav-item" id="navHelp" type="button" onclick="switchPage('help')">
+        <div class="nav-icon">🆘</div>
+        <div class="nav-label">Помощь</div>
+      </button>
+    </nav>
+  </main>
+
+  <section class="modal modal--md" id="therapy-modal" hidden aria-hidden="true">
+    <div class="modal__backdrop" data-close-modal></div>
+
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="therapyTitle">
+      <header class="modal__header">
+        <h3 id="therapyTitle" class="modal__title">Терапия</h3>
+      </header>
+
+      <div class="modal__body">
+        <div class="modal__content">
+          <p id="therapySubtitle" class="modal__subtitle">Описание практики</p>
+
+          <div class="thermo">
+            <div class="ring" id="thermoRing">
+              <div class="ring-inner">
+                <div id="thermoPhase" class="phase">Готовы?</div>
+                <div id="thermoTime" class="time">00</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="therapyHint" class="therapy-hint"></div>
+
+          <div class="therapy-actions">
+            <button class="btn btn--primary" id="therapyStartBtn">▶ Запустить</button>
+            <button class="btn" id="therapyStopBtn">⏹ Остановить</button>
+          </div>
+        </div>
+      </div>
+
+      <footer class="modal__footer">
+        <button type="button" class="btn btn-primary" data-close-modal>Закрыть</button>
+      </footer>
+    </div>
+  </section>
+
+  <section class="modal modal--md" id="test-modal" hidden aria-hidden="true">
+    <div class="modal__backdrop" data-close-modal></div>
+
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="testTitle">
+      <header class="modal__header">
+        <h3 id="testTitle" class="modal__title">Тест</h3>
+      </header>
+
+      <div class="modal__body">
+        <div class="modal__content">
+          <p id="testDesc" class="modal__subtitle">Короткий скрининг</p>
+
+          <div id="testFormHost" class="test-form-host"></div>
+
+          <div class="therapy-actions" style="margin-top:4px;">
+            <button class="btn btn--primary" id="testSubmitBtn">Готово</button>
+            <button class="btn" id="testCancelBtn">Отмена</button>
+          </div>
+        </div>
+      </div>
+
+      <footer class="modal__footer">
+        <button type="button" class="btn btn-primary" data-close-modal>Закрыть</button>
+      </footer>
+    </div>
+  </section>
+
+  <section class="modal modal--sm" id="mood-modal" hidden aria-hidden="true">
+    <div class="modal__backdrop" data-close-modal></div>
+
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="mood-modal-title">
+      <header class="modal__header">
+        <h3 id="mood-modal-title" class="modal__title">Как вы себя чувствуете?</h3>
+      </header>
+
+      <div class="modal__body">
+        <div class="modal__content">
+          <div class="mood-range-row">
+            <span class="mood-emoji" aria-hidden="true" title="Плохо">😢</span>
+
+            <input
+              id="moodSlider"
+              type="range"
+              min="-5" max="5" step="1" value="0"
+              class="mood-range"
+              aria-label="Ползунок настроения от −5 до +5">
+
+            <span class="mood-emoji" aria-hidden="true" title="Хорошо">😄</span>
+          </div>
+
+          <div class="mood-actions">
+            <button class="btn btn--primary" onclick="confirmMoodScore()">Подтвердить</button>
+          </div>
+        </div>
+      </div>
+
+      <footer class="modal__footer">
+        <button type="button" class="btn btn-primary" data-close-modal>Закрыть</button>
+      </footer>
+    </div>
+  </section>
+
+  <section class="modal modal--md" id="stats-modal" hidden aria-hidden="true">
+    <div class="modal__backdrop" data-close-modal></div>
+
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="stats-title">
+      <header class="modal__header">
+        <h3 id="stats-title" class="modal__title">Статистика</h3>
+      </header>
+
+      <div class="modal__body">
+        <div class="modal__content">
+          <section class="card" id="today-hourly">
+            <div class="card-title">Настроение сегодня по часам</div>
+            <div class="chart-wrap">
+              <canvas id="hourly-chart" height="200"></canvas>
+            </div>
+
+            <div class="aggregates">
+              <div class="agg"><div class="label">Среднее за день</div><div class="value" id="agg-avg">0.0</div></div>
+              <div class="agg"><div class="label">Сумма за день</div><div class="value" id="agg-sum">0</div></div>
+              <div class="agg"><div class="label">Пиковый час</div><div class="value" id="agg-peak">—</div></div>
+            </div>
+
+            <p class="hint">Наведите или коснитесь столбика, чтобы увидеть детали</p>
+          </section>
+
+          <hr class="section-divider" />
+
+          <div id="overall-range-tabs" class="range-tabs" role="tablist" aria-label="Диапазон общей статистики">
+            <button type="button" class="tab active" data-range="3d" role="tab" aria-selected="true">3 дня</button>
+            <button type="button" class="tab" data-range="7d" role="tab" aria-selected="false">Неделя</button>
+            <button type="button" class="tab" data-range="1m" role="tab" aria-selected="false">Месяц</button>
+            <button type="button" class="tab" data-range="all" role="tab" aria-selected="false">Все время</button>
+          </div>
+
+          <section class="card" id="overall-stats">
+            <div class="card-title">
+              Общая статистика (<span id="overall-range-label">3 дня</span>)
+            </div>
+            <div id="overall-stats-body"></div>
+          </section>
+        </div>
+      </div>
+
+      <footer class="modal__footer">
+        <button type="button" class="btn btn-primary" data-close-modal>Закрыть</button>
+      </footer>
+    </div>
+  </section>
+
+<script>
 (function setAppContentWidth(){
   const root = document.documentElement;
   const el = () => document.querySelector('.app-core') || document.body;
@@ -777,6 +770,23 @@
         const DAILY_MIN = -50;
         const DAILY_MAX = 50;
         
+        function bucketFromTotal(total) {
+          if (!Number.isFinite(total)) return null;
+          if (total === 0) return 'zero';
+
+          const steps = [10, 20, 30, 40, 50];
+          const abs = Math.min(50, Math.abs(Math.round(total)));
+          let step = 10;
+          for (const candidate of steps) {
+            if (abs >= candidate) {
+              step = candidate;
+            } else {
+              break;
+            }
+          }
+          return (total > 0 ? 'pos' : 'neg') + step;
+        }
+
         function paintDayByTotal(cell, entriesForThisDay) {
           const entries = Array.isArray(entriesForThisDay) ? entriesForThisDay : [];
 
@@ -784,6 +794,7 @@
           delete cell.dataset.total;
           delete cell.dataset.score;
           delete cell.dataset.mood;
+          delete cell.dataset.bucket;
 
           cell.style.removeProperty('background');
           cell.style.removeProperty('background-color');
@@ -791,7 +802,8 @@
           cell.style.removeProperty('color');
 
           if (!entries.length) {
-            return;
+            cell.removeAttribute('data-bucket');
+            return null;
           }
 
           const total = entries.reduce((acc, entry) => acc + (Number(entry?.score) || 0), 0);
@@ -800,6 +812,13 @@
           cell.dataset.total = String(total);
           cell.dataset.score = String(total);
 
+          const bucket = bucketFromTotal(total);
+          if (bucket) {
+            cell.dataset.bucket = bucket;
+          } else {
+            cell.removeAttribute('data-bucket');
+          }
+
           if (total > 0) {
             cell.classList.add('day--pos');
           } else if (total < 0) {
@@ -807,6 +826,8 @@
           } else {
             cell.classList.add('day--zero', 'is-neutral');
           }
+
+          return bucket;
         }
 
         // Mood types
@@ -840,6 +861,20 @@
           scheduleNotifications();
           switchPage('calendar');
           document.getElementById('recordMoodBtn')?.addEventListener('click', openMoodSlider);
+          const prevMonthBtn = document.getElementById('prevMonth');
+          if (prevMonthBtn) {
+            prevMonthBtn.addEventListener('click', (event) => {
+              event.preventDefault();
+              navigateMonth(-1);
+            });
+          }
+          const nextMonthBtn = document.getElementById('nextMonth');
+          if (nextMonthBtn) {
+            nextMonthBtn.addEventListener('click', (event) => {
+              event.preventDefault();
+              navigateMonth(1);
+            });
+          }
 
           setupChatInput();
           maybeProactiveChat();
@@ -1402,22 +1437,25 @@
         }
 
         function updateCalendar() {
-          document.getElementById('monthTitle').textContent =
-            `${monthNames[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
-        
+          const monthTitleEl = document.getElementById('monthTitle');
+          if (monthTitleEl) {
+            monthTitleEl.textContent = `${monthNames[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
+          }
+
+          const daysGrid = document.getElementById('daysGrid');
+          if (!daysGrid) return;
+          daysGrid.innerHTML = '';
+
           const year = selectedDate.getFullYear();
           const month = selectedDate.getMonth();
           const firstDay = new Date(year, month, 1);
           const startDate = new Date(firstDay);
           startDate.setDate(startDate.getDate() - firstDay.getDay());
-        
-          const calendarDays = document.getElementById('calendarDays');
-          calendarDays.innerHTML = '';
-        
+
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           const todayKey = getDateKey(today);
-        
+
           const totalCells = 42; // 6 weeks * 7 days ensures full grid
           for (let cell = 0; cell < totalCells; cell++) {
             const current = new Date(startDate);
@@ -1426,26 +1464,44 @@
             const isCurrentMonth = current.getMonth() === month;
             const isToday = dateKey === todayKey;
 
-            const dayDiv = document.createElement('div');
-            dayDiv.className = 'day';
-            dayDiv.dataset.year = String(current.getFullYear());
-            dayDiv.dataset.month = String(current.getMonth());
-            dayDiv.dataset.day = String(current.getDate());
+            const dayButton = document.createElement('button');
+            dayButton.type = 'button';
+            dayButton.className = 'day';
+            dayButton.dataset.year = String(current.getFullYear());
+            dayButton.dataset.month = String(current.getMonth());
+            dayButton.dataset.day = String(current.getDate());
+            dayButton.setAttribute('data-day', String(current.getDate()));
+
             if (!isCurrentMonth) {
-              dayDiv.classList.add('is-outside', 'other-month');
+              dayButton.classList.add('is-outside', 'other-month');
             }
-            if (isToday) dayDiv.classList.add('today');
 
             const entriesForDay = getEntriesForDate(current.getFullYear(), current.getMonth(), current.getDate());
-            paintDayByTotal(dayDiv, entriesForDay);
+            const bucket = paintDayByTotal(dayButton, entriesForDay);
 
-            if (dayDiv.classList.contains('day--zero')) {
-              dayDiv.style.setProperty('background', 'var(--ochre-soft)', 'important');
-              dayDiv.style.setProperty('color', 'var(--day-ink-on-ochre)', 'important');
+            if (isToday) {
+              dayButton.classList.add('is-today', 'today');
             }
 
-            dayDiv.textContent = current.getDate();
-            calendarDays.appendChild(dayDiv);
+            const displayMonth = monthNames[current.getMonth()] || '';
+            let ariaLabel = `${current.getDate()} ${displayMonth} ${current.getFullYear()}`;
+            if (bucket === 'zero') {
+              ariaLabel += ', настроение 0';
+            } else if (bucket && bucket.startsWith('pos')) {
+              ariaLabel += `, настроение +${bucket.slice(3)}`;
+            } else if (bucket && bucket.startsWith('neg')) {
+              ariaLabel += `, настроение -${bucket.slice(3)}`;
+            } else {
+              ariaLabel += ', настроение нет записей';
+            }
+            if (!isCurrentMonth) {
+              ariaLabel += ', другой месяц';
+            }
+
+            dayButton.setAttribute('aria-label', ariaLabel);
+            dayButton.textContent = String(current.getDate());
+
+            daysGrid.appendChild(dayButton);
           }
 
           renderTodayScore();
@@ -1485,7 +1541,18 @@
           let sumRounded = Math.round(sum * 10) / 10;
           if (!Number.isFinite(sumRounded)) sumRounded = 0;
           const sumPretty = sumRounded > 0 ? `+${sumRounded}` : `${sumRounded === 0 ? 0 : sumRounded}`;
-          el.textContent = `Сегодня: ${sumPretty} / ${DAILY_LIMIT}`;
+
+          const valueEl = document.getElementById('todayScoreValue');
+          const limitEl = document.getElementById('todayScoreLimit');
+          if (valueEl) {
+            valueEl.textContent = sumPretty;
+          }
+          if (limitEl) {
+            limitEl.textContent = String(DAILY_LIMIT);
+          }
+          if (!valueEl || !limitEl) {
+            el.textContent = `Сегодня: ${sumPretty} / ${DAILY_LIMIT}`;
+          }
           el.classList.remove('hidden');
         }
 
@@ -1636,6 +1703,4 @@
     <script src="/app-core.js" defer></script>
 </body>
 </html>
-
-
 
