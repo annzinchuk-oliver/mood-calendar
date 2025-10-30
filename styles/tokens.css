@@ -1,8 +1,14 @@
-/* ====== TOKENS (как было раньше) ====== */
-
-/* Светлая тема */
+/* ====== DESIGN TOKENS ====== */
 :root {
+  /* Layout */
+  --app-max: 420px;
+  --app-content-w: var(--app-max);
+  --app-w: clamp(360px, 92vw, var(--app-max));
+  --page-gutter: 16px;
+  --modal-gutter: 16px;
 
+  /* Spacing */
+  --space-0: 0;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -11,14 +17,17 @@
   --space-6: 24px;
   --space-8: 32px;
 
-
+  /* Radii */
   --radius-1: 8px;
   --radius-2: 12px;
   --radius-3: 16px;
   --radius-pill: 9999px;
+  --radius-round: 999px;
+  --day-radius: 12px;
+  --card-radius: 14px;
 
   /* Typography */
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   --fs-xs: 12px;
   --fs-sm: 14px;
   --fs-md: 15px;
@@ -31,77 +40,83 @@
   --dur-3: .3s;
   --ease: cubic-bezier(.22,1,.36,1);
 
-  /* Elevation (используются компонентами) */
-  --shadow-sm: 0 2px 6px rgba(0,0,0,.08);
-  --shadow-md: 0 8px 24px rgba(0,0,0,.12);
-  --shadow-lg: 0 18px 40px rgba(0,0,0,.18);
-   
-  /* App layout */
-  --app-content-w: 420px;        /* ширина центральной колонки по умолчанию */
-  --page-gutter: 16px;           /* поля слева/справа */
-  --modal-gutter: 16px;          /* безопасные отступы */
+  /* Shadows */
+  --shadow-sm: 0 2px 6px rgba(0,0,0,.18);
+  --shadow-md: 0 8px 24px rgba(0,0,0,.25);
+  --shadow-lg: 0 18px 40px rgba(0,0,0,.35);
+  --shadow: 0 8px 24px rgba(0,0,0,.25);
 
-     /* Calendar sizing */
-  --day-gap: 10px;              /* расстояние между клетками */
-  --day-min: 44px;               /* минимальная сторона клетки */
-  --day-max: 52px;               /* максимальная сторона клетки */
+  /* Base colors (dark theme by default) */
+  --bg: #0f1114;
+  --surface-1: #151922;
+  --surface-2: #1d2330;
+  --surface-3: color-mix(in oklab, var(--surface-2) 88%, #060708 12%);
+  --surface: var(--surface-1);
+  --card: var(--surface-1);
 
-  --card-radius: 14px;
-  --surface: #ffffff;
-  --calendar-text-contrasted: #111;
-  --yellow: #CDAA4A;
+  --text: #e9edf1;
+  --text-primary: var(--text);
+  --text-muted: #a7afbc;
+  --text-secondary: var(--text-muted);
 
-  --palette-surface: #ffffff;
-  --palette-surface-variant: #f5f7fb;
-   
-  --text: var(--text-primary);
-  --text-primary: #111214;
-  --text-muted: var(--text-secondary);
-  --bg: var(--surface);
-  --card: var(--surface);
-  --surface-1: var(--surface);
-  --surface-2: var(--surface);
-  --surface-3: color-mix(in srgb, #0b121a 6%, #ffffff 94%);
+  --stroke: rgba(255,255,255,.08);
+  --divider: var(--stroke);
+  --border: var(--stroke);
+  --line: var(--stroke);
+  --hover: color-mix(in oklab, var(--surface-2) 92%, var(--text) 8%);
 
-  --line: rgba(15, 18, 26, .08);
+  --primary: #6a4dfb;
+  --primary-contrast: #ffffff;
+  --brand: var(--primary);
+  --brand-1: var(--primary);
+  --brand-2: color-mix(in oklab, var(--primary) 72%, #352781 28%);
+  --on-brand: var(--primary-contrast);
+  --accent: var(--primary);
+  --accent-10: color-mix(in oklab, var(--accent) 18%, transparent);
+  --accent-20: color-mix(in oklab, var(--accent) 28%, transparent);
 
-  --brand: var(--brand-1);
-  --brand-2: #7E57FF;
-  --on-brand: var(--btn-primary-ink);
-   
-  --accent: var(--brand);
-  --accent-10: color-mix(in srgb, var(--accent) 18%, transparent);
-  --accent-20: color-mix(in srgb, var(--accent) 28%, transparent);
-  --chip-bg: rgba(15, 18, 26, .05);
-  --chip-bg-hover: rgba(15, 18, 26, .09);
-  --modal-bg: var(--card);
-  --divider: rgba(15, 18, 26, .08);
-  --axis-color: #5f6368;
-  --grid-weak: rgba(0, 0, 0, .08);
-  --grid-zero: rgba(0, 0, 0, .55);
+  /* Mood palette */
+  --ochre: #caa24d;
+  --ochre-strong: #b67f1b;
+  --ochre-strong-ring: rgba(0,0,0,.22);
+  --ochre-soft: #d8b25a;
+  --ochre-soft-ring: rgba(0,0,0,.18);
+  --today-ink: #ffffff;
+  --day-ink-on-ochre: var(--today-ink);
 
-  /* системные цвета */
-  --palette-border: rgba(0,0,0,.12);
-  --palette-border-strong: #c3c9d4;
-  --palette-hover: #eef1f7;
-  --day-border: color-mix(in srgb, #000 30%, transparent);
-  --day-bg: #ffffff;
+ --pos: #25d39a;
+  --neg: #4b7bff;
+  --zero: var(--ochre);
 
-  --palette-bg: var(--palette-surface-variant);
-  --palette-text: var(--text-primary);
+  --success: var(--pos);
+  --info: var(--neg);
+  --warning: var(--ochre);
+
+  --mood-good: var(--pos);
+  --mood-neutral: var(--zero);
+  --mood-sad: var(--neg);
+
+  --palette-surface: var(--surface-1);
+  --palette-surface-variant: #0f1318;
+  --palette-bg: var(--surface-2);
+  --palette-text: var(--text);
   --palette-text-muted: var(--text-muted);
+  --palette-border: rgba(255,255,255,.14);
+  --palette-border-strong: rgba(233, 237, 241, .22);
+  --palette-hover: rgba(255,255,255,.06);
+  --palette-good: #3adc70;
+  --palette-neutral: #facc56;
+  --palette-sad: #7da7ff;
+  
+  --day-border: color-mix(in oklab, #000 40%, transparent);
+  --day-bg: var(--surface-2);
+  --calendar-text-contrasted: #ffffff;
 
-  --palette-good:    #22c55e;
-  --palette-neutral: #eab308;
-  --palette-sad:     #3b82f6;
-
-  /* бакеты календаря */
   --bucket-pos50: #016e29;
   --bucket-pos40: color-mix(in srgb, #016e29 80%, #ffffff 20%);
   --bucket-pos30: color-mix(in srgb, #016e29 65%, #ffffff 35%);
   --bucket-pos20: color-mix(in srgb, #016e29 50%, #ffffff 50%);
   --bucket-pos10: color-mix(in srgb, #016e29 35%, #ffffff 65%);
-
   --bucket-zero:  #fae370;
    
   --bucket-neg10: color-mix(in srgb, #1d4ed8 35%, #ffffff 65%);
@@ -109,174 +124,117 @@
   --bucket-neg30: color-mix(in srgb, #1d4ed8 65%, #ffffff 35%);
   --bucket-neg40: color-mix(in srgb, #1d4ed8 80%, #ffffff 20%);
   --bucket-neg50: #1d4ed8;
-  --ochre-strong: #B67F1B;     /* тёплая охра */
-  --ochre-strong-ring: rgba(0,0,0,.22);
-  --ochre-soft: #D8B25A;
-  --ochre-soft-ring: rgba(0,0,0,.18);
-  --day-ink-on-ochre: #111;
-  --app-w: clamp(360px, 92vw, 480px);
-  --day-radius: 12px;
-  --text-secondary: #6b7280;
-  --brand-1: #6E4CF6;
-  --btn-primary: #6E4CF6;
-  --btn-primary-ink: #fff;
-  --btn-ring: rgba(0,0,0,.14);
-  --border: rgba(0,0,0,.12);
-  --hover: rgba(0,0,0,.04);
+
+  /* Calendar sizing */
+  --day-gap: 10px;
+  --day-min: 44px;
+  --day-max: 52px;
+
+    /* Misc */
+  --modal-bg: var(--card);
+  --chip-bg: rgba(233, 237, 241, .06);
+  --chip-bg-hover: rgba(233, 237, 241, .12);
+  --btn-primary: var(--primary);
+  --btn-primary-ink: var(--primary-contrast);
+  --btn-ring: rgba(0,0,0,.3);
+
+    --axis-color: #5f6368;
+  --grid-weak: rgba(233, 237, 241, .18);
+  --grid-zero: rgba(233, 237, 241, .55);
+  
+  --slider-blue: #3b82f6;
+  --slider-green: #22c55e;
+  --slider-mid: #e9edf3;
+
+  --nav-height: 72px;
 }
 
-/* Тёмная тема */
-[data-theme="dark"] {
+:root[data-theme="light"],
+body[data-theme="light"] {
+  --bg: #f5f7fb;
+  --surface-1: #ffffff;
+  --surface-2: #f1f3f7;
+  --surface-3: color-mix(in oklab, #ffffff 94%, #0b121a 6%);
+  --surface: var(--surface-1);
+  --card: var(--surface-1);
 
-  --surface: #121316;
-  --palette-surface: #171c22;
-  --palette-surface-variant: #0f1318;
-  --text: var(--text-primary);
-  --text-primary: #f7f7f7;
-  --text-muted: var(--text-secondary);
-  --bg: #18191c;
-  --card: var(--surface);
-  --surface-1: var(--surface);
-  --surface-2: #1b1c20;
-  --surface-3: #1d242c;
+  --text: #0e1320;
+  --text-primary: var(--text);
+  --text-muted: #5a6578;
+  --text-secondary: var(--text-muted);
 
-  --line: rgba(230, 237, 245, .10);
+  --stroke: rgba(0,0,0,.08);
+  --divider: var(--stroke);
+  --border: var(--stroke);
+  --line: var(--stroke);
+  --hover: rgba(15, 19, 32, .08);
 
-  --calendar-text-contrasted: #fff;
-
-  --brand: #7c4dff;
-  --brand-2: color-mix(in srgb, #7c4dff 72%, #433196 28%);
-  --on-brand: #ffffff;
-
-  --palette-border: rgba(255,255,255,.14);
-  --palette-border-strong: rgba(230, 237, 245, .22);
-  --palette-hover: rgba(255, 255, 255, .06);
-  --day-border: rgba(231, 237, 245, .22);
-  --day-bg: color-mix(in srgb, #ffffff 5%, transparent);
-   
-  --palette-bg: var(--palette-surface-variant);
-  --palette-text: var(--text-primary);
+  --palette-surface: var(--surface-1);
+  --palette-surface-variant: #f5f7fb;
+  --palette-bg: var(--surface-2);
+  --palette-text: var(--text);
   --palette-text-muted: var(--text-muted);
+  --palette-border: rgba(0,0,0,.12);
+  --palette-border-strong: #c3c9d4;
+  --palette-hover: rgba(15, 19, 32, .08);
+  --palette-good: #22c55e;
+  --palette-neutral: #eab308;
+  --palette-sad: #3b82f6;
 
+  --day-border: rgba(15, 18, 26, .08);
+  --day-bg: #ffffff;
+  --calendar-text-contrasted: #111214;
+
+  --chip-bg: rgba(15, 18, 26, .05);
+  --chip-bg-hover: rgba(15, 18, 26, .09);
+  --btn-ring: rgba(79, 70, 229, .24)
+
+  --axis-color: #5f6368;
+  --grid-weak: rgba(0,0,0,.08);
+  --grid-zero: rgba(0,0,0,.55);
+}
+
+:root[data-theme="dark"],
+body[data-theme="dark"] {
+  --bg: #0f1114;
+  --surface-1: #151922;
+  --surface-2: #1d2330;
+  --surface-3: color-mix(in oklab, var(--surface-2) 88%, #060708 12%);
+  --surface: var(--surface-1);
+  --card: var(--surface-1);
+
+  --text: #e9edf1;
+  --text-primary: var(--text);
+  --text-muted: #a7afbc;
+  --text-secondary: var(--text-muted);
+
+  --stroke: rgba(255,255,255,.08);
+  --divider: var(--stroke);
+  --border: var(--stroke);
+  --line: var(--stroke);
+  --hover: color-mix(in oklab, var(--surface-2) 92%, var(--text) 8%);
+
+  --palette-surface: var(--surface-1);
+  --palette-surface-variant: #0f1318;
+  --palette-bg: var(--surface-2);
+  --palette-text: var(--text);
+  --palette-text-muted: var(--text-muted);
+  --palette-border: rgba(255,255,255,.14);
+  --palette-border-strong: rgba(233, 237, 241, .22);
+  --palette-hover: rgba(255,255,255,.06);
   --palette-good: #3adc70;
-  --palette-neutral: #f0c75a;
-  --palette-sad: #5e8ff2;
+  --palette-neutral: #facc56;
+  --palette-sad: #7da7ff;
 
-  --bucket-pos50: #1fa857;
-  --bucket-pos40: color-mix(in srgb, #1fa857 78%, #0f1318 22%);
-  --bucket-pos30: color-mix(in srgb, #1fa857 62%, #0f1318 38%);
-  --bucket-pos20: color-mix(in srgb, #1fa857 48%, #0f1318 52%);
-  --bucket-pos10: color-mix(in srgb, #1fa857 34%, #0f1318 66%);
+  --day-border: color-mix(in oklab, #000 40%, transparent);
+  --day-bg: var(--surface-2);
+  --calendar-text-contrasted: #ffffff;
 
-  --bucket-zero:  #f0c75a;
-  --bucket-neg10: color-mix(in srgb, #5e8ff2 42%, #0f1318 58%);
-  --bucket-neg20: color-mix(in srgb, #4f7fe4 55%, #0f1318 45%);
-  --bucket-neg30: color-mix(in srgb, #436fe0 68%, #0f1318 32%);
-  --bucket-neg40: color-mix(in srgb, #3a63d6 80%, #0f1318 20%);
-   
-  --bucket-neg50: #1e3a8a;
+  --chip-bg: rgba(233, 237, 241, .06);
+  --chip-bg-hover: rgba(233, 237, 241, .12);
+  --btn-ring: rgba(0,0,0,.3);
 
-  --accent: #8b5cf6;
-  --accent-10: color-mix(in srgb, var(--accent) 16%, transparent);
-  --accent-20: color-mix(in srgb, var(--accent) 28%, transparent);
-  --chip-bg: rgba(255,255,255,.06);
-  --chip-bg-hover: rgba(255,255,255,.10);
-
-  --modal-bg: var(--surface-2);
-  --divider: rgba(230,237,245,.12);
-
-  --axis-color: #a9b3bf;
-  --grid-weak: rgba(231,237,245,.08);
-  --grid-zero: rgba(231,237,245,.55);
-}
-
-  --text-secondary: #a1a1aa;
-  --ochre-soft: #C79D3A;
-  --ochre-soft-ring: rgba(0,0,0,.3);
-  --border: rgba(255,255,255,.16);
-  --hover: rgba(255,255,255,.08);
-}
-
-/* === TOKENS: базовые, если вдруг отсутствуют === */
-:root {
-  /* ширина приложения (как раньше «колонка») */
-  --app-w: clamp(360px, 92vw, 480px);
-  --page-gutter: 16px;
-
-  /* типографика и радиусы */
-  --fs-sm: 14px;
-  --fs-md: 15px;
-  --fs-xl: 20px;
-  --radius-3: 16px;
-  --day-radius: 12px;
-
-  /* нейтральные поверхности/текст */
-  --surface: #fff;
-  --surface-1: var(--surface);
-  --surface-2: var(--surface);
-  --text: #111;
-  --text-secondary: #6b7280;
-
-  /* охра для «сегодня» и нулевого дня */
-  --ochre: #C79D3A;           /* тёплая охра */
-  --ochre-soft: #C79D3A;      /* мягкая */
-  --bucket-zero: #F0C75A;     /* 0 (нейтральный) */
-
-  /* лёгкие тени и анимации */
-  --shadow-sm: 0 2px 6px rgba(0, 0, 0, .08);
-  --shadow-lg: 0 18px 40px rgba(0, 0, 0, .18);
-  --ease: cubic-bezier(.22,1,.36,1);
-}
-
-/* темная тема: важные контрастные моменты */
-[data-theme="dark"] {
-  --surface: #121418;
-  --surface-1: #171a1f;
-  --surface-2: #1b1f26;
-  --text: #e9eef7;
-  --text-secondary: #a4acb9;
-
-  /* цифры на ячейках календаря должны читаться */
-  --calendar-text-contrasted: #fff;
-}
-
-
-/* === design tokens fallback / merge === */
-:root {
-  --primary: #6b4cf6;
-  --primary-press: #5b3de9;
-  --primary-soft: #eee8ff;
-
-  --pos: #27c59a;
-  --neg: #3d6ef7;
-  --zero: var(--ochre);
-
-  --border-color: #e6e7ea;
-  --shadow-card: 0 6px 24px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.06);
-
-  --radius-xs: 6px;
-  --radius-s: 10px;
-  --radius-m: 14px;
-  --radius-l: 18px;
-
-  --space-7: 28px;
-
-  --font-stack: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
-}
-
-.theme-dark {
-  --primary: #7b63ff;
-  --primary-press: #6d53ff;
-  --primary-soft: #2a2550;
-
-  --border-color: #1f2630;
-  --shadow-card: 0 10px 32px rgba(0,0,0,.45), 0 2px 12px rgba(0,0,0,.35);
-
-  --ochre: #b88b2d;
-  --pos: #23b48c;
-  --neg: #648cff;
-}
-
-html, body {
-  font-family: var(--font-stack, var(--font-sans));
+  --axis-color: #9aa2b1;
+  --grid-weak: rgba(233, 237, 241, .18);
+  --grid-zero: rgba(233, 237, 241, .55);
 }
