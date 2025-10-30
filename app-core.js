@@ -950,8 +950,14 @@ if (document.readyState === 'loading') {
 (function initModals(){
   const moodModal = document.getElementById('moodModal') || document.getElementById('mood-modal');
   const statsModal = document.getElementById('statsModal') || document.getElementById('stats-modal');
-  const openMoodBtn = document.getElementById('openMood') || document.getElementById('recordMoodBtn');
-  const openStatsBtn = document.getElementById('openStats') || document.querySelector('[data-open-modal="#stats-modal"], [data-open-modal="#statsModal"]');
+  const openMoodBtn =
+    document.getElementById('openMoodModalBtn') ||
+    document.getElementById('openMood') ||
+    document.getElementById('recordMoodBtn');
+  const openStatsBtn =
+    document.getElementById('openStatsModalBtn') ||
+    document.getElementById('openStats') ||
+    document.querySelector('[data-open-modal="#stats-modal"], [data-open-modal="#statsModal"]');
   const closeMoodBtn = document.getElementById('closeMood') || (moodModal ? moodModal.querySelector('[data-close-modal]') : null);
   const closeStatsBtn = document.getElementById('closeStats') || (statsModal ? statsModal.querySelector('[data-close-modal]') : null);
   const moodSlider = document.getElementById('moodSlider') || document.getElementById('moodRange');
@@ -1023,11 +1029,181 @@ if (document.readyState === 'loading') {
     });
   }
 })();
+/* ===== Calendar grid rendering ===== */
+(function initCalendarGrid(){
+  const daysGridEl = document.getElementById('daysGrid');
+  const monthTitleEl = document.getElementById('monthTitle');
+  const todayScoreValueEl = document.getElementById('todayScoreValue');
+  const todayScoreBadgeEl = document.getElementById('todayScoreBadge');
+
+  const noop = () => {};
+  if (!daysGridEl) {
+    window.renderMonthDays = noop;
+    window.renderMonth = noop;
+    window.selectDay = noop;
+    window.navigateMonth = noop;
+    return;
+  }
+
+  const MONTH_NAMES = [
+    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+  ];
+
+  let currentMonth = startOfMonth(new Date());
+  let selectedDateKey = null;
+
+  function startOfMonth(date) {
+    return new Date(date.getFullYear(), date.getMonth(), 1);
+  }
+
+  function formatDateKey(date) {
+    return date.toISOString().slice(0, 10);
+  }
+
+  function formatMonthTitle(date) {
+    const name = MONTH_NAMES[date.getMonth()] || '';
+    return name ? `${name} ${date.getFullYear()}` : `${date.getFullYear()}`;
+  }
+
+  function computeBucket(entries) {
+    if (!Array.isArray(entries) || !entries.length) return null;
+    const total = entries.reduce((sum, item) => sum + (Number(item?.score) || 0), 0);
+    if (!Number.isFinite(total)) return null;
+    if (Math.abs(total) < 0.5) return 'zero';
+    return total > 0 ? 'pos' : 'neg';
+  }
+
+  function buildDayObjects(monthDate, index) {
+    const firstDay = startOfMonth(monthDate);
+    const gridStart = new Date(firstDay);
+    gridStart.setDate(firstDay.getDate() - firstDay.getDay());
+    const todayKey = formatDateKey(new Date());
+    const cells = [];
+    for (let i = 0; i < 42; i++) {
+      const cellDate = new Date(gridStart);
+      cellDate.setDate(gridStart.getDate() + i);
+      const key = formatDateKey(cellDate);
+      cells.push({
+        day: cellDate.getDate(),
+        date: cellDate,
+        dateKey: key,
+        isOutside: cellDate.getMonth() !== monthDate.getMonth(),
+        isToday: key === todayKey,
+        moodBucket: computeBucket(index[key])
+      });
+    }
+    return cells;
+  }
+
+  function renderMonthDays(dayObjects) {
+    daysGridEl.innerHTML = '';
+    dayObjects.forEach((d) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.classList.add('day');
+      if (d.isToday) btn.classList.add('is-today');
+      if (d.isOutside) btn.classList.add('is-outside');
+      if (d.moodBucket) btn.setAttribute('data-bucket', d.moodBucket);
+      btn.textContent = String(d.day);
+      btn.setAttribute('data-day', String(d.day));
+      btn.dataset.date = d.dateKey;
+      btn.addEventListener('click', () => selectDay(d));
+      daysGridEl.appendChild(btn);
+    });
+  }
+
+  function selectDay(target) {
+    let key = null;
+    if (target && typeof target === 'object') {
+      if (typeof target.dateKey === 'string') {
+        key = target.dateKey;
+      } else if (target.date instanceof Date) {
+        key = formatDateKey(target.date);
+      } else if (Number.isFinite(target.day)) {
+        key = formatDateKey(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), Number(target.day)));
+      }
+    } else if (typeof target === 'string') {
+      key = target;
+    } else if (Number.isFinite(target)) {
+      key = formatDateKey(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), Number(target)));
+    }
+
+    if (!key) return null;
+
+    selectedDateKey = key;
+    const buttons = daysGridEl.querySelectorAll('.day');
+    buttons.forEach((btn) => {
+      btn.classList.toggle('is-selected', btn.dataset.date === key);
+    });
+    return key;
+  }
+
+  function updateTodayBadge(index) {
+    if (!todayScoreValueEl) return;
+    const todayKey = formatDateKey(new Date());
+    const entries = index[todayKey];
+    const total = Array.isArray(entries)
+      ? entries.reduce((sum, item) => sum + (Number(item?.score) || 0), 0)
+      : 0;
+    todayScoreValueEl.textContent = String(Math.round(total));
+    if (todayScoreBadgeEl) {
+      const bucket = computeBucket(entries);
+      if (bucket) {
+        todayScoreBadgeEl.setAttribute('data-bucket', bucket);
+      } else {
+        todayScoreBadgeEl.removeAttribute('data-bucket');
+      }
+    }
+  }
+
+  function renderMonth() {
+    const index = getStatsIndex();
+    const days = buildDayObjects(currentMonth, index);
+    renderMonthDays(days);
+
+    if (monthTitleEl) {
+      monthTitleEl.textContent = formatMonthTitle(currentMonth);
+    }
+
+    window.viewMonth = new Date(currentMonth);
+
+    let targetKey = selectedDateKey;
+    if (!targetKey || !days.some((d) => d.dateKey === targetKey)) {
+      targetKey = (days.find((d) => d.isToday && !d.isOutside) || days.find((d) => !d.isOutside) || days[0] || {}).dateKey || null;
+    }
+    if (targetKey) {
+      selectDay(targetKey);
+    }
+
+    updateTodayBadge(index);
+  }
+
+  function changeMonth(delta) {
+    if (!Number.isFinite(delta) || delta === 0) return;
+    currentMonth = startOfMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + delta, 1));
+    selectedDateKey = null;
+    renderMonth();
+  }
+
+  window.renderMonthDays = renderMonthDays;
+  window.renderMonth = renderMonth;
+  window.selectDay = selectDay;
+  window.navigateMonth = changeMonth;
+
+  const bus = window.App?.bus;
+  if (bus?.on) {
+    bus.on('stats:refresh', renderMonth);
+    bus.on('data:changed', renderMonth);
+  }
+
+  renderMonth();
+})();
 
 /* ===== ensure month nav re-renders calendar ===== */
 (function initMonthNav(){
-  const prevBtn = document.getElementById('prevMonth');
-  const nextBtn = document.getElementById('nextMonth');
+  const prevBtn = document.getElementById('prevMonthBtn') || document.getElementById('prevMonth');
+  const nextBtn = document.getElementById('nextMonthBtn') || document.getElementById('nextMonth');
 
   function rerender() {
     if (typeof renderMonth === 'function') {
