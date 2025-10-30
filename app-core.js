@@ -1102,9 +1102,18 @@ if (document.readyState === 'loading') {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.classList.add('day');
-      if (d.isToday) btn.classList.add('is-today');
+      btn.setAttribute('data-role', 'day');
+      if (d.isToday) {
+        btn.classList.add('is-today', 'today');
+        btn.setAttribute('data-today', '1');
+      }
       if (d.isOutside) btn.classList.add('is-outside');
-      if (d.moodBucket) btn.setAttribute('data-bucket', d.moodBucket);
+      if (d.moodBucket) {
+        btn.setAttribute('data-bucket', d.moodBucket);
+        const score = d.moodBucket === 'zero' ? '0' : d.moodBucket;
+        btn.setAttribute('data-score', score);
+        btn.classList.add(d.moodBucket);
+      }
       btn.textContent = String(d.day);
       btn.setAttribute('data-day', String(d.day));
       btn.dataset.date = d.dateKey;
@@ -1134,7 +1143,13 @@ if (document.readyState === 'loading') {
     selectedDateKey = key;
     const buttons = daysGridEl.querySelectorAll('.day');
     buttons.forEach((btn) => {
-      btn.classList.toggle('is-selected', btn.dataset.date === key);
+      const isSelected = btn.dataset.date === key;
+      btn.classList.toggle('is-selected', isSelected);
+      if (isSelected) {
+        btn.setAttribute('data-selected', '1');
+      } else {
+        btn.removeAttribute('data-selected');
+      }
     });
     return key;
   }
