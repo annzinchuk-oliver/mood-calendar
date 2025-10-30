@@ -22,26 +22,26 @@
     
     
 </head>
-<body data-theme="light">
-  <div class="pwa-hint hidden install-prompt" id="installPrompt" style="padding:12px 16px; max-width:420px; margin:0 auto;">
-    <div style="font-size:14px; font-weight:600; display:flex; align-items:center; gap:6px;">
-      <span>📱 Добавьте приложение на главный экран!</span>
-    </div>
-    <div style="font-size:12px; line-height:1.4; margin-top:4px;">
-      Нажмите меню браузера → "Добавить на главный экран"
-    </div>
-    <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
-      <button id="enableNotifications"
-              style="font-size:12px; line-height:1.2; padding:4px 8px; border:1px solid #888; border-radius:4px; background:#fff; cursor:pointer;">
-        🔔 Включить уведомления
-      </button>
-    </div>
-  </div>
-
+<body data-theme="light">␊
   <main class="app-core" id="appRoot">
+    <div class="pwa-hint hidden install-prompt" id="installPrompt" style="padding:12px 16px; max-width:420px; margin:0 auto;">
+      <div style="font-size:14px; font-weight:600; display:flex; align-items:center; gap:6px;">
+        <span>📱 Добавьте приложение на главный экран!</span>
+      </div>
+      <div style="font-size:12px; line-height:1.4; margin-top:4px;">
+        Нажмите меню браузера → "Добавить на главный экран"
+      </div>
+      <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
+        <button id="enableNotifications"
+                style="font-size:12px; line-height:1.2; padding:4px 8px; border:1px solid #888; border-radius:4px; background:#fff; cursor:pointer;">
+          🔔 Включить уведомления
+        </button>
+      </div>
+    </div>
+
     <section class="app-header">
       <div class="header-left">
-        <div class="badge-today hidden" id="todayScoreBadge" aria-live="polite">
+        <div class="badge-today" id="todayScoreBadge" aria-live="polite">
           Сегодня: <span id="todayScoreValue">0</span> / <span id="todayScoreLimit">50</span>
         </div>
       </div>
@@ -56,11 +56,11 @@
 
     <section class="calendar-page" id="calendarPage">
       <section class="month-nav">
-        <button class="btn--icon" id="prevMonth" type="button" aria-label="Предыдущий месяц">←</button>
+        <button class="btn--icon" id="prevMonthBtn" type="button" aria-label="Предыдущий месяц">←</button>
         <div class="month-nav__title-group">
           <div class="month-title" id="monthTitle"></div>
         </div>
-        <button class="btn--icon" id="nextMonth" type="button" aria-label="Следующий месяц">→</button>
+        <button class="btn--icon" id="nextMonthBtn" type="button" aria-label="Следующий месяц">→</button>
       </section>
 
       <section class="calendar">
@@ -77,10 +77,10 @@
       </section>
 
       <section class="calendar-cta">
-        <button id="recordMoodBtn" type="button" class="btn btn--primary btn--xl" data-open-modal="#mood-modal">
+        <button id="openMoodModalBtn" type="button" class="btn btn--primary btn--xl" data-open-modal="#mood-modal">
           Записать настроение
         </button>
-        <button type="button" class="btn btn--primary btn--xl" data-open-modal="#stats-modal">
+        <button id="openStatsModalBtn" type="button" class="btn btn--primary btn--xl" data-open-modal="#stats-modal">
           <span style="display:flex;align-items:center;gap:6px;">
             <span style="font-size:16px;">📊</span>
             <span>Статистика</span>
@@ -168,24 +168,23 @@
     </section>
 
     <nav class="bottom-nav">
-      <button class="nav-item active" id="navCalendar" type="button" onclick="switchPage('calendar')">
+      <button class="nav-item active" id="navCalendarBtn" type="button" onclick="switchPage('calendar')">
         <div class="nav-icon">📅</div>
         <div class="nav-label">Календарь</div>
       </button>
 
-      <button class="nav-item" id="navChat" type="button" onclick="switchPage('chat')">
+      <button class="nav-item" id="navChatBtn" type="button" onclick="switchPage('chat')">
         <div class="nav-icon">🤖</div>
         <div class="nav-label">ИИ Чат</div>
       </button>
 
-      <button class="nav-item" id="navHelp" type="button" onclick="switchPage('help')">
+      <button class="nav-item" id="navHelpBtn" type="button" onclick="switchPage('help')">
         <div class="nav-icon">🆘</div>
         <div class="nav-label">Помощь</div>
       </button>
     </nav>
-  </main>
 
-  <section class="modal modal--md" id="therapy-modal" hidden aria-hidden="true">
+    <section class="modal modal--md" id="therapy-modal" hidden aria-hidden="true">
     <div class="modal__backdrop" data-close-modal></div>
 
     <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="therapyTitle">
@@ -331,6 +330,8 @@
       </footer>
     </div>
   </section>
+
+  </main>
 
 <script>
 (function setAppContentWidth(){
@@ -860,7 +861,8 @@
           checkNotificationPermission();
           scheduleNotifications();
           switchPage('calendar');
-          document.getElementById('recordMoodBtn')?.addEventListener('click', openMoodSlider);
+          (document.getElementById('openMoodModalBtn') || document.getElementById('recordMoodBtn'))?.addEventListener('click', openMoodSlider);
+          const prevMonthBtn = document.getElementById('prevMonthBtn') || document.getElementById('prevMonth');
           const prevMonthBtn = document.getElementById('prevMonth');
           if (prevMonthBtn) {
             prevMonthBtn.addEventListener('click', (event) => {
@@ -868,7 +870,7 @@
               navigateMonth(-1);
             });
           }
-          const nextMonthBtn = document.getElementById('nextMonth');
+          const nextMonthBtn = document.getElementById('nextMonthBtn') || document.getElementById('nextMonth');
           if (nextMonthBtn) {
             nextMonthBtn.addEventListener('click', (event) => {
               event.preventDefault();
@@ -1703,4 +1705,5 @@
     <script src="/app-core.js" defer></script>
 </body>
 </html>
+
 
