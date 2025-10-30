@@ -2169,3 +2169,149 @@ a, .link { color: var(--brand); text-decoration: none; }
   padding: var(--space-3) var(--space-3);
   text-align: center;
 }
+/* ====== БАЗА / контейнер приложения ====== */
+html,body{ height:100%; }
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font: 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.app-core, #appRoot, main.app{
+  max-width: var(--app-max);
+  margin: 0 auto;
+  padding: var(--space-4);
+}
+
+/* шапка с капсулами */
+.app-header{
+  position: sticky; top:0; z-index: 10;
+  background: linear-gradient(180deg,var(--bg),color-mix(in oklab, var(--bg) 90%, transparent));
+  padding: var(--space-4) var(--space-4) var(--space-2);
+}
+.pillbar{
+  display:flex; gap:var(--space-3);
+  background: var(--surface-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-2);
+  box-shadow: var(--shadow);
+}
+
+/* ====== КНОПКИ (общие) ====== */
+.btn{
+  -webkit-appearance:none; appearance:none;
+  border: 1px solid var(--stroke);
+  background: var(--primary);
+  color: var(--primary-contrast);
+  border-radius: var(--radius-2);
+  padding: 12px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .04s ease, background .2s ease, color .2s ease, border-color .2s ease;
+}
+.btn:active{ transform: translateY(1px); }
+.btn.secondary{
+  background: var(--surface-1);
+  color: var(--text);
+}
+
+/* ====== КАЛЕНДАРЬ ====== */
+
+/* заголовок месяца + стрелки */
+.calendar-head{
+  display:flex; align-items:center; justify-content:center; gap:var(--space-3);
+  margin: var(--space-3) 0 var(--space-2);
+}
+.nav-btn{
+  -webkit-appearance:none; appearance:none;
+  border: 1px solid var(--stroke);
+  background: var(--surface-1);
+  color: var(--text);
+  width: 28px; height: 28px; border-radius: var(--radius-1);
+  display:grid; place-items:center; cursor:pointer;
+}
+
+/* сетка */
+.calendar{
+  background: var(--surface-1);
+  border-radius: var(--radius-2);
+  box-shadow: var(--shadow);
+  padding: var(--space-3);
+}
+.calendar-weekdays{
+  display:grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  color: var(--text-muted);
+  font-size: 12px;
+  text-align:center;
+}
+.calendar-grid{
+  display:grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-2);
+}
+
+/* кнопки дней */
+.day, .calendar-day, .day-btn, button[data-role="day"]{
+  -webkit-appearance:none; appearance:none;
+  border: 1px solid var(--stroke);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 14px 0;
+  text-align:center;
+  cursor:pointer;
+  font-weight: 600;
+  min-height: 44px;
+}
+
+/* состояния дней (универсально: по классам ИЛИ по data-атрибутам) */
+.day.today, .calendar-day.today, .day-btn.today,
+button[data-role="day"][data-today="1"]{
+  background: var(--ochre);
+  color: var(--today-ink);
+  border-color: transparent;
+}
+
+.day.pos, .calendar-day.pos, .day-btn.pos,
+button[data-score="pos"]{ background: var(--pos); color:#001612; border-color:transparent; }
+
+.day.neg, .calendar-day.neg, .day-btn.neg,
+button[data-score="neg"]{ background: var(--neg); color:#001230; border-color:transparent; }
+
+.day.zero, .calendar-day.zero, .day-btn.zero,
+button[data-score="0"]{ background: var(--zero); color:var(--today-ink); border-color:transparent; }
+
+/* «квадратик» выделенный красной рамкой (сегодня/выбранный) */
+.day.is-selected, .calendar-day.is-selected, .day-btn.is-selected,
+button[data-selected="1"]{
+  outline: 2px solid color-mix(in oklab, var(--text) 25%, transparent);
+  outline-offset: 1px;
+}
+
+/* нижние кнопки */
+.cta-wrap{
+  margin: var(--space-4) 0 var(--space-5);
+  display:flex; flex-direction:column; gap: var(--space-3);
+}
+.cta-wrap .btn{ width:100%; }
+
+/* ====== МОДАЛКИ (если надо) ====== */
+.modal{
+  position: fixed; inset:0;
+  display:none; place-items:center;
+  background: color-mix(in oklab, var(--bg) 40%, transparent);
+  z-index: 999;
+}
+.modal.open{ display:grid; }
+.modal-card{
+  width: min(100% - 32px, 420px);
+  background: var(--surface-1);
+  color: var(--text);
+  border-radius: var(--radius-2);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
