@@ -22,7 +22,7 @@
     
     
 </head>
-<body data-theme="light">␊
+<body data-theme="light">
   <main class="app-core" id="appRoot">
     <div class="pwa-hint hidden install-prompt" id="installPrompt" style="padding:12px 16px; max-width:420px; margin:0 auto;">
       <div style="font-size:14px; font-weight:600; display:flex; align-items:center; gap:6px;">
@@ -854,7 +854,7 @@
          // Initialize app
         document.addEventListener('DOMContentLoaded', async function() {
          if (typeof runMigrationsIfNeeded === 'function') {
-           await runMigrationsIfNeeded();   // ← добавили␊
+           await runMigrationsIfNeeded();   // ← добавили
          }
           setupThemeToggle();
           loadData();
@@ -1706,6 +1706,7 @@
     <script src="/app-core.js" defer></script>
 </body>
 </html>
+
 
 
 
