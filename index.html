@@ -39,32 +39,34 @@
       </div>
     </div>
 
-    <section class="app-header">
-      <div class="header-left">
-        <div class="badge-today" id="todayScoreBadge" aria-live="polite">
-          Сегодня: <span id="todayScoreValue">0</span> / <span id="todayScoreLimit">50</span>
+  <header class="app-header">
+      <div class="pillbar">
+        <div class="header-left">
+          <div class="badge-today" id="todayScoreBadge" aria-live="polite">
+            Сегодня: <span id="todayScoreValue">0</span> / <span id="todayScoreLimit">50</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="theme-toggle theme-toggle__knob" id="themeToggle" type="button" aria-pressed="false" title="Сменить тему">
+            <span class="theme-toggle__icon theme-toggle__icon--moon" aria-hidden="true">🌙</span>
+            <span class="theme-toggle__label">Тема</span>
+            <span class="theme-toggle__icon theme-toggle__icon--sun" aria-hidden="true">☀️</span>
+          </button>
         </div>
       </div>
-      <div class="header-right">
-        <button class="theme-toggle theme-toggle__knob" id="themeToggle" type="button" aria-pressed="false" title="Сменить тему">
-          <span class="theme-toggle__icon theme-toggle__icon--moon" aria-hidden="true">🌙</span>
-          <span class="theme-toggle__label">Тема</span>
-          <span class="theme-toggle__icon theme-toggle__icon--sun" aria-hidden="true">☀️</span>
-        </button>
-      </div>
-    </section>
+    </header>
 
     <section class="calendar-page" id="calendarPage">
-      <section class="month-nav">
-        <button class="btn--icon" id="prevMonthBtn" type="button" aria-label="Предыдущий месяц">←</button>
+      <section class="month-nav calendar-head">
+        <button class="btn--icon nav-btn" id="prevMonthBtn" type="button" aria-label="Предыдущий месяц">←</button>
         <div class="month-nav__title-group">
           <div class="month-title" id="monthTitle"></div>
         </div>
-        <button class="btn--icon" id="nextMonthBtn" type="button" aria-label="Следующий месяц">→</button>
+        <button class="btn--icon nav-btn" id="nextMonthBtn" type="button" aria-label="Следующий месяц">→</button>
       </section>
 
       <section class="calendar">
-        <div class="weekdays" id="weekdaysRow">
+        <div class="weekdays calendar-weekdays" id="weekdaysRow">
           <div class="weekday">Вс</div>
           <div class="weekday">Пн</div>
           <div class="weekday">Вт</div>
@@ -73,10 +75,10 @@
           <div class="weekday">Пт</div>
           <div class="weekday">Сб</div>
         </div>
-        <div class="month-grid" id="daysGrid"></div>
+        <div class="month-grid calendar-grid" id="daysGrid"></div>
       </section>
 
-      <section class="calendar-cta">
+      <section class="calendar-cta cta-wrap">
         <button id="openMoodModalBtn" type="button" class="btn btn--primary btn--xl" data-open-modal="#mood-modal">
           Записать настроение
         </button>
@@ -1704,6 +1706,7 @@
     <script src="/app-core.js" defer></script>
 </body>
 </html>
+
 
 
 
