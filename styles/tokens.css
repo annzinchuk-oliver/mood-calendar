@@ -19,7 +19,7 @@
 
   /* Radii */
   --radius-1: 8px;
-  --radius-2: 12px;
+  --radius-2: 14px;
   --radius-3: 16px;
   --radius-pill: 9999px;
   --radius-round: 999px;
@@ -47,23 +47,23 @@
   --shadow: 0 8px 24px rgba(0,0,0,.25);
 
   /* Base colors (dark theme by default) */
-  --bg: #0f1114;
-  --surface-1: #151922;
-  --surface-2: #1d2330;
-  --surface-3: color-mix(in oklab, var(--surface-2) 88%, #060708 12%);
+  --bg: #f6f7fb;
+  --surface-1: #ffffff;
+  --surface-2: #f1f3f8;
+  --surface-3: color-mix(in oklab, #ffffff 94%, #0b121a 6%);
   --surface: var(--surface-1);
   --card: var(--surface-1);
 
-  --text: #e9edf1;
+  --text: #0f1728;
   --text-primary: var(--text);
-  --text-muted: #a7afbc;
+  --text-muted: #64708a;
   --text-secondary: var(--text-muted);
 
-  --stroke: rgba(255,255,255,.08);
+  --stroke: rgba(0,0,0,.08);
   --divider: var(--stroke);
   --border: var(--stroke);
   --line: var(--stroke);
-  --hover: color-mix(in oklab, var(--surface-2) 92%, var(--text) 8%);
+  --hover: rgba(15, 19, 32, .08);
 
   --primary: #6a4dfb;
   --primary-contrast: #ffffff;
@@ -84,7 +84,7 @@
   --today-ink: #ffffff;
   --day-ink-on-ochre: var(--today-ink);
 
- --pos: #25d39a;
+  --pos: #23d39a;
   --neg: #4b7bff;
   --zero: var(--ochre);
 
@@ -97,20 +97,20 @@
   --mood-sad: var(--neg);
 
   --palette-surface: var(--surface-1);
-  --palette-surface-variant: #0f1318;
+  --palette-surface-variant: #f5f7fb;
   --palette-bg: var(--surface-2);
   --palette-text: var(--text);
   --palette-text-muted: var(--text-muted);
-  --palette-border: rgba(255,255,255,.14);
-  --palette-border-strong: rgba(233, 237, 241, .22);
-  --palette-hover: rgba(255,255,255,.06);
-  --palette-good: #3adc70;
-  --palette-neutral: #facc56;
-  --palette-sad: #7da7ff;
-  
-  --day-border: color-mix(in oklab, #000 40%, transparent);
-  --day-bg: var(--surface-2);
-  --calendar-text-contrasted: #ffffff;
+  --palette-border: rgba(0,0,0,.12);
+  --palette-border-strong: #c3c9d4;
+  --palette-hover: rgba(15, 19, 32, .08);
+  --palette-good: #22c55e;
+  --palette-neutral: #eab308;
+  --palette-sad: #3b82f6;
+
+  --day-border: rgba(15, 18, 26, .08);
+  --day-bg: #ffffff;
+  --calendar-text-contrasted: #111214;
 
   --bucket-pos50: #016e29;
   --bucket-pos40: color-mix(in srgb, #016e29 80%, #ffffff 20%);
@@ -132,15 +132,15 @@
 
     /* Misc */
   --modal-bg: var(--card);
-  --chip-bg: rgba(233, 237, 241, .06);
-  --chip-bg-hover: rgba(233, 237, 241, .12);
+  --chip-bg: rgba(15, 18, 26, .05);
+  --chip-bg-hover: rgba(15, 18, 26, .09);
   --btn-primary: var(--primary);
   --btn-primary-ink: var(--primary-contrast);
-  --btn-ring: rgba(0,0,0,.3);
+  --btn-ring: rgba(79, 70, 229, .24);
 
-    --axis-color: #5f6368;
-  --grid-weak: rgba(233, 237, 241, .18);
-  --grid-zero: rgba(233, 237, 241, .55);
+  --axis-color: #5f6368;
+  --grid-weak: rgba(0,0,0,.08);
+  --grid-zero: rgba(0,0,0,.55);
   
   --slider-blue: #3b82f6;
   --slider-green: #22c55e;
@@ -151,16 +151,16 @@
 
 :root[data-theme="light"],
 body[data-theme="light"] {
-  --bg: #f5f7fb;
+  --bg: #f6f7fb;
   --surface-1: #ffffff;
-  --surface-2: #f1f3f7;
+  --surface-2: #f1f3f8;
   --surface-3: color-mix(in oklab, #ffffff 94%, #0b121a 6%);
   --surface: var(--surface-1);
   --card: var(--surface-1);
 
-  --text: #0e1320;
+  --text: #0f1728;
   --text-primary: var(--text);
-  --text-muted: #5a6578;
+  --text-muted: #64708a;
   --text-secondary: var(--text-muted);
 
   --stroke: rgba(0,0,0,.08);
@@ -187,28 +187,28 @@ body[data-theme="light"] {
 
   --chip-bg: rgba(15, 18, 26, .05);
   --chip-bg-hover: rgba(15, 18, 26, .09);
-  --btn-ring: rgba(79, 70, 229, .24)
+  --btn-ring: rgba(79, 70, 229, .24);
 
   --axis-color: #5f6368;
   --grid-weak: rgba(0,0,0,.08);
   --grid-zero: rgba(0,0,0,.55);
 }
-
+html[data-theme="dark"],
 :root[data-theme="dark"],
 body[data-theme="dark"] {
-  --bg: #0f1114;
-  --surface-1: #151922;
-  --surface-2: #1d2330;
+  --bg: #0f1116;
+  --surface-1: #151a22;
+  --surface-2: #1c2330;
   --surface-3: color-mix(in oklab, var(--surface-2) 88%, #060708 12%);
   --surface: var(--surface-1);
   --card: var(--surface-1);
 
-  --text: #e9edf1;
+  --text: #e7ebf2;
   --text-primary: var(--text);
-  --text-muted: #a7afbc;
+  --text-muted: #a5aebb;
   --text-secondary: var(--text-muted);
 
-  --stroke: rgba(255,255,255,.08);
+  --stroke: rgba(255,255,255,.1);
   --divider: var(--stroke);
   --border: var(--stroke);
   --line: var(--stroke);
