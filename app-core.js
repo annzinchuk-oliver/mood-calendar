@@ -1163,12 +1163,7 @@ if (document.readyState === 'loading') {
       : 0;
     todayScoreValueEl.textContent = String(Math.round(total));
     if (todayScoreBadgeEl) {
-      const bucket = computeBucket(entries);
-      if (bucket) {
-        todayScoreBadgeEl.setAttribute('data-bucket', bucket);
-      } else {
-        todayScoreBadgeEl.removeAttribute('data-bucket');
-      }
+   todayScoreBadgeEl.removeAttribute('data-bucket');
     }
   }
 
