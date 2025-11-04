@@ -216,7 +216,7 @@
         </div>
       </div>
 
-      <footer class="modal__footer">
+      <footer class="modal__footer modal-actions">
         <button type="button" class="btn btn-primary" data-close-modal>Закрыть</button>
       </footer>
     </div>
@@ -243,7 +243,7 @@
         </div>
       </div>
 
-      <footer class="modal__footer">
+      <footer class="modal__footer modal-actions">
         <button type="button" class="btn btn-primary" data-close-modal>Закрыть</button>
       </footer>
     </div>
@@ -278,7 +278,7 @@
         </div>
       </div>
 
-      <footer class="modal__footer">
+      <footer class="modal__footer modal-actions">
         <button type="button" class="btn btn-primary" data-close-modal>Закрыть</button>
       </footer>
     </div>
@@ -311,11 +311,11 @@
 
           <hr class="section-divider" />
 
-          <div id="overall-range-tabs" class="range-tabs" role="tablist" aria-label="Диапазон общей статистики">
-            <button type="button" class="tab active" data-range="3d" role="tab" aria-selected="true">3 дня</button>
-            <button type="button" class="tab" data-range="7d" role="tab" aria-selected="false">Неделя</button>
-            <button type="button" class="tab" data-range="1m" role="tab" aria-selected="false">Месяц</button>
-            <button type="button" class="tab" data-range="all" role="tab" aria-selected="false">Все время</button>
+          <div id="overall-range-tabs" class="range-tabs segmented" role="tablist" aria-label="Диапазон общей статистики">
+            <button type="button" class="tab seg active" data-range="3d" role="tab" aria-selected="true">3 дня</button>
+            <button type="button" class="tab seg" data-range="7d" role="tab" aria-selected="false">Неделя</button>
+            <button type="button" class="tab seg" data-range="1m" role="tab" aria-selected="false">Месяц</button>
+            <button type="button" class="tab seg" data-range="all" role="tab" aria-selected="false">Все время</button>
           </div>
 
           <section class="card" id="overall-stats">
@@ -327,7 +327,7 @@
         </div>
       </div>
 
-      <footer class="modal__footer">
+      <footer class="modal__footer modal-actions">
         <button type="button" class="btn btn-primary" data-close-modal>Закрыть</button>
       </footer>
     </div>
@@ -1706,6 +1706,7 @@
     <script src="/app-core.js" defer></script>
 </body>
 </html>
+
 
 
 
