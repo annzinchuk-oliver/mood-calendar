@@ -1249,8 +1249,29 @@ if (document.readyState === 'loading') {
       }
       rerender();
     });
+
+    
     nextBtn.dataset.bound = '1';
   }
 
   rerender();
 })();
+
+document.addEventListener('DOMContentLoaded', () => {
+  const cal = document.getElementById('calendar') ||
+              document.querySelector('[data-calendar]') ||
+              document.querySelector('.calendar') ||
+              document.querySelector('.calendar-wrap');
+
+  if (cal && !cal.classList.contains('calendar')) cal.classList.add('calendar');
+
+  // помечаем сегодняшнюю дату, если движок её не пометил
+  const todayISO = new Date().toISOString().slice(0,10);
+  const dayBtns = cal ? cal.querySelectorAll('button, .day, .calendar-day, [data-day]') : [];
+  dayBtns.forEach(btn => {
+    // если у узла есть дата
+    const ds = btn.dataset?.date || btn.getAttribute?.('data-date');
+    if (!btn.classList.contains('day')) btn.classList.add('day');
+    if (ds === todayISO && !btn.dataset.today) btn.dataset.today = '1';
+  });
+});
